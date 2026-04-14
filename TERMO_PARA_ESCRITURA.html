@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Vistoria para Escritura - SEMURFH</title>
+    <style>
+        :root { --blue-semur: #2c3e50; --accent: #2980b9; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f2f6; display: flex; gap: 20px; padding: 20px; margin: 0; min-height: 100vh; }
+        
+        #btn_home { 
+            position: fixed; top: 10px; left: 20px; 
+            padding: 10px; background: var(--blue-semur); 
+            color: white; border: none; border-radius: 50%; 
+            cursor: pointer; z-index: 1000; text-decoration: none; 
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        #btn_home:hover { background: var(--accent); transform: scale(1.1); }
+
+        .panel { flex: 0.8; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; height: 92vh; margin-top: 45px; }
+        
+        .aba-retratil { background-color: #eee; color: #444; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; font-size: 13px; font-weight: bold; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between; transition: 0.2s; }
+        .active, .aba-retratil:hover { background-color: var(--blue-semur); color: white; }
+        .conteudo-aba { padding: 10px 15px; display: none; background-color: white; border: 1px solid #ddd; border-top: none; overflow: hidden; border-radius: 0 0 5px 5px; }
+
+        label { display: block; font-size: 10px; font-weight: bold; margin-top: 8px; color: var(--blue-semur); text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; font-size: 13px; }
+        .row-flex { display: flex; gap: 5px; }
+
+        .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 45px; }
+        .document { 
+            background: white; width: 210mm; min-height: 297mm; 
+            padding: 1.0cm 2.0cm 1.5cm 3.0cm; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.3); box-sizing: border-box; position: relative; 
+            display: flex; flex-direction: column;
+        }
+
+        .header-table { width: 100%; border-collapse: collapse; border-bottom: 1px solid #000; margin-bottom: 5px; }
+        .logo-img { width: 60px; height: 85px; object-fit: contain; }
+        .td-text { text-align: center; line-height: 1.1; padding-right: 60px; }
+        .td-text h2 { font-size: 14px; margin: 0; text-transform: uppercase; }
+        .td-text h3 { font-size: 13px; margin: 0; font-weight: normal; }
+
+        .doc-body p { margin: 8px 0; line-height: 1.5; text-align: justify; font-size: 15px; text-indent: 1.25cm; }
+        
+        .constatacao-list { margin-left: 1.25cm; padding-left: 20px; list-style-type: disc; margin-top: 0; margin-right: 0; }
+        .constatacao-list li { font-size: 15px; text-align: justify; margin-bottom: 5px; line-height: 1.5; word-wrap: break-word; }
+
+        .loc-center { text-align: center !important; font-weight: bold; margin: 15px 0 !important; font-size: 16px; border: 1px solid #eee; padding: 5px; text-indent: 0 !important; }
+        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 17px; text-indent: 0 !important; }
+        
+        .foto-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; page-break-inside: avoid; }
+        .foto-moldura { 
+            border: 1px solid #ccc; 
+            height: 160px; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            background: #fcfcfc; 
+            overflow: hidden; 
+        }
+        .foto-moldura img { max-width: 100%; max-height: 100%; object-fit: cover; }
+
+        .footer-wrap { page-break-inside: avoid; margin-top: 20px; width: 100%; }
+        
+        #out_data_footer { text-align: right; margin-top: 20px; font-size: 15px; }
+        
+        .signature { margin-top: 40px; text-align: center; font-size: 14px; width: 100%; }
+        .signature p { margin: 0; line-height: 1.2; text-indent: 0 !important; text-align: center !important; }
+        
+        .footer-note { position: absolute; bottom: 1.0cm; left: 2.0cm; right: 2.0cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
+
+        @media print { 
+            .panel, #btn_home { display: none !important; } 
+            .preview-container { background: white; padding: 0; margin-top: 0; } 
+            .document { box-shadow: none; margin: 0; width: 100%; } 
+            .footer-note { position: fixed; bottom: 1.0cm; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="index.html" id="btn_home">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+</a>
+
+<div class="panel">
+    <h2 style="color: var(--accent); text-align: center; margin-bottom: 20px;">📋 VISTORIA PARA ESCRITURA</h2>
+    
+    <label>Fiscal Responsável</label>
+    <select id="sel_fiscal" onchange="atualizarAssinatura()"></select>
+
+    <label>Data do Documento</label>
+    <input type="date" id="in_data_doc" oninput="update()">
+
+    <button class="aba-retratil">1. PROCESSO / ASSUNTO <span>▼</span></button>
+    <div class="conteudo-aba">
+        <input type="text" id="in_proc" placeholder="Nº do Processo" oninput="update()">
+        <input type="text" id="in_nome" placeholder="Nome do Requerente" oninput="update()">
+        <label>Assunto</label>
+        <input type="text" id="in_assunto" value="AUTORIZAÇÃO PARA LAVRATURA DE ESCRITURA PÚBLICA" oninput="update()">
+    </div>
+
+    <button class="aba-retratil">2. DATA E HORA VISTORIA <span>▼</span></button>
+    <div class="conteudo-aba">
+        <div class="row-flex">
+            <input type="date" id="rel_data" oninput="update()">
+            <input type="time" id="rel_hora" oninput="update()">
+        </div>
+    </div>
+
+    <button class="aba-retratil">3. LOCALIZAÇÃO <span>▼</span></button>
+    <div class="conteudo-aba">
+        <div class="row-flex">
+            <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
+            <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
+            <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+        </div>
+    </div>
+
+    <button class="aba-retratil">4. DOCUMENTOS DE REFERÊNCIA <span>▼</span></button>
+    <div class="conteudo-aba">
+        <label>Requerimento</label>
+        <div class="row-flex">
+            <input type="text" id="req_fls" placeholder="Fls." oninput="update()">
+            <input type="text" id="req_id" placeholder="ID" oninput="update()">
+        </div>
+        <label>Certidão de Inteiro Teor</label>
+        <div class="row-flex">
+            <input type="text" id="it_fls" placeholder="Fls." oninput="update()">
+            <input type="text" id="it_id" placeholder="ID" oninput="update()">
+        </div>
+        <label>Mapa</label>
+        <div class="row-flex">
+            <input type="text" id="mapa_fls" placeholder="Fls." oninput="update()">
+            <input type="text" id="mapa_id" placeholder="ID" oninput="update()">
+        </div>
+        <label>OSF</label>
+        <div class="row-flex">
+            <input type="text" id="osf_num" placeholder="Nº OSF" oninput="update()">
+            <input type="text" id="osf_id" placeholder="ID OSF" oninput="update()">
+        </div>
+    </div>
+
+    <button class="aba-retratil">5. EDIFICAÇÃO / DIVISAS <span>▼</span></button>
+    <div class="conteudo-aba">
+        <label>O Lote é edificado?</label>
+        <select id="sel_edificado" onchange="toggleEdificacaoEscritura()">
+            <option value="nao">Não (Lote Vago)</option>
+            <option value="sim">Sim (Possui Edificação)</option>
+        </select>
+        <div id="div_material_escritura" style="display:none; margin-top: 10px;">
+            <label>Material</label>
+            <select id="sel_material_esc" onchange="toggleOutroMaterial()">
+                <option value="em alvenaria">Alvenaria</option>
+                <option value="em madeira">Madeira</option>
+                <option value="em concreto armado">Concreto Armado</option>
+                <option value="de forma mista">Mista</option>
+                <option value="outro">Outro</option>
+            </select>
+            <input type="text" id="in_outro_material" placeholder="Especifique o material" style="display:none; margin-top:5px;" oninput="update()">
+        </div>
+        <label>Divisas</label>
+        <select id="sel_divisas_esc" onchange="update()">
+            <option value="O lote possui divisas materializadas.">Possui divisas materializadas</option>
+            <option value="O lote não possui divisas materializadas.">Não possui divisas materializadas</option>
+        </select>
+    </div>
+
+    <button class="aba-retratil">6. MÉTODO DE CONFERÊNCIA <span>▼</span></button>
+    <div class="conteudo-aba">
+        <label>Selecione o Método Utilizado</label>
+        <select id="sel_metodo_tipo" onchange="toggleMetodoCustom()">
+            <option value="manual com o uso de trena a laser">Trena a Laser</option>
+            <option value="manual com o uso de trena de fibra">Trena de Fibra</option>
+            <option value="com o uso de Teodolito">Teodolito</option>
+            <option value="eletrônico com o uso de Estação Total">Estação Total</option>
+            <option value="remoto por análise de imagem">Por Imagem</option>
+            <option value="com o uso de GPS Geodésico">GPS Geodésico</option>
+            <option value="outro">Outro (Digitar abaixo)</option>
+        </select>
+        <div id="div_metodo_custom" style="display:none; margin-top:10px;">
+            <label>Descreva o método personalizado</label>
+            <input type="text" id="in_metodo_custom" placeholder="Descreva o método..." oninput="update()">
+        </div>
+    </div>
+
+    <button class="aba-retratil">7. OBSERVAÇÃO LIVRE <span>▼</span></button>
+    <div class="conteudo-aba">
+        <label>Texto Livre</label>
+        <textarea id="in_obs_livre" rows="4" placeholder="Observações adicionais de campo..." oninput="update()"></textarea>
+    </div>
+
+    <button class="aba-retratil">8. RELATÓRIO FOTOGRÁFICO <span>▼</span></button>
+    <div class="conteudo-aba">
+        <label>Foto 1</label><input type="file" accept="image/*" onchange="previewImage(event, 'img_1', 'box_1')">
+        <label>Foto 2</label><input type="file" accept="image/*" onchange="previewImage(event, 'img_2', 'box_2')">
+        <label>Foto 3</label><input type="file" accept="image/*" onchange="previewImage(event, 'img_3', 'box_3')">
+        <label>Foto 4</label><input type="file" accept="image/*" onchange="previewImage(event, 'img_4', 'box_4')">
+    </div>
+
+    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 25px;" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
+</div>
+
+<div class="preview-container">
+    <div class="document">
+        <table class="header-table">
+            <tr>
+                <td style="width: 60px;"><img src="logo.jpg" class="logo-img"></td>
+                <td class="td-text">
+                    <h2>Estado de Rondônia</h2>
+                    <h2>Prefeitura Municipal de Ji-Paraná</h2>
+                    <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
+                </td>
+            </tr>
+        </table>
+        
+        <div class="doc-title">TERMO DE VISTORIA</div>
+        
+        <div class="doc-body">
+            <p style="text-indent: 0;"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
+            <p style="text-indent: 0;"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
+            <p style="text-indent: 0;"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
+            
+            <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
+            
+            <div id="out_paragrafo_tecnico"></div>
+            
+            <p>Durante a vistoria, foi constatado que:</p>
+            <ul class="constatacao-list">
+                <li id="out_edificacao"></li>
+                <li id="out_divisas"></li>
+                <li>As medidas e a localização do lote conferem com o Memorial Descritivo e o Mapa.</li>
+                <li id="out_obs_item" style="display:none;"><span id="out_obs_texto"></span></li>
+            </ul>
+
+            <div class="foto-container">
+                <div id="box_1" class="foto-moldura"><img id="img_1" src=""></div>
+                <div id="box_2" class="foto-moldura"><img id="img_2" src=""></div>
+                <div id="box_3" class="foto-moldura"><img id="img_3" src=""></div>
+                <div id="box_4" class="foto-moldura"><img id="img_4" src=""></div>
+            </div>
+
+            <div class="footer-wrap">
+                <p>Diante do exposto, encaminha-se ao setor de cadastro para o prosseguimento que o caso requer. Sendo o que tinha a relatar, OSF encerrada.</p>
+                
+                <div id="out_data_footer"></div>
+
+                <div class="signature">
+                    <p>Assinado Eletronicamente</p>
+                    <p><strong id="out_nome_fiscal">Edinei Vicente de Carvalho Sousa</strong></p>
+                    <p id="out_funcao_fiscal">Fiscal de Obras e Serviços Públicos</p>
+                    <p id="out_cad_fiscal">Cad: nº 8.273</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – 02 de Abril - Ji-Paraná – Rondônia.</div>
+    </div>
+</div>
+
+<script>
+    const listaFiscais = [
+        { id: 1, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de Regularização Fundiária e Habitação", cad: "Decreto n° 033/GAB/PMJP/2025" },
+        { id: 2, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        { id: 3, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
+        { id: 4, nome: "Glodovil Carvalho Filho", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.185" },
+        { id: 5, nome: "Cleberson Pereira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.344" },
+        { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
+        { id: 7, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" }
+    ];
+
+    window.onload = function() {
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('in_data_doc').value = hoje;
+        document.getElementById('rel_data').value = hoje;
+        const select = document.getElementById('sel_fiscal');
+        listaFiscais.forEach(f => {
+            let opt = document.createElement('option');
+            opt.value = f.id; opt.text = f.nome; select.add(opt);
+        });
+        select.value = 2; 
+        atualizarAssinatura();
+        document.querySelectorAll('.aba-retratil').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                panel.style.display = (panel.style.display === "block") ? "none" : "block";
+            });
+        });
+        update();
+    };
+
+    function previewImage(event, imgId, boxId) {
+        const reader = new FileReader();
+        const imgElement = document.getElementById(imgId);
+        const boxElement = document.getElementById(boxId);
+        reader.onload = function() { 
+            imgElement.src = reader.result; 
+            boxElement.style.display = "flex"; 
+        }
+        if(event.target.files[0]) { reader.readAsDataURL(event.target.files[0]); }
+        else { imgElement.src = ""; boxElement.style.display = "none"; }
+    }
+
+    function toggleEdificacaoEscritura() {
+        document.getElementById('div_material_escritura').style.display = (document.getElementById('sel_edificado').value === 'sim') ? 'block' : 'none';
+        update();
+    }
+
+    function toggleOutroMaterial() {
+        document.getElementById('in_outro_material').style.display = (document.getElementById('sel_material_esc').value === 'outro') ? 'block' : 'none';
+        update();
+    }
+
+    function toggleMetodoCustom() {
+        const sel = document.getElementById('sel_metodo_tipo').value;
+        document.getElementById('div_metodo_custom').style.display = (sel === 'outro') ? 'block' : 'none';
+        update();
+    }
+
+    function atualizarAssinatura() {
+        const f = listaFiscais.find(x => x.id == document.getElementById('sel_fiscal').value);
+        if (f) {
+            document.getElementById('out_nome_fiscal').innerText = f.nome;
+            document.getElementById('out_funcao_fiscal').innerText = f.funcao;
+            document.getElementById('out_cad_fiscal').innerText = f.cad.startsWith("Decreto") ? f.cad : "Cad: " + f.cad;
+        }
+        update();
+    }
+
+    function update() {
+        document.getElementById('out_proc').innerText = document.getElementById('in_proc').value || "_________";
+        document.getElementById('out_nome').innerText = document.getElementById('in_nome').value || "_________";
+        document.getElementById('out_assunto').innerText = document.getElementById('in_assunto').value || "_________";
+        document.getElementById('out_setor').innerText = document.getElementById('loc_setor').value || "__";
+        document.getElementById('out_quadra').innerText = document.getElementById('loc_quadra').value || "__";
+        document.getElementById('out_lote').innerText = document.getElementById('loc_lote').value || "__";
+
+        const dtDoc = document.getElementById('in_data_doc').value.split('-');
+        if(dtDoc.length === 3) {
+            const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+            document.getElementById('out_data_footer').innerText = `Ji-Paraná, ${parseInt(dtDoc[2])} de ${meses[parseInt(dtDoc[1])-1]} de ${dtDoc[0]}.`;
+        }
+
+        const dV = document.getElementById('rel_data').value.split('-').reverse().join('/') || "__/__/____";
+        const hV = document.getElementById('rel_hora').value || "__:__";
+        const rF = document.getElementById('req_fls').value || "___"; 
+        const rI = document.getElementById('req_id').value || "___";
+        const iF = document.getElementById('it_fls').value || "___"; 
+        const iI = document.getElementById('it_id').value || "___";
+        const mF = document.getElementById('mapa_fls').value || "___"; 
+        const mI = document.getElementById('mapa_id').value || "___";
+        const oN = document.getElementById('osf_num').value || "___"; 
+        const oI = document.getElementById('osf_id').value || "___";
+
+        const selMetodo = document.getElementById('sel_metodo_tipo').value;
+        const metodoFinal = (selMetodo === 'outro') ? document.getElementById('in_metodo_custom').value : selMetodo;
+
+        document.getElementById('out_paragrafo_tecnico').innerHTML = `
+            <p>Vistoria in loco realizada em ${dV} às ${hV}, conforme informações do requerimento (fls. ${rF} / ID: ${rI}), certidão de inteiro teor (fls. ${iF} / ID: ${iI}), mapa (fls. ${mF} / ID: ${mI}), em atendimento à OSF Nº ${oN} (ID: ${oI}).</p>
+            <p>Para a conferência das medidas foi usado método ${metodoFinal || "__________"}.</p>
+        `;
+
+        const matS = document.getElementById('sel_material_esc').value;
+        const matFinal = (matS === 'outro') ? document.getElementById('in_outro_material').value : matS;
+        document.getElementById('out_edificacao').innerText = (document.getElementById('sel_edificado').value === 'sim') ? `O lote encontra-se edificado com uma construção ${matFinal || "______"}.` : "O lote encontra-se vago (sem edificação).";
+        document.getElementById('out_divisas').innerText = document.getElementById('sel_divisas_esc').value;
+
+        const obs = document.getElementById('in_obs_livre').value;
+        if(obs.trim() !== "") {
+            document.getElementById('out_obs_item').style.display = 'list-item';
+            document.getElementById('out_obs_texto').innerText = obs;
+        } else { document.getElementById('out_obs_item').style.display = 'none'; }
+    }
+</script>
+</body>
+</html>
