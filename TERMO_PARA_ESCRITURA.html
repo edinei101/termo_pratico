@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Lavratura de Escritura - SEMURFH</title>
+    <style>
+        :root { 
+            --blue-semur: rgb(44, 62, 80); 
+            --gray-light: rgb(238, 238, 238); 
+        }
+        
+        /* Layout Geral (Tela) */
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f2f6; display: flex; gap: 20px; padding: 20px; margin: 0; }
+        
+        .panel { flex: 0 0 350px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); height: fit-content; max-height: 95vh; overflow-y: auto; position: sticky; top: 20px; }
+        
+        .accordion { background-color: var(--gray-light); color: #333; cursor: pointer; padding: 12px; width: 100%; border: 1px solid #ddd; text-align: left; font-size: 13px; font-weight: bold; border-radius: 6px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .active, .accordion:hover { background-color: var(--blue-semur); color: white; }
+        .panel-content { padding: 0 10px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-left: 2px solid var(--blue-semur); }
+        
+        .group-box { padding: 10px 0; }
+        label { display: block; font-size: 10px; font-weight: bold; margin-bottom: 3px; color: var(--blue-semur); text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 7px; border: 1.5px solid #dcdde1; border-radius: 6px; font-size: 13px; box-sizing: border-box; margin-bottom: 8px; font-family: inherit; }
+        .row-flex { display: flex; gap: 8px; margin-bottom: 4px; }
+        .row-flex div { flex: 1; }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; }
+        .checkbox-item input { width: auto; margin: 0; }
+
+        /* Documento Preview */
+        .preview-container { flex: 1; background: #ced6e0; padding: 20px; display: flex; justify-content: center; }
+        
+        .document { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 0.8cm 1.5cm 1.2cm 2.5cm; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.3); 
+            box-sizing: border-box; 
+            position: relative; 
+            color: #000;
+            overflow: hidden;
+        }
+        
+        .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #000; margin-bottom: 10px; }
+        .logo-img { width: 80px; height: auto; }
+        .logo-img-large { width: 160px; height: auto; } /* Aumentado em 100% (dobro do tamanho original de 80px) */
+        .logo-right { text-align: right; }
+        .td-text { text-align: center; vertical-align: middle; }
+        .td-text h2 { font-size: 16px; margin: 0; text-transform: uppercase; }
+        .td-text h3 { font-size: 14px; margin: 2px 0; font-weight: normal; }
+
+        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 18px; }
+        
+        .tab-tecnica { width: 100%; border-collapse: collapse; margin: 10px 0; table-layout: fixed; page-break-inside: avoid; }
+        .tab-tecnica td { border: 1px solid black; padding: 4px; font-size: 12px; vertical-align: middle; height: 22px; }
+        .col-pergunta { width: 65%; font-weight: bold; }
+        .col-x { width: 7%; text-align: center; font-weight: bold; font-size: 14px; }
+        .col-label { width: 10.5%; text-align: center; }
+        .merged-cell { text-align: center; font-weight: bold; background-color: #f9f9f9; text-transform: uppercase; }
+
+        /* Tabela de Medidas Apuradas no Documento */
+        .tab-medidas-doc { width: 100%; border-collapse: collapse; margin: 6px 0 4px 0; table-layout: fixed; page-break-inside: avoid; }
+        .tab-medidas-doc th, .tab-medidas-doc td { 
+            border: 1px solid #000; 
+            padding: 6px 4px; 
+            font-family: inherit;
+            font-size: 14px; 
+            line-height: 1.4;
+            text-align: center; 
+            word-break: break-word; 
+            white-space: normal;
+            vertical-align: middle;
+        }
+        .tab-medidas-doc th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; width: 25%; }
+        .tab-medidas-doc td.obs-cell {
+            font-style: italic;
+            font-size: 14px;
+            text-align: center;
+            background-color: #f9f9f9;
+            padding: 6px 4px;
+        }
+
+        .doc-body p, .doc-body .text-obs { 
+            margin: 8px 0; 
+            line-height: 1.4; 
+            text-align: justify; 
+            font-size: 14px;
+            text-indent: 1.25cm;
+        }
+
+        .no-indent { text-indent: 0 !important; }
+        .loc-center { text-align: center !important; font-weight: bold; background: #f2f2f2; border: 1px solid #000; margin: 10px 0 !important; text-indent: 0 !important; padding: 5px; }
+
+        /* Estilo para os itens constatados */
+        .doc-body p.item-constatado { 
+            margin: 6px 0; 
+            text-indent: 1.25cm; 
+            text-align: justify;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .text-obs { 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            display: block; 
+            max-height: 5.6em; 
+            overflow: hidden;
+        }
+
+        /* Assinatura e Rodapé */
+        .signature { margin-top: 30px; text-align: center; font-size: 14px; page-break-inside: avoid; font-weight: normal; }
+        .signature p { margin: 1px 0; }
+        
+        .footer-note { position: absolute; bottom: 0.8cm; left: 2.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { background: none; padding: 0; margin: 0; display: block; }
+            .panel { display: none; }
+            .preview-container { padding: 0; background: none; display: block; }
+            .document { 
+                box-shadow: none; 
+                margin: 0; 
+                border: none; 
+                width: 210mm; 
+                height: 297mm; 
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <a href="MENU.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:15px;">⬅ VOLTAR AO MENU</a>
+    
+    <button class="accordion">1. FISCAL E DATAS</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Fiscal Responsável</label>
+            <select id="sel_fiscal" onchange="update()"></select>
+            <label>Data do Documento</label>
+            <input type="date" id="in_data_doc" oninput="update()">
+            <label>Data/Hora da Vistoria</label>
+            <div class="row-flex">
+                <input type="date" id="rel_data" oninput="update()">
+                <input type="time" id="rel_hora" oninput="update()">
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">2. PROCESSO E REQUERENTE</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Nº Processo</label>
+            <input type="text" id="in_proc" oninput="update()">
+            <label>Nome do Requerente</label>
+            <input type="text" id="in_nome" oninput="update()">
+            <label>Assunto</label>
+            <input type="text" id="in_assunto" value="AUTORIZAÇÃO DE LAVRATURA DE ESCRITURA PÚBLICA" oninput="update()">
+        </div>
+    </div>
+
+    <button class="accordion">3. LOCALIZAÇÃO</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <div class="row-flex">
+                <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
+                <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
+                <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">4. QUADRO TÉCNICO</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Status Predial</label>
+            <select id="sel_status_predial" onchange="update()">
+                <option value="NORMAL">Normal (Sim/Não)</option>
+                <option value="LOTE VAGO">Lote Vago</option>
+                <option value="NÚMERO NÃO INFORMADO">Número não informado</option>
+            </select>
+            <label> Número predial corresponde ao lote?</label>
+            <select id="sel_predial_val" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+            <label>O requerente reside no local?</label>
+            <select id="sel_reside" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            <label>A localização no mapa corresponde com o campo?</label>
+            <select id="sel_mapa" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+            <label>As medidas do lote estão corretas?</label>
+            <select id="sel_medidas" onchange="update(); toggleCamposMedidas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+
+            <!-- Painel para entrada das medidas de campo -->
+            <div id="box_medidas_campo" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
+                <label style="color: var(--blue-semur);">Medidas Coletadas em Campo:</label>
+                <div class="row-flex">
+                    <div>
+                        <label>Frente</label>
+                        <input type="text" id="med_frente" placeholder="Ex: 10m" oninput="update()">
+                    </div>
+                    <div>
+                        <label>Fundos</label>
+                        <input type="text" id="med_fundos" placeholder="Ex: 10m" oninput="update()">
+                    </div>
+                </div>
+                <div class="row-flex">
+                    <div>
+                        <label>Lado Direito</label>
+                        <input type="text" id="med_direito" placeholder="Ex: 25m" oninput="update()">
+                    </div>
+                    <div>
+                        <label>Lado Esquerdo</label>
+                        <input type="text" id="med_esquerdo" placeholder="Ex: 25m" oninput="update()">
+                    </div>
+                </div>
+            </div>
+
+            <label>Existe comércio no local?</label>
+            <select id="sel_comercio" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+        </div>
+    </div>
+
+    <button class="accordion">5. DOCUMENTAÇÃO (FLS/ID)</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <div class="row-flex">
+                <div><label>Req. Fls.</label><input type="text" id="req_fls" oninput="update()"></div>
+                <div><label>Req. ID</label><input type="text" id="req_id" oninput="update()"></div>
+            </div>
+            <div class="row-flex">
+                <div><label>Cert. Fls.</label><input type="text" id="cert_fls" oninput="update()"></div>
+                <div><label>Cert. ID</label><input type="text" id="cert_id" oninput="update()"></div>
+            </div>
+            <div class="row-flex">
+                <div><label>Mapa Fls.</label><input type="text" id="mapa_fls" oninput="update()"></div>
+                <div><label>Mapa ID</label><input type="text" id="mapa_id" oninput="update()"></div>
+            </div>
+            <div class="row-flex">
+                <div><label>Nº OSF</label><input type="text" id="osf_num" oninput="update()"></div>
+                <div><label>OSF ID</label><input type="text" id="osf_id" oninput="update()"></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">6. MÉTODO E DIVISAS</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Método utilizado</label>
+            <select id="sel_metodo" onchange="update()">
+                <option value="manual com o uso de trena de fibra">Trena de Fibra</option>
+                <option value="manual com o uso de trena a laser">Trena a Laser</option>
+                <option value="eletrônica com o uso de estação total">Estação Total</option>
+                <option value="por imagem">Por Imagem</option>
+            </select>
+            
+            <label>Edificação</label>
+            <select id="sel_edificacao_tipo" onchange="toggleEdificacaoOutra()">
+                <option value="alvenaria">Alvenaria</option>
+                <option value="concreto armado">Concreto Armado</option>
+                <option value="mista madeira/alvenaria">Mista (madeira/alvenaria)</option>
+                <option value="metálica">Metálica</option>
+                <option value="OUTRO">Outra</option>
+            </select>
+
+            <!-- Campo especificação caso escolha Outra -->
+            <div id="box_edificacao_outra" style="display: none; margin-bottom: 8px;">
+                <label>Especifique o tipo de edificação</label>
+                <input type="text" id="in_edificacao_outra" placeholder="Ex: madeira, taipa, etc." oninput="update()">
+            </div>
+
+            <label>Divisas Materializadas?</label>
+            <select id="sel_divisas_val" onchange="update(); toggleCamposDivisas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+
+            <!-- Opções condicionais para escolha das divisas materializadas -->
+            <div id="box_divisas_opcoes" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
+                <label style="color: var(--blue-semur);">Quais divisas estão materializadas?</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
+                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" onchange="updateDivisasIndividuais()"> Frente</label>
+                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" onchange="updateDivisasIndividuais()"> Fundos</label>
+                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Direito</label>
+                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">7. OBSERVAÇÕES (LIMITE 4 LINHAS)</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <textarea id="in_obs" placeholder="Máximo 4 linhas..." oninput="limitLines(this); update()"></textarea>
+        </div>
+    </div>
+
+    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 15px;" onclick="window.print()">🖨️ GERAR DOCUMENTO / PDF</button>
+</div>
+
+<div class="preview-container">
+    <div class="document" id="doc_print">
+        <table class="header-table">
+            <tr>
+                <td style="width: 80px;"><img src="logo.jpg" class="logo-img"></td>
+                <td class="td-text">
+                    <h2>Estado de Rondônia</h2>
+                    <h2>Prefeitura Municipal de Ji-Paraná</h2>
+                    <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
+                </td>
+                <td style="width: 160px;" class="logo-right"><img src="logo2.png" class="logo-img-large"></td>
+            </tr>
+        </table>
+        
+        <div class="doc-title">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
+        
+        <div class="doc-body">
+            <p class="no-indent"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
+            <p class="no-indent"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
+            <p class="no-indent"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
+            
+            <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
+            
+            <table class="tab-tecnica"><tbody id="corpoTabela"></tbody></table>
+            
+            <p id="out_texto_relatorio"></p>
+            
+            <p id="p_metodo">Para a conferência das medidas foi usado método <span id="out_metodo"></span>.</p>
+            
+            <div id="block_constatacoes">
+                <p>Durante a vistoria, foi constatado que:</p>
+                <p id="li_edificacao" class="item-constatado"></p>
+                <p id="li_divisas" class="item-constatado"></p>
+            </div>
+            
+            <p id="li_conferencia" class="item-constatado"></p>
+            
+            <!-- Quadro de Medidas Apuradas no Documento A4 -->
+            <div id="quadro_medidas_doc" style="display: none; margin: 6px 0;">
+                <table class="tab-medidas-doc">
+                    <thead>
+                        <tr>
+                            <th colspan="4">Medidas Apuradas em Campo</th>
+                        </tr>
+                        <tr>
+                            <th>Frente</th>
+                            <th>Fundos</th>
+                            <th>Lado Direito</th>
+                            <th>Lado Esquerdo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="td_out_frente">___</td>
+                            <td id="td_out_fundos">___</td>
+                            <td id="td_out_direito">___</td>
+                            <td id="td_out_esquerdo">___</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="obs-cell">Obs: Medidas aproximadas e sujeitas a conferência pelo responsável técnico.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p id="li_bci" class="item-constatado"></p>
+            
+            <div id="li_obs" class="text-obs" style="display:none;"></div>
+
+            <p>Diante do exposto, encaminha-se ao setor jurídico para o prosseguimento que o caso requer.</p>
+            <p>Sendo o que tinha a relatar, OSF encerrada.</p>
+            
+            <div id="out_data_footer" style="text-align: right; margin-top: 15px; font-weight: normal;"></div>
+        </div>
+
+        <div class="signature">
+            <p>Assinado Eletronicamente</p>
+            <p id="out_nome_fiscal" style="margin-top: 5px;"></p>
+            <p id="out_funcao_fiscal"></p>
+            <p id="out_cad_fiscal"></p>
+        </div>
+
+        <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – Ji-Paraná – RO.</div>
+    </div>
+</div>
+
+<script>
+    function limitLines(obj) {
+        const maxLines = 4;
+        let lines = obj.value.split("\n");
+        if (lines.length > maxLines) {
+            obj.value = lines.slice(0, maxLines).join("\n");
+        }
+    }
+
+    const acc = document.getElementsByClassName("accordion");
+    for (let i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            const panel = this.nextElementSibling;
+            panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+        });
+    }
+
+    const listaFiscais = [
+        { id: 19, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        { id: 1, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
+        { id: 3, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
+        { id: 6, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025" }
+    ];
+
+    window.onload = function() {
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('rel_data').value = hoje;
+        document.getElementById('in_data_doc').value = hoje;
+        const select = document.getElementById('sel_fiscal');
+        listaFiscais.forEach(f => {
+            let opt = document.createElement('option'); opt.value = f.id; opt.text = f.nome; select.add(opt);
+        });
+        acc[0].click(); 
+        toggleCamposMedidas();
+        toggleCamposDivisas();
+        toggleEdificacaoOutra();
+        update();
+    };
+
+    function toggleCamposMedidas() {
+        const medOk = document.getElementById('sel_medidas').value;
+        const box = document.getElementById('box_medidas_campo');
+        box.style.display = (medOk === "Não") ? "block" : "none";
+        recalcularAlturaAccordion(box);
+    }
+
+    function toggleEdificacaoOutra() {
+        const tipo = document.getElementById('sel_edificacao_tipo').value;
+        const boxOutra = document.getElementById('box_edificacao_outra');
+        boxOutra.style.display = (tipo === "OUTRO") ? "block" : "none";
+        recalcularAlturaAccordion(boxOutra);
+        update();
+    }
+
+    function toggleCamposDivisas() {
+        const divisasOk = document.getElementById('sel_divisas_val').value;
+        const box = document.getElementById('box_divisas_opcoes');
+        box.style.display = (divisasOk === "Sim") ? "block" : "none";
+        if (divisasOk === "Sim" && !document.getElementById('chk_divisa_todas').checked) {
+            const individuais = document.querySelectorAll('.chk-divisa');
+            const algumMarcado = Array.from(individuais).some(c => c.checked);
+            if (!algumMarcado) {
+                document.getElementById('chk_divisa_todas').checked = true;
+                toggleTodasDivisas();
+            }
+        }
+        recalcularAlturaAccordion(box);
+    }
+
+    function toggleTodasDivisas() {
+        const chkTodas = document.getElementById('chk_divisa_todas');
+        const individuais = document.querySelectorAll('.chk-divisa');
+        individuais.forEach(chk => {
+            chk.checked = chkTodas.checked;
+        });
+        update();
+    }
+
+    function updateDivisasIndividuais() {
+        const individuais = document.querySelectorAll('.chk-divisa');
+        const todosMarcados = Array.from(individuais).every(c => c.checked);
+        document.getElementById('chk_divisa_todas').checked = todosMarcados;
+        update();
+    }
+
+    function recalcularAlturaAccordion(elementoFilho) {
+        const accordionContent = elementoFilho.closest('.panel-content');
+        if (accordionContent && accordionContent.style.maxHeight) {
+            accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+        }
+    }
+
+    function update() {
+        const fiscal = listaFiscais.find(f => f.id == document.getElementById('sel_fiscal').value);
+        if (fiscal) {
+            document.getElementById('out_nome_fiscal').innerText = fiscal.nome;
+            document.getElementById('out_funcao_fiscal').innerText = fiscal.funcao;
+            document.getElementById('out_cad_fiscal').innerText = "Cad.: " + fiscal.cad;
+        }
+
+        const dDoc = document.getElementById('in_data_doc').value;
+        const dFormat = dDoc ? new Date(dDoc + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : "";
+        document.getElementById('out_data_footer').innerText = "Ji-Paraná, " + dFormat;
+        
+        document.getElementById('out_proc').innerText = document.getElementById('in_proc').value;
+        document.getElementById('out_nome').innerText = document.getElementById('in_nome').value;
+        document.getElementById('out_assunto').innerText = document.getElementById('in_assunto').value;
+        document.getElementById('out_setor').innerText = document.getElementById('loc_setor').value;
+        document.getElementById('out_quadra').innerText = document.getElementById('loc_quadra').value;
+        document.getElementById('out_lote').innerText = document.getElementById('loc_lote').value;
+
+        const statusP = document.getElementById('sel_status_predial').value;
+        const liE = document.getElementById('li_edificacao');
+        if(statusP === "LOTE VAGO") {
+            liE.innerText = "O lote encontra-se sem edificação;";
+        } else {
+            let tipoEdif = document.getElementById('sel_edificacao_tipo').value;
+            if(tipoEdif === "OUTRO") {
+                tipoEdif = document.getElementById('in_edificacao_outra').value || "outro";
+            }
+            liE.innerText = `O lote encontra-se edificado em ${tipoEdif};`;
+        }
+
+        // Lógica para preenchimento gramatical correto do texto das divisas
+        const divVal = document.getElementById('sel_divisas_val').value;
+        const liDivisas = document.getElementById('li_divisas');
+
+        if (divVal === "Não") {
+            liDivisas.innerText = "O imóvel não possui divisas materializadas;";
+        } else {
+            const chkTodas = document.getElementById('chk_divisa_todas').checked;
+            if (chkTodas) {
+                liDivisas.innerText = "O imóvel tem todas as divisas materializadas;";
+            } else {
+                let selecionadas = [];
+                if (document.getElementById('chk_divisa_frente').checked) selecionadas.push("frente");
+                if (document.getElementById('chk_divisa_fundos').checked) selecionadas.push("fundos");
+                if (document.getElementById('chk_divisa_direito').checked) selecionadas.push("lado direito");
+                if (document.getElementById('chk_divisa_esquerdo').checked) selecionadas.push("lado esquerdo");
+
+                if (selecionadas.length === 0) {
+                    liDivisas.innerText = "O imóvel possui divisas materializadas;";
+                } else if (selecionadas.length === 4) {
+                    liDivisas.innerText = "O imóvel tem todas as divisas materializadas;";
+                } else {
+                    let textoDivisas = "";
+                    if (selecionadas.length === 1) {
+                        textoDivisas = selecionadas[0];
+                    } else {
+                        const ult = selecionadas.pop();
+                        textoDivisas = selecionadas.join(", ") + " e " + ult;
+                    }
+                    liDivisas.innerText = `O imóvel possui divisas materializadas em: ${textoDivisas};`;
+                }
+            }
+        }
+
+        const medOk = document.getElementById('sel_medidas').value;
+        const mapaOk = document.getElementById('sel_mapa').value;
+        const liBci = document.getElementById('li_bci');
+        if (medOk === "Sim" && mapaOk === "Sim") liBci.innerText = "O BCI foi preenchido com as informações de campo.";
+        else liBci.innerText = "Deixei de preencher o BCI devido a divergências técnicas.";
+
+        const liConf = document.getElementById('li_conferencia');
+        const quadroMedidasDoc = document.getElementById('quadro_medidas_doc');
+        const blockConstatacoes = document.getElementById('block_constatacoes');
+
+        if (medOk === "Sim" && mapaOk === "Sim") {
+            liConf.innerText = "As medidas perimetrais e a localização do imóvel conferem com a planta e memorial descritivo do lote;";
+            quadroMedidasDoc.style.display = "none";
+            blockConstatacoes.style.display = "block";
+        } else if (medOk === "Não" && mapaOk === "Sim") {
+            liConf.innerText = "As medidas perimetrais não correspondem com a planta e memorial descritivo do lote, conforme quadro abaixo, contudo a localização do imóvel confere com a planta de situação;";
+            quadroMedidasDoc.style.display = "block";
+            blockConstatacoes.style.display = "none";
+        } else if (medOk === "Sim" && mapaOk === "Não") {
+            liConf.innerText = "As medidas perimetrais correspondem com a planta e memorial descritivo apresentado, contudo a localização do imóvel não confere com a planta de situação;";
+            quadroMedidasDoc.style.display = "none";
+            blockConstatacoes.style.display = "block";
+        } else {
+            liConf.innerText = "As medidas perimetrais e a localização do imóvel não correspondem com a planta e memorial descritivo do lote, conforme medidas apuradas abaixo:";
+            quadroMedidasDoc.style.display = "block";
+            blockConstatacoes.style.display = "none";
+        }
+
+        // Atualização dos valores dentro da tabela do A4
+        document.getElementById('td_out_frente').innerText = document.getElementById('med_frente').value || "___";
+        document.getElementById('td_out_fundos').innerText = document.getElementById('med_fundos').value || "___";
+        document.getElementById('td_out_direito').innerText = document.getElementById('med_direito').value || "___";
+        document.getElementById('td_out_esquerdo').innerText = document.getElementById('med_esquerdo').value || "___";
+
+        const obsVal = document.getElementById('in_obs').value;
+        const divObs = document.getElementById('li_obs');
+        divObs.style.display = obsVal.trim() ? "block" : "none";
+        divObs.innerText = obsVal;
+
+        const dtV = document.getElementById('rel_data').value ? new Date(document.getElementById('rel_data').value + 'T12:00:00').toLocaleDateString('pt-BR') : "___";
+        const hrV = document.getElementById('rel_hora').value ? document.getElementById('rel_hora').value.replace(':', 'h') : "___";
+        
+        document.getElementById('out_texto_relatorio').innerText = `Vistoria in loco realizada em ${dtV}, às ${hrV}, conforme informações do requerimento (fls. ${document.getElementById('req_fls').value || "___"}, ID: ${document.getElementById('req_id').value || "___"}), certidão de inteiro teor (fls. ${document.getElementById('cert_fls').value || "___"}, ID: ${document.getElementById('cert_id').value || "___"}) e mapa e memorial descritivo (fls. ${document.getElementById('mapa_fls').value || "___"}, ID: ${document.getElementById('mapa_id').value || "___"}), em atendimento à Ordem de Serviço Fiscal Nº ${document.getElementById('osf_num').value || "___"} (ID: ${document.getElementById('osf_id').value || "___"}).`;
+
+        let h1 = (statusP === "NORMAL") ? `<tr><td class="col-pergunta">Número predial corresponde ao lote:</td><td class="col-x">${document.getElementById('sel_predial_val').value === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${document.getElementById('sel_predial_val').value === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>` : `<tr><td class="col-pergunta">Número predial corresponde ao lote:</td><td colspan="4" class="merged-cell">${statusP}</td></tr>`;
+        const rows = [ { l: "O requerente reside no local:", v: document.getElementById('sel_reside').value }, { l: "A localização no mapa corresponde com o campo:", v: mapaOk }, { l: "As medidas do lote estão corretas:", v: medOk }, { l: "Existe comércio no local:", v: document.getElementById('sel_comercio').value } ];
+        let hr = ""; rows.forEach(r => { hr += `<tr><td class="col-pergunta">${r.l}</td><td class="col-x">${r.v === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${r.v === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>`; });
+        document.getElementById('corpoTabela').innerHTML = h1 + hr;
+        document.getElementById('out_metodo').innerText = document.getElementById('sel_metodo').value;
+    }
+</script>
+</body>
+</html>
