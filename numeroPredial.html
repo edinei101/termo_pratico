@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Vistoria de Subdivisão e Numeração - SEMURFH</title>
+    <style>
+        :root { 
+            --blue-semur: rgb(44, 62, 80); 
+            --gray-light: rgb(238, 238, 238); 
+        }
+        
+        /* Layout Geral (Tela) */
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f2f6; display: flex; gap: 20px; padding: 20px; margin: 0; }
+        
+        .panel { flex: 0 0 360px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); height: fit-content; max-height: 95vh; overflow-y: auto; position: sticky; top: 20px; }
+        
+        .accordion { background-color: var(--gray-light); color: #333; cursor: pointer; padding: 12px; width: 100%; border: 1px solid #ddd; text-align: left; font-size: 13px; font-weight: bold; border-radius: 6px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .active, .accordion:hover { background-color: var(--blue-semur); color: white; }
+        .panel-content { padding: 0 10px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-left: 2px solid var(--blue-semur); }
+        
+        .group-box { padding: 10px 0; }
+        label { display: block; font-size: 10px; font-weight: bold; margin-bottom: 3px; color: var(--blue-semur); text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 7px; border: 1.5px solid #dcdde1; border-radius: 6px; font-size: 13px; box-sizing: border-box; margin-bottom: 8px; font-family: inherit; }
+        .row-flex { display: flex; gap: 8px; margin-bottom: 4px; }
+        .row-flex div { flex: 1; }
+
+        /* Documento Preview */
+        .preview-container { flex: 1; background: #ced6e0; padding: 20px; display: flex; justify-content: center; }
+        
+        .document { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 0.8cm 1.5cm 1.2cm 2.5cm; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.3); 
+            box-sizing: border-box; 
+            position: relative; 
+            color: #000;
+            overflow: hidden;
+        }
+        
+        .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #000; margin-bottom: 10px; }
+        .logo-img { width: 80px; height: auto; }
+        .logo-img-large { width: 160px; height: auto; }
+        .logo-right { text-align: right; }
+        .td-text { text-align: center; vertical-align: middle; }
+        .td-text h2 { font-size: 16px; margin: 0; text-transform: uppercase; }
+        .td-text h3 { font-size: 14px; margin: 2px 0; font-weight: normal; }
+
+        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 18px; }
+        
+        .doc-body p { 
+            margin: 8px 0; 
+            line-height: 1.4; 
+            text-align: justify; 
+            font-size: 14px;
+            text-indent: 1.25cm;
+        }
+
+        .no-indent { text-indent: 0 !important; }
+        .loc-center { text-align: center !important; font-weight: bold; background: #f2f2f2; border: 1px solid #000; margin: 10px 0 !important; text-indent: 0 !important; padding: 5px; }
+
+        .signature { margin-top: 40px; text-align: center; font-size: 14px; page-break-inside: avoid; font-weight: normal; }
+        .signature p { margin: 1px 0; }
+        
+        .footer-note { position: absolute; bottom: 0.8cm; left: 2.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
+
+        @media print {
+            @page { size: A4; margin: 0; }
+            body { background: none; padding: 0; margin: 0; display: block; }
+            .panel { display: none; }
+            .preview-container { padding: 0; background: none; display: block; }
+            .document { 
+                box-shadow: none; 
+                margin: 0; 
+                border: none; 
+                width: 210mm; 
+                height: 297mm; 
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <a href="MENU.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:15px;">⬅ VOLTAR AO MENU</a>
+    
+    <button class="accordion">1. FISCAL E DATAS</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Fiscal Responsável</label>
+            <select id="sel_fiscal" onchange="update()"></select>
+            <label>Data do Documento</label>
+            <input type="date" id="in_data_doc" oninput="update()">
+            <label>Data/Hora da Vistoria</label>
+            <div class="row-flex">
+                <input type="date" id="rel_data" oninput="update()">
+                <input type="time" id="rel_hora" oninput="update()">
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">2. PROCESSO E INTERESSADO</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Nº Processo</label>
+            <input type="text" id="in_proc" oninput="update()">
+            <label>Nome do Interessado(a)</label>
+            <input type="text" id="in_nome" oninput="update()">
+            <label>Assunto</label>
+            <input type="text" id="in_assunto" value="VERIFICAÇÃO DE SUBDIVISÃO E NUMERAÇÃO PREDIAL" oninput="update()">
+        </div>
+    </div>
+
+    <button class="accordion">3. LOCALIZAÇÃO</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <div class="row-flex">
+                <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
+                <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
+                <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">4. DOCUMENTAÇÃO (DESPACHO / MAPA / OSF)</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <div class="row-flex">
+                <div><label>Despacho Nº</label><input type="text" id="desp_num" oninput="update()"></div>
+                <div><label>Desp. Fls.</label><input type="text" id="desp_fls" oninput="update()"></div>
+            </div>
+            <div><label>Despacho ID</label><input type="text" id="desp_id" oninput="update()"></div>
+            
+            <div class="row-flex" style="margin-top: 5px;">
+                <div><label>Mapa Fls.</label><input type="text" id="mapa_fls" oninput="update()"></div>
+                <div><label>Mapa ID</label><input type="text" id="mapa_id" oninput="update()"></div>
+            </div>
+            
+            <div class="row-flex" style="margin-top: 5px;">
+                <div><label>Nº OSF</label><input type="text" id="osf_num" oninput="update()"></div>
+                <div><label>OSF ID</label><input type="text" id="osf_id" oninput="update()"></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="accordion">5. SITUAÇÃO PREDIAL E CONFRONTAÇÃO</button>
+    <div class="panel-content">
+        <div class="group-box">
+            <label>Situação Predial / Física do Lote</label>
+            <select id="sel_situacao" onchange="toggleCampoNumero(); update()">
+                <option value="vago">Lote vago (sem número predial)</option>
+                <option value="demolido_sem">Lote com edificação demolida (sem número predial)</option>
+                <option value="demolido_com">Lote com edificação demolida (com número predial)</option>
+                <option value="edificado_com">Lote edificado (com número predial)</option>
+                <option value="edificado_sem">Lote edificado (sem número predial)</option>
+            </select>
+
+            <div id="box_numero_predial" style="display: none;">
+                <label>Número Predial Constatado</label>
+                <input type="text" id="in_num_predial" placeholder="Ex: nº 2305" oninput="update()">
+            </div>
+
+            <label style="margin-top: 8px;">Confronte com o Mapa (Medidas e Forma)</label>
+            <select id="sel_confrontacao" onchange="toggleBoxAlteracao()">
+                <option value="igual">Igual ao mapa</option>
+                <option value="alteracao">Apresenta alteração (ex: subdivisão, divergência)</option>
+            </select>
+
+            <div id="box_alteracao" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
+                <label style="color: var(--blue-semur);">Descrição da Alteração / Subdivisão:</label>
+                <textarea id="in_desc_alteracao" placeholder="Descreva o que foi constatado (ex: subdividido em dois lotes de 5m de frente...)" oninput="update()"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 15px;" onclick="window.print()">🖨️ GERAR DOCUMENTO / PDF</button>
+</div>
+
+<div class="preview-container">
+    <div class="document" id="doc_print">
+        <table class="header-table">
+            <tr>
+                <td style="width: 80px;"><img src="logo.jpg" class="logo-img"></td>
+                <td class="td-text">
+                    <h2>Estado de Rondônia</h2>
+                    <h2>Prefeitura Municipal de Ji-Paraná</h2>
+                    <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
+                </td>
+                <td style="width: 160px;" class="logo-right"><img src="logo2.png" class="logo-img-large"></td>
+            </tr>
+        </table>
+        
+        <div class="doc-title">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
+        
+        <div class="doc-body">
+            <p class="no-indent"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
+            <p class="no-indent"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
+            <p class="no-indent"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
+            
+            <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
+            
+            <p id="out_texto_relatorio"></p>
+            
+            <p id="out_texto_constatacao"></p>
+
+            <p>Diante do exposto, encaminha-se ao setor competente para o prosseguimento que o caso requer.</p>
+            <p>Sendo o que tinha a relatar, OSF encerrada.</p>
+            
+            <div id="out_data_footer" style="text-align: right; margin-top: 15px; font-weight: normal;"></div>
+        </div>
+
+        <div class="signature">
+            <p>Assinado Eletronicamente</p>
+            <p id="out_nome_fiscal" style="margin-top: 5px;"></p>
+            <p id="out_funcao_fiscal"></p>
+            <p id="out_cad_fiscal"></p>
+        </div>
+
+        <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – Ji-Paraná – RO.</div>
+    </div>
+</div>
+
+<script>
+    const acc = document.getElementsByClassName("accordion");
+    for (let i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            const panel = this.nextElementSibling;
+            panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+        });
+    }
+
+    const listaFiscais = [
+        { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
+        { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
+        { id: 4, nome: "Jose´Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
+        { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
+        { id: 6, nome: "Vanancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
+        { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
+        { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário ", cad: "nº 10.977" },
+        { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário ", cad: "nº 12.388" },
+        { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário ", cad: "nº 12.393" },
+        { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
+        { id: 12, nome: "Jose Renato Maynardes ", funcao: "Fiscal Sanitário ", cad: "nº 92.049" },
+        { id: 13, nome: "Edeilton Henrique Maciel ", funcao: "Fiscal Sanitário ", cad: "nº 13.572" },
+        { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
+        { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
+        { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" },
+        { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
+        { id: 18, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025" }
+    ];
+
+    window.onload = function() {
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('rel_data').value = hoje;
+        document.getElementById('in_data_doc').value = hoje;
+        const select = document.getElementById('sel_fiscal');
+        listaFiscais.forEach(f => {
+            let opt = document.createElement('option'); opt.value = f.id; opt.text = f.nome; select.add(opt);
+        });
+        acc[0].click(); 
+        toggleCampoNumero();
+        toggleBoxAlteracao();
+        update();
+    };
+
+    function toggleCampoNumero() {
+        const situacao = document.getElementById('sel_situacao').value;
+        const boxNumero = document.getElementById('box_numero_predial');
+        // Mostra o campo de número predial apenas se a situação envolver "com número"
+        if (situacao === "demolido_com" || situacao === "edificado_com") {
+            boxNumero.style.display = "block";
+        } else {
+            boxNumero.style.display = "none";
+        }
+        recalcularAltura(boxNumero);
+    }
+
+    function toggleBoxAlteracao() {
+        const conf = document.getElementById('sel_confrontacao').value;
+        const box = document.getElementById('box_alteracao');
+        box.style.display = (conf === "alteracao") ? "block" : "none";
+        recalcularAltura(box);
+        update();
+    }
+
+    function recalcularAltura(elementoFilho) {
+        const accordionContent = elementoFilho.closest('.panel-content');
+        if (accordionContent && accordionContent.style.maxHeight) {
+            accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+        }
+    }
+
+    function update() {
+        const fiscal = listaFiscais.find(f => f.id == document.getElementById('sel_fiscal').value);
+        if (fiscal) {
+            document.getElementById('out_nome_fiscal').innerText = fiscal.nome;
+            document.getElementById('out_funcao_fiscal').innerText = fiscal.funcao;
+            document.getElementById('out_cad_fiscal').innerText = "Cad.: " + fiscal.cad;
+        }
+
+        const dDoc = document.getElementById('in_data_doc').value;
+        const dFormat = dDoc ? new Date(dDoc + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : "";
+        document.getElementById('out_data_footer').innerText = "Ji-Paraná, " + dFormat;
+        
+        document.getElementById('out_proc').innerText = document.getElementById('in_proc').value;
+        document.getElementById('out_nome').innerText = document.getElementById('in_nome').value;
+        document.getElementById('out_assunto').innerText = document.getElementById('in_assunto').value;
+        document.getElementById('out_setor').innerText = document.getElementById('loc_setor').value;
+        document.getElementById('out_quadra').innerText = document.getElementById('loc_quadra').value;
+        document.getElementById('out_lote').innerText = document.getElementById('loc_lote').value;
+
+        const dtV = document.getElementById('rel_data').value ? new Date(document.getElementById('rel_data').value + 'T12:00:00').toLocaleDateString('pt-BR') : "___";
+        const hrV = document.getElementById('rel_hora').value ? document.getElementById('rel_hora').value.replace(':', 'h') : "___";
+        
+        const despNum = document.getElementById('desp_num').value || "___";
+        const despFls = document.getElementById('desp_fls').value || "___";
+        const despId = document.getElementById('desp_id').value || "___";
+        
+        const mapaFls = document.getElementById('mapa_fls').value || "___";
+        const mapaId = document.getElementById('mapa_id').value || "___";
+        
+        const osfNum = document.getElementById('osf_num').value || "___";
+        const osfId = document.getElementById('osf_id').value || "___";
+
+        document.getElementById('out_texto_relatorio').innerText = `Vistoria in loco realizada em ${dtV}, às ${hrV}, conforme informações do despacho Nº ${despNum} (fls. ${despFls}, ID: ${despId}) e mapa (fls. ${mapaFls}, ID: ${mapaId}), em atendimento à Ordem de Serviço Fiscal Nº ${osfNum} (ID: ${osfId}).`;
+
+        const situacao = document.getElementById('sel_situacao').value;
+        const numPredial = document.getElementById('in_num_predial').value || "___";
+        const confrontacao = document.getElementById('sel_confrontacao').value;
+        const descAlteracao = document.getElementById('in_desc_alteracao').value || "apresenta divergência em relação ao mapa oficial";
+
+        let textoSit = "";
+        switch(situacao) {
+            case "vago":
+                textoSit = "Constatou-se em campo que o lote encontra-se vago, não possuindo número predial.";
+                break;
+            case "demolido_sem":
+                textoSit = "Constatou-se em campo que o lote possui edificação demolida, não possuindo número predial.";
+                break;
+            case "demolido_com":
+                textoSit = `Constatou-se em campo que o lote possui edificação demolida, mantendo o número predial ${numPredial}.`;
+                break;
+            case "edificado_com":
+                textoSit = `Constatou-se em campo que o lote encontra-se edificado e possui o número predial ${numPredial}.`;
+                break;
+            case "edificado_sem":
+                textoSit = "Constatou-se em campo que o lote encontra-se edificado, porém sem número predial.";
+                break;
+        }
+
+        let textoConf = "";
+        if (confrontacao === "igual") {
+            textoConf = " Verificou-se também que as medidas e a forma do lote conferem exatamente com o memorial descritivo e o mapa oficial.";
+        } else {
+            textoConf = ` Verificou-se divergência em relação ao mapa oficial: ${descAlteracao}.`;
+        }
+
+        document.getElementById('out_texto_constatacao').innerText = textoSit + textoConf;
+    }
+</script>
+
+</body>
+</html>
