@@ -84,7 +84,8 @@
 <body>
 
 <div class="panel">
-    <a href="MENU.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:15px;">⬅ VOLTAR AO MENU</a>
+    <!-- Atualizado para voltar para o index.html -->
+    <a href="index.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:15px;">⬅ VOLTAR AO MENU</a>
     
     <button class="accordion">1. FISCAL E DATAS</button>
     <div class="panel-content">
@@ -270,7 +271,6 @@
     function toggleCampoNumero() {
         const situacao = document.getElementById('sel_situacao').value;
         const boxNumero = document.getElementById('box_numero_predial');
-        // Mostra o campo de número predial apenas se a situação envolver "com número"
         if (situacao === "demolido_com" || situacao === "edificado_com") {
             boxNumero.style.display = "block";
         } else {
