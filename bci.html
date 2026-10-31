@@ -1,0 +1,727 @@
+
+bci_completo-v3.html
+100%
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>BCI - Boletim Imobiliário Sócio-Econômico - SEMURFH</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        body {
+            background-color: #525659;
+            margin: 0;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000;
+        }
+
+        /* Barra de ferramentas na tela (oculta na impressão) */
+        .toolbar {
+            width: 210mm;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .btn:hover { background: #1557b0; }
+        .btn-clear { background: #d93025; }
+        .btn-clear:hover { background: #a50e0e; }
+
+        /* Folha A4 Oficial (210mm x 297mm) com margens exatas de 0,5cm (5mm) em todos os 4 lados */
+        .folha-a4 {
+            background: #ffffff;
+            width: 210mm;
+            height: 297mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            padding: 5mm; /* 0,5cm no topo, base, esquerda e direita */
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        /* 1. CABEÇALHO (25mm de altura) */
+        .quadro-topo {
+            width: 100%;
+            height: 25mm;
+            border: 1.5px solid #000;
+            display: flex;
+            flex-shrink: 0;
+        }
+        .col-1 { width: 25%; height: 100%; border-right: 1.5px solid #000; padding: 1mm; }
+        .col-2 { width: 35%; height: 100%; border-right: 1.5px solid #000; padding: 1mm; }
+        .col-3 { width: 40%; height: 100%; padding: 1mm; }
+
+        .quadro-interno {
+            width: 100%;
+            height: 100%;
+            border: 0.8mm solid #000;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .conteudo-col1 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 0.5mm;
+        }
+        .logo-img {
+            max-width: 88%;
+            max-height: 13.5mm;
+            object-fit: contain;
+        }
+        .texto-prefeitura {
+            font-size: 7.5px;
+            font-weight: 900;
+            text-align: center;
+            margin-top: 0.8mm;
+        }
+        .conteudo-col2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1.2mm;
+            padding: 1mm;
+        }
+        .texto-col2, .texto-col3 {
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            line-height: 1.15;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        /* 2. TABELA MESTRE DO BCI:
+           Altura útil da folha A4 = 297mm - 10mm (margens topo/base de 0,5cm) = 287mm.
+           Cabeçalho = 25mm + 1mm separação = 26mm.
+           A tabela ocupa exatamente os 261mm restantes (100% até a margem inferior de 0,5cm).
+        */
+        table.bci-grid {
+            width: 100%;
+            height: 261mm;
+            flex: 1;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top: 1mm;
+            font-size: 7px;
+            line-height: 1.1;
+        }
+        table.bci-grid td {
+            padding: 0 2px;
+            vertical-align: middle;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /* Alturas proporcionais exatas somando 261mm (com campos de digitação mais largos/altos) */
+        tr.r-header td    { height: 3.9mm; font-weight: 800; font-size: 7.4px; }
+        tr.r-label td     { height: 3.5mm; font-weight: 700; font-size: 6.6px; }
+        tr.r-input td     { height: 5.2mm; font-size: 8.2px; }
+        tr.r-opt td       { height: 2.42mm; font-size: 6.4px; }
+        tr.r-code td      { height: 3.9mm; font-size: 7.4px; }
+        tr.r-obs-input td { height: 12.5mm; font-size: 8px; }
+        tr.r-gap td       { height: 1.0mm; }
+
+        /* Bordas utilitárias */
+        .ba { border: 1px solid #000; }
+        .bt { border-top: 1px solid #000; }
+        .bb { border-bottom: 1px solid #000; }
+        .bl { border-left: 1px solid #000; }
+        .br { border-right: 1px solid #000; }
+
+        /* Estilos de células */
+        .cod {
+            text-align: center;
+            font-weight: 800;
+            font-size: 7.2px;
+            background-color: #fff;
+        }
+        .sec-title {
+            text-align: center;
+            font-weight: 900;
+            font-size: 7.6px;
+            letter-spacing: 0.3px;
+            background-color: #f2f2f2;
+        }
+        .sub-title {
+            text-align: center;
+            font-weight: 800;
+            font-size: 6.8px;
+            background-color: #f9f9f9;
+        }
+        .center { text-align: center; }
+        .right  { text-align: right; }
+        .bold   { font-weight: 800; }
+        .italic { font-style: italic; }
+
+        /* Campos editáveis / interativos */
+        .edit {
+            cursor: text;
+            font-weight: bold;
+            color: #000;
+        }
+        .edit:focus {
+            outline: 1px dashed #1a73e8;
+            background-color: #eef6ff;
+        }
+        .bg-gray {
+            background-color: #e6e6e6;
+        }
+        .bg-blue {
+            background-color: #dce6f1;
+        }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .toolbar { display: none; }
+            .folha-a4 {
+                box-shadow: none;
+                width: 210mm;
+                height: 297mm;
+                padding: 5mm;
+            }
+            .edit:focus { outline: none; background: transparent; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <button class="btn btn-clear" onclick="limparCampos()">Limpar Campos Preenchidos</button>
+    <button class="btn" onclick="window.print()">Imprimir / Salvar PDF (A4)</button>
+</div>
+
+<div class="folha-a4">
+    <!-- 1. CABEÇALHO -->
+    <div class="quadro-topo">
+        <div class="col-1">
+            <div class="quadro-interno">
+                <div class="conteudo-col1">
+                    <img src="imagem/logo.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                    <span class="texto-prefeitura">PREFEITURA DE JI-PARANÁ</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="quadro-interno">
+                <div class="conteudo-col2">
+                    <span class="texto-col2">BOLETIM IMOBILIÁRIO</span>
+                    <span class="texto-col2">SÓCIO-ECONÔMICO</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="quadro-interno">
+                <div class="conteudo-col2">
+                    <span class="texto-col3">SECRETÁRIA MUNICIPAL DE REGULARIZAÇÃO FUNDIÁRIA E HABITAÇÃO - SEMURFH</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. CORPO DO FORMULÁRIO (Ocupa 100% da altura restante até os 0,5cm da borda inferior) -->
+    <table class="bci-grid">
+        <colgroup>
+            <col style="width: 2.04%"> <col style="width: 5.16%"> <col style="width: 2.76%"> <col style="width: 3.00%">
+            <col style="width: 2.88%"> <col style="width: 4.08%"> <col style="width: 2.16%"> <col style="width: 2.04%">
+            <col style="width: 3.00%"> <col style="width: 6.01%"> <col style="width: 1.80%"> <col style="width: 3.00%">
+            <col style="width: 2.40%"> <col style="width: 2.52%"> <col style="width: 2.40%"> <col style="width: 2.16%">
+            <col style="width: 1.20%"> <col style="width: 2.04%"> <col style="width: 2.64%"> <col style="width: 4.08%">
+            <col style="width: 2.64%"> <col style="width: 9.37%"> <col style="width: 2.28%"> <col style="width: 2.76%">
+            <col style="width: 3.97%"> <col style="width: 2.04%"> <col style="width: 2.40%"> <col style="width: 2.76%">
+            <col style="width: 2.40%"> <col style="width: 7.69%"> <col style="width: 2.28%"> <col style="width: 2.04%">
+        </colgroup>
+
+        <!-- BLOCO: INSCRIÇÃO CADASTRAL -->
+        <tr class="r-header">
+            <td class="ba cod">01</td>
+            <td colspan="10" class="ba sec-title">INSCRIÇÃO CADASTRAL</td>
+            <td colspan="5" class="ba sec-title">TIPO DE MANUTENÇÃO</td>
+            <td></td>
+            <td class="ba cod">05</td>
+            <td colspan="14" class="ba sec-title">INSCRIÇÃO CADASTRAL ANTERIOR</td>
+        </tr>
+        <tr class="r-label">
+            <td class="ba cod">06</td>
+            <td class="ba center">SETOR</td>
+            <td colspan="3" class="ba center">LOTEAMENTO</td>
+            <td colspan="2" class="ba center">QUADRA</td>
+            <td colspan="2" class="ba center">LOTE</td>
+            <td class="ba center">UNIDADE</td>
+            <td class="ba center">D</td>
+            <td colspan="3" rowspan="2" class="ba" style="font-size:6px; line-height:1.3; padding-left:3px;">
+                1 - INCLUIR<br>2 - EXCLUIR<br>3 - ALTERAR
+            </td>
+            <td rowspan="2" class="ba cod">07</td>
+            <td class="ba center bold">M</td>
+            <td></td>
+            <td colspan="2" class="ba center">SETOR</td>
+            <td colspan="5" class="ba center">LOTEAMENTO</td>
+            <td colspan="2" class="ba center">QUADRA</td>
+            <td colspan="3" class="ba center">LOTE</td>
+            <td class="ba center">UNIDADE</td>
+            <td colspan="2" class="ba center">D</td>
+        </tr>
+        <tr class="r-input">
+            <td class="ba edit center" contenteditable="true"></td>
+            <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="3" class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="ba edit center" contenteditable="true"></td>
+            <td class="ba edit center" contenteditable="true"></td>
+            <td class="ba edit center" contenteditable="true"></td>
+            <td class="ba edit center" contenteditable="true"></td>
+            <td></td>
+            <td colspan="2" class="ba edit center" contenteditable="true"></td>
+            <td colspan="5" class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="ba edit center" contenteditable="true"></td>
+            <td colspan="3" class="ba edit center" contenteditable="true"></td>
+            <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <tr class="r-gap"><td colspan="32"></td></tr>
+
+        <!-- BLOCO: ENDEREÇO DO IMÓVEL -->
+        <tr class="r-header">
+            <td class="ba cod">08</td>
+            <td colspan="31" class="ba sec-title">ENDEREÇO DO IMÓVEL</td>
+        </tr>
+        <tr class="r-label">
+            <td rowspan="2" class="ba cod">09</td>
+            <td class="ba center">TIPO</td>
+            <td rowspan="2" class="ba cod">10</td>
+            <td colspan="29" class="ba" style="padding-left:4px;">NOME DO LOGRADOURO</td>
+        </tr>
+        <tr class="r-input">
+            <td class="ba edit center" contenteditable="true">Rua</td>
+            <td colspan="29" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+        </tr>
+        <tr class="r-label">
+            <td rowspan="2" class="ba cod">11</td>
+            <td colspan="6" class="ba center">CÓDIGO DO LOGRADOURO</td>
+            <td rowspan="2" class="ba cod">12</td>
+            <td colspan="4" class="ba center">NÚMERO</td>
+            <td rowspan="2" class="ba cod">13</td>
+            <td colspan="10" class="ba center">COMPLEMENTO</td>
+            <td rowspan="2" class="ba cod">14</td>
+            <td colspan="8" class="ba center">BAIRRO</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="6" class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="ba edit center" contenteditable="true">S/N</td>
+            <td colspan="10" class="ba edit center" contenteditable="true"></td>
+            <td colspan="8" class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <!-- BLOCO: IDENTIFICAÇÃO DO PROPRIETÁRIO -->
+        <tr class="r-header">
+            <td class="ba cod">15</td>
+            <td colspan="31" class="ba sec-title">IDENTIFICAÇÃO DO PROPRIETÁRIO / POSSUIDOR / TITULAR DE DOMÍNIO ÚTIL</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="7" class="ba bold" style="font-size:6.2px;">PROPRIETÁRIO / POSSEIRO / DOM. ÚTIL</td>
+            <td rowspan="2" class="ba cod">16</td>
+            <td colspan="24" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="7" class="ba bold" style="font-size:6.2px;">ENDEREÇO P/ CORRESPONDÊNCIA</td>
+            <td colspan="24" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+        </tr>
+        <tr class="r-label">
+            <td rowspan="2" class="ba cod">17</td>
+            <td colspan="6" class="ba center">CPF nº</td>
+            <td rowspan="2" class="ba cod">18</td>
+            <td colspan="9" class="ba center">CNPJ nº</td>
+            <td rowspan="2" class="ba cod">19</td>
+            <td colspan="9" class="ba center">RG / I.E. nº</td>
+            <td rowspan="2" class="ba cod">20</td>
+            <td colspan="4" class="ba center">SSP / SESDEC</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="6" class="ba edit center" contenteditable="true"></td>
+            <td colspan="9" class="ba edit center" contenteditable="true"></td>
+            <td colspan="9" class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <!-- BLOCO: INFORMAÇÃO DO TERRENO -->
+        <tr class="r-header">
+            <td class="ba cod">21</td>
+            <td colspan="31" class="ba sec-title">INFORMAÇÃO DO TERRENO</td>
+        </tr>
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">TOPOGRAFIA</td>
+            <td colspan="4" class="ba sub-title">NÍVEL</td>
+            <td colspan="4" class="ba sub-title">PEDOLOGIA</td>
+            <td colspan="6" class="ba sub-title">SITUAÇÃO</td>
+            <td colspan="9" class="ba sub-title">BENFEITORIAS</td>
+            <td colspan="4" class="ba sub-title">ZONA</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-NORMAL</td> <td colspan="4" class="bl br">1-AO NÍVEL</td> <td colspan="4" class="bl br">1-NORMAL</td>
+            <td colspan="6" class="bl br">1-UMA FRENTE</td> <td colspan="5" class="bl">1-SEM</td> <td colspan="4" class="br">2-MURO C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-ACLIVE</td> <td colspan="4" class="bl br">2-ABAIXO</td> <td colspan="4" class="bl br">2-ARENOSO</td>
+            <td colspan="6" class="bl br">2-DUAS FRENTES</td> <td colspan="5" class="bl">3-CERCA</td> <td colspan="4" class="br">4-CERCA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-DECLIVE</td> <td colspan="4" class="bl br">3-ACIMA</td> <td colspan="4" class="bl br">3-ATERRADO</td>
+            <td colspan="6" class="bl br">3-TRÊS FRENTES</td> <td colspan="5" class="bl">5-MURO</td> <td colspan="4" class="br">6-MURETA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-IRREGULAR</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">4-ALAGÁVEL</td>
+            <td colspan="6" class="bl br">4-QUATRO FRENTES</td> <td colspan="5" class="bl">7-MURETA</td> <td colspan="4" class="br">8-MISTA</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">5-BREJO</td>
+            <td colspan="6" class="bl br">5-ENCRAVADO</td> <td colspan="9" class="bl br">9-CALÇADA</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">6-ROCHOSO</td>
+            <td colspan="6" class="bl br"></td> <td colspan="9" class="bl br"></td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">22</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">23</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">24</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">25</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="7" class="bl bb"></td>
+            <td class="ba cod">26</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">27</td> <td class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <!-- SUB-BLOCO: ILUMINAÇÃO / COLETA / PAVIMENTAÇÃO / OCUPAÇÃO -->
+        <tr class="r-label">
+            <td colspan="4" class="ba sub-title">ILUMINAÇÃO</td>
+            <td colspan="4" class="ba sub-title">COLETA DE LIXO</td>
+            <td colspan="6" class="ba sub-title">PAVIMENTAÇÃO</td>
+            <td colspan="10" class="ba sub-title">OCUPAÇÃO</td>
+            <td colspan="8" class="bt bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br">1-SIM</td> <td colspan="4" class="bl br">1-SIM</td> <td colspan="6" class="bl br">1-PARALELEPÍPEDO</td>
+            <td colspan="5" class="bl">1-LOTE VAGO</td> <td colspan="5" class="br">12-ED. RES./AGRI.</td>
+            <td colspan="4" class="bl bold">ÁREA DO TERRENO</td> <td class="ba cod">32</td> <td colspan="3" class="ba bg-gray edit center" contenteditable="true"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br">2-NÃO</td> <td colspan="4" class="bl br">2-NÃO</td> <td colspan="6" class="bl br">2-ASFALTO</td>
+            <td colspan="5" class="bl">2-CONST. ANDAM.</td> <td colspan="5" class="br">13-ED. CHÁC. RECREIO</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">3-OUTROS</td>
+            <td colspan="5" class="bl">3-CONST. PARAL.</td> <td colspan="5" class="br">14-ED. ADM. PÚBL.</td>
+            <td colspan="4" class="bl bold">FRENTE (PRINCIPAL)</td> <td class="ba cod">33</td> <td colspan="3" class="ba bg-gray edit center" contenteditable="true"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">4-SEM PAV. C/ GUIA E SARJETA</td>
+            <td colspan="5" class="bl">4-CONST. ESTAC.</td> <td colspan="5" class="br">15-ED. RELIGIOSA</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">5-SEM PAV. S/ GUIA E SARJETA</td>
+            <td colspan="5" class="bl">5-ED. RESIDENCIAL</td> <td colspan="5" class="br">16-ED. ASSOCIAÇÃO</td>
+            <td colspan="4" class="bl bold">FUNDOS</td> <td class="ba cod">34</td> <td colspan="3" class="ba bg-gray edit center" contenteditable="true"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="5" class="bl">6-ED. COMERCIAL</td> <td colspan="5" class="br">17-ED. CLUBE</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">7-ED. RES./COM.</td>
+            <td colspan="4" class="bl bold">DIREITA</td> <td class="ba cod">35</td> <td colspan="3" class="ba bg-gray edit center" contenteditable="true"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">8-ED. INDUSTRIAL</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">9-ED. RES./IND.</td>
+            <td colspan="4" class="bl bold">ESQUERDA</td> <td class="ba cod">36</td> <td colspan="3" class="ba bg-gray edit center" contenteditable="true"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">10-ED. SERVIÇO</td>
+            <td class="bl bold">OBS.:</td>
+            <td colspan="7" class="br bg-blue edit" contenteditable="true" style="padding-left:2px;">medidas conforme mapa ID: </td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="2" class="bl bb"></td> <td class="ba cod">28</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td> <td class="ba cod">29</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="bl bb"></td> <td class="ba cod">30</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="8" class="bl bb">11-ED. RES./SERV.</td> <td class="ba cod">31</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="8" class="bl bb br"></td>
+        </tr>
+
+        <!-- BLOCO: MELHORIAS PÚBLICAS -->
+        <tr class="r-header">
+            <td colspan="32" class="ba sec-title">INFORMAÇÕES SOBRE MELHORIA PÚBLICA (Avaliação Territorial)</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="4" class="ba bold">PAVIMENTAÇÃO:</td> <td colspan="11" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+            <td colspan="6" class="ba bold">REDE DE ÁGUA:</td> <td colspan="11" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="5" class="ba bold">REDE DE ENERGIA:</td> <td colspan="10" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+            <td colspan="6" class="ba bold">REDE DE TELEFONIA:</td> <td colspan="11" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="8" class="ba bold">REDE DE GALERIAS DE ÁGUAS PLUVIAIS:</td> <td colspan="7" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+            <td colspan="8" class="ba bold">REDE DE ESGOTO SANITÁRIO:</td> <td colspan="9" class="ba edit" contenteditable="true" style="padding-left:4px;"></td>
+        </tr>
+        <tr class="r-code">
+            <td class="ba cod">37</td>
+            <td colspan="31" class="ba edit" contenteditable="true"></td>
+        </tr>
+
+        <!-- BLOCO: EDIFICAÇÃO -->
+        <tr class="r-header">
+            <td colspan="32" class="ba sec-title">INFORMAÇÃO DA EDIFICAÇÃO</td>
+        </tr>
+        <tr class="r-label">
+            <td colspan="32" class="ba center italic">OBS.: USO EXCLUSIVO PARA TERRENOS COM EDIFICAÇÕES</td>
+        </tr>
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">ESTRUTURA</td> <td colspan="4" class="ba sub-title">COBERTURA</td>
+            <td colspan="4" class="ba sub-title">PAREDES</td> <td colspan="6" class="ba sub-title">PISO</td>
+            <td colspan="8" class="ba sub-title">ESQUADRIAS</td> <td colspan="5" class="ba sub-title">FORRO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-MADEIRA TRATADA</td> <td colspan="4" class="bl br">1-AMIANTO</td> <td colspan="4" class="bl br">1-MADEIRA BRUTA</td>
+            <td colspan="6" class="bl br">1-TERRA</td> <td colspan="8" class="bl br">1-SEM</td> <td colspan="5" class="bl br">1-SEM</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-ALVENARIA</td> <td colspan="4" class="bl br">2-ALUMÍNIO</td> <td colspan="4" class="bl br">2-MADEIRA TRATADA</td>
+            <td colspan="6" class="bl br">2-CIMENTO</td> <td colspan="8" class="bl br">2-MADEIRA TRATADA</td> <td colspan="5" class="bl br">2-MADEIRA</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-CONCRETO</td> <td colspan="4" class="bl br">3-BARRO</td> <td colspan="4" class="bl br">3-ALVENARIA</td>
+            <td colspan="6" class="bl br">3-CERÂMICA</td> <td colspan="8" class="bl br">3-FERRO</td> <td colspan="5" class="bl br">3-LAJE</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-METÁLICA</td> <td colspan="4" class="bl br">4-AMIANTO ESPECIAL</td> <td colspan="4" class="bl br">4-ESPECIAL</td>
+            <td colspan="6" class="bl br">4-MADEIRA TRATADA</td> <td colspan="8" class="bl br">4-ALUMÍNIO</td> <td colspan="5" class="bl br">4-GESSO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">5-MISTA MAD./ALV.</td> <td colspan="4" class="bl br">5-LAJE</td> <td colspan="4" class="bl br">5-MISTA</td>
+            <td colspan="6" class="bl br">5-ESPECIAL</td> <td colspan="8" class="bl br">5-ESPECIAL</td> <td colspan="5" class="bl br">5-ESPECIAL</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">6-MISTA ALV./MET.</td> <td colspan="4" class="bl br">6-OUTROS</td> <td colspan="4" class="bl br">6-SEM</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">7-MISTA CONC./MET.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">38</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">39</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">40</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">41</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="6" class="bl bb"></td>
+            <td class="ba cod">42</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">43</td> <td class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <!-- REVESTIMENTOS / PINTURAS / COZINHA / BANHEIROS -->
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">REVEST. EXTERNO</td> <td colspan="4" class="ba sub-title">REVEST. INTERNO</td>
+            <td colspan="4" class="ba sub-title">PINTURA EXTERNA</td> <td colspan="6" class="ba sub-title">PINTURA INTERNA</td>
+            <td colspan="8" class="ba sub-title">COZINHA</td> <td colspan="5" class="ba sub-title">BANHEIROS</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td>
+            <td colspan="6" class="bl br">1-SEM</td> <td colspan="8" class="bl br">1-PIA C/ AZULEJO</td> <td colspan="5" class="bl br">1-SEM BANHEIRO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-MADEIRA</td> <td colspan="4" class="bl br">2-MADEIRA</td> <td colspan="4" class="bl br">2-BASE D'ÁGUA</td>
+            <td colspan="6" class="bl br">2-BASE D'ÁGUA</td> <td colspan="8" class="bl br">2-PIA SIMPLES</td> <td colspan="5" class="bl br">2-BANHEIRO EXTERNO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-REBOCO S/ MASSA</td> <td colspan="4" class="bl br">3-REBOCO S/ MASSA</td> <td colspan="4" class="bl br">3-CAIAÇÃO</td>
+            <td colspan="6" class="bl br">3-CAIAÇÃO</td> <td colspan="8" class="bl br">3-SEM PIA</td> <td colspan="5" class="bl br">3-UM BANH. INTERNO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-REBOCO C/ MASSA</td> <td colspan="4" class="bl br">4-REBOCO C/ MASSA</td> <td colspan="4" class="bl br">4-PLÁSTICA</td>
+            <td colspan="6" class="bl br">4-PLÁSTICA</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br">4-DOIS BANH. INTERNOS</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">5-CERÂMICA</td> <td colspan="4" class="bl br">5-CERÂMICA</td> <td colspan="4" class="bl br">5-A ÓLEO</td>
+            <td colspan="6" class="bl br">5-A ÓLEO</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br">5-MAIS DE 02 BANH. INTERNO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">6-ESPECIAL</td> <td colspan="4" class="bl br">6-ESPECIAL</td> <td colspan="4" class="bl br">6-ESPECIAL</td>
+            <td colspan="6" class="bl br">6-ESPECIAL</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">44</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">45</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">46</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">47</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="6" class="bl bb"></td>
+            <td class="ba cod">48</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">49</td> <td class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <!-- INSTALAÇÕES / CARACTERIZAÇÃO -->
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">INST. DE ÁGUA</td> <td colspan="4" class="ba sub-title">INST. ELÉTRICA</td>
+            <td colspan="4" class="ba sub-title">POSIÇÃO</td> <td colspan="6" class="ba sub-title">CONSERV. DA ED.</td>
+            <td colspan="8" class="ba sub-title">CARACTERIZAÇÃO</td> <td colspan="5" class="ba sub-title">ÁREA EDIFICADA</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-ISOLADA E ALINHADA</td>
+            <td colspan="6" class="bl br">1-RUIM</td> <td colspan="4" class="bl">1-BARRACO</td> <td colspan="4" class="br">9-ESCOLA</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-POÇO</td> <td colspan="4" class="bl br">2-APARENTE</td> <td colspan="4" class="bl br">2-ISOLADA E RECUADA</td>
+            <td colspan="6" class="bl br">2-REGULAR</td> <td colspan="4" class="bl">2-TELHEIRO</td> <td colspan="4" class="br">10-C. SAÚDE</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-POÇO C/ RESERV.</td> <td colspan="4" class="bl br">3-SEMI-EMBUTIDA</td> <td colspan="4" class="bl br">3-CONJ. E ALINHADA</td>
+            <td colspan="6" class="bl br">3-BOM</td> <td colspan="4" class="bl">3-GALPÃO</td> <td colspan="4" class="br">11-ESP. E DIV.</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-REDE PÚBLICA</td> <td colspan="4" class="bl br">4-EMBUTIDA</td> <td colspan="4" class="bl br">4-CONJ. E RECUADA</td>
+            <td colspan="6" class="bl br">4-NOVA</td> <td colspan="4" class="bl">4-CASA</td> <td colspan="4" class="br">12-OUTROS</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">5-REDE PÚB. C/ RESERV.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">5-DE FUNDOS</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">5-SOBRADO</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">6-POÇO C/ REDE PÚBL.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">6-APARTAMENTO</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">6-ED. RES.</td>
+            <td class="bl"></td> <td class="ba cod">55</td> <td colspan="3" class="ba edit center" contenteditable="true"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">7-SALA</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">7-ED. COM.</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">8-HOTEL</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">50</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">51</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">52</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">53</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="6" class="bl bb"></td>
+            <td class="ba cod">54</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="5" class="bl bb br"></td>
+        </tr>
+        <tr class="r-code">
+            <td class="ba cod">56</td>
+            <td colspan="31" class="ba edit" contenteditable="true"></td>
+        </tr>
+
+        <!-- DOCUMENTAÇÃO / POSSE -->
+        <tr class="r-header">
+            <td colspan="13" class="ba sec-title">DOCUMENTAÇÃO DO IMÓVEL</td>
+            <td colspan="19" class="ba sec-title">SITUAÇÃO DA POSSE OU PROPRIEDADE</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl">1-SEM</td> <td colspan="4">6-TITULADO Nº</td> <td colspan="3" class="ba edit center" contenteditable="true"></td> <td class="br"></td>
+            <td colspan="8" class="bl">1-LITÍGIO</td> <td colspan="6">6-AUTO ARRESTO</td> <td colspan="3" rowspan="2" class="ba edit center" contenteditable="true"></td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl">2-CADASTRADO</td> <td colspan="4">7-PROCESSO Nº</td> <td colspan="3" class="ba edit center" contenteditable="true"></td> <td class="br"></td>
+            <td colspan="8" class="bl">2-PENHORA</td> <td colspan="6">7-POSSEIRO / DOM. ÚTIL</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl">3-AUTORIZAÇÃO ESCRITURA</td> <td colspan="4">8-DOCUMENTO Nº</td> <td colspan="3" class="ba edit center" contenteditable="true"></td> <td class="br"></td>
+            <td colspan="8" class="bl">3-ESPÓLIO</td> <td colspan="6">8-PROPRIETÁRIO</td> <td colspan="3" rowspan="2" class="ba edit center" contenteditable="true"></td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="13" class="bl br">4-ESCRITURA PÚBLICA</td> <td colspan="8" class="bl">4-DUPLIC. DE POSSE</td> <td colspan="6">9-LIB. ARRESTO</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="13" class="bl br">5-REGISTRO NO CARTÓRIO</td> <td colspan="8" class="bl">5-DÚVIDA DA POSSE</td> <td colspan="6">10-OUTROS</td> <td colspan="3" class="ba edit center" contenteditable="true"></td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="11" class="bl bb"></td> <td class="ba cod">57</td> <td class="ba edit center" contenteditable="true"></td>
+            <td colspan="17" class="bl bb"></td> <td class="ba cod">58</td> <td class="ba edit center" contenteditable="true"></td>
+        </tr>
+
+        <!-- OBSERVAÇÕES (Preenche até encostar na margem inferior de 0,5cm) -->
+        <tr class="r-label">
+            <td colspan="32" class="bt bl br bold" style="padding-top:1px;">Observações:</td>
+        </tr>
+        <tr class="r-obs-input">
+            <td colspan="32" class="bl br bb edit" contenteditable="true" style="vertical-align:top; white-space:pre-wrap; padding:2px 4px;"></td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    function limparCampos() {
+        document.querySelectorAll('.edit').forEach(el => {
+            el.innerText = '';
+        });
+    }
+</script>
+
+</body>
+</html>
+Exibindo bci_completo-v3.html…
