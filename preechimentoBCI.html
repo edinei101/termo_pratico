@@ -1,0 +1,2509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preenchimento do BCI - SEMURFH Ji-Paraná</title>
+    <style>
+        :root {
+            --primary: #0056b3;
+            --primary-dark: #003d80;
+            --secondary: #495057;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --border: #ced4da;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100vw;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            min-height: 100vh;
+            background: var(--card-bg);
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header.form-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 18px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header.form-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        header.form-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary { background: #ffc107; color: #212529; }
+        .btn-primary:hover { background: #e0a800; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-outline { background: white; border: 1.5px solid #0056b3; color: #0056b3; }
+        .btn-outline:hover { background: #f0f7ff; }
+
+        /* Card de Modo de Lote (Único vs Múltiplas Unidades) */
+        .mode-selector-card {
+            background: #ffffff;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 16px 35px;
+            background: #f8fafc;
+        }
+        .mode-selector-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #003d80;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .mode-options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 15px;
+        }
+        .mode-option-btn {
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #ffffff;
+        }
+        .mode-option-btn:hover {
+            border-color: #0056b3;
+            background: #f0f7ff;
+        }
+        .mode-option-btn.selected {
+            border-color: #0056b3;
+            background: #eef6ff;
+            box-shadow: 0 0 0 2px rgba(0,86,179,0.2);
+        }
+        .mode-option-btn input[type="radio"] {
+            margin-top: 2px;
+            accent-color: #0056b3;
+            transform: scale(1.15);
+        }
+        .mode-option-text h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+        .mode-option-text p {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.3;
+        }
+
+        /* Barra de Navegação entre Unidades (A, B, C, D...) */
+        .unidades-bar-container {
+            display: none;
+            background: #ffffff;
+            padding: 12px 35px;
+            border-bottom: 2px solid #0056b3;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .unidades-nav-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .unidade-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1.5px solid #94a3b8;
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .unidade-pill:hover {
+            border-color: #0056b3;
+            background: #e2e8f0;
+        }
+        .unidade-pill.active {
+            border-color: #0056b3;
+            background: #0056b3;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,86,179,0.3);
+        }
+        .unidade-pill .tag-tipo {
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.25);
+            text-transform: uppercase;
+        }
+        .unidade-pill.active .tag-tipo {
+            background: #ffc107;
+            color: #000;
+        }
+
+        /* Banner Informativo da Unidade Ativa */
+        .banner-unidade-status {
+            display: none;
+            padding: 10px 35px;
+            font-size: 12.5px;
+            line-height: 1.4;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .banner-unidade-status.matriz {
+            background: #eef7ff;
+            color: #0369a1;
+            border-left: 5px solid #0284c7;
+        }
+        .banner-unidade-status.subsequente {
+            background: #fefce8;
+            color: #854d0e;
+            border-left: 5px solid #f59e0b;
+        }
+
+        /* Abas de Navegação das Seções do Formulário */
+        .tabs-nav {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 13px 18px;
+            border: none;
+            background: transparent;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: rgba(0,0,0,0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            background: var(--card-bg);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-btn.tab-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+
+        .tab-btn .badge-tab {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Conteúdo das Abas */
+        .tab-content {
+            display: none;
+            padding: 25px 35px;
+            flex: 1;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eef2f7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-6 { grid-template-columns: repeat(6, 1fr); }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group label span.badge {
+            background: #e2e8f0;
+            color: #4a5568;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 4px;
+        }
+
+        .form-control {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.15);
+        }
+
+        .form-control[readonly] {
+            background-color: #f8fafc;
+            color: #475569;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .tab-footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Banner de Notificação de Aba Bloqueada */
+        .card-aba-bloqueada {
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .card-aba-bloqueada h3 {
+            font-size: 15px;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+        .card-aba-bloqueada p {
+            font-size: 13px;
+            color: #64748b;
+            max-width: 650px;
+            margin: 0 auto 15px auto;
+            line-height: 1.45;
+        }
+
+        /* Modal da Visualização da Folha BCI */
+        #modalPrevia {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body-container {
+            width: 95%;
+            max-width: 1050px;
+            height: 94vh;
+            background: #525659;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-header-bar {
+            background: #2b2b2b;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .modal-header-bar h2 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .modal-content-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: #525659;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4, .grid-6 { grid-template-columns: 1fr; }
+            .header-actions { width: 100%; justify-content: flex-start; }
+            .mode-options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="form-header">
+        <div>
+            <h1>Formulário de Cadastro do BCI</h1>
+            <p>Prefeitura Municipal de Ji-Paraná • SEMURFH</p>
+        </div>
+        <div class="header-actions">
+            <a href="index.html" class="btn btn-secondary" style="text-decoration: none; color: white;" onclick="if(!confirm('Deseja voltar ao menu principal? Certifique-se de ter salvo o rascunho.')) return false;">⬅️ Menu Principal</a>
+            <button type="button" class="btn btn-secondary" onclick="salvarRascunho()">💾 Salvar Rascunho</button>
+            <button type="button" class="btn btn-danger" onclick="limparTudo()">🗑️ Limpar</button>
+            <button type="button" class="btn btn-primary" onclick="abrirPreviaBCI()">📄 Visualizar / Imprimir BCI Oficial</button>
+        </div>
+    </header>
+
+    <!-- SELETOR DO TIPO DE OCUPAÇÃO NO LOTE -->
+    <div class="mode-selector-card">
+        <div class="mode-selector-title">
+            🏛️ Tipo de Ocupação do Lote / Terreno
+        </div>
+        <div class="mode-options-grid">
+            <label class="mode-option-btn selected" id="lbl_modo_unico" onclick="definirModoLote('unico')">
+                <input type="radio" name="modo_lote" id="radio_unico" value="unico" checked>
+                <div class="mode-option-text">
+                    <h4>Edificação Única / Lote Individual</h4>
+                    <p>Apenas um imóvel isolado. O campo <strong>UNIDADE fica em branco</strong> e todas as abas (Terreno e Edificação) são preenchidas normalmente.</p>
+                </div>
+            </label>
+
+            <label class="mode-option-btn" id="lbl_modo_multiplo" onclick="definirModoLote('multiplo')">
+                <input type="radio" name="modo_lote" id="radio_multiplo" value="multiplo">
+                <div class="mode-option-text">
+                    <h4>Múltiplas Edificações / Unidades</h4>
+                    <p>Mais de um imóvel no mesmo lote (prédio com apartamentos, conjunto de lojas, casas aos fundos). <strong>Apenas a Aba 6 (Edificação) fica disponível</strong> para os novos BCIs (B, C, D...), herdando os dados cadastrais da Unidade A e preenchendo o terreno com 'X'.</p>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- BARRA DINÂMICA DE UNIDADES (A, B, C, D...) -->
+    <div class="unidades-bar-container" id="bar_unidades">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span style="font-size: 13px; font-weight: 800; color: #003d80;">🏢 Selecione a Unidade:</span>
+            <div class="unidades-nav-list" id="lista_unidades_pills">
+                <!-- Inserido dinamicamente via JS: Unidade A, Unidade B, etc. -->
+            </div>
+            <button type="button" class="btn btn-outline" style="padding: 5px 12px; font-size: 12px;" onclick="adicionarNovaUnidade()">
+                ➕ Adicionar Nova Unidade
+            </button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-danger" id="btn_remover_unidade" style="padding: 5px 10px; font-size: 11px; display: none;" onclick="removerUnidadeAtual()">
+                🗑️ Excluir Unidade Atual
+            </button>
+        </div>
+    </div>
+
+    <!-- BANNER DE STATUS DA UNIDADE ATIVA -->
+    <div class="banner-unidade-status" id="banner_status_unidade">
+        <!-- Preenchido via JS com instruções claras -->
+    </div>
+
+    <!-- NAVEGAÇÃO POR ABAS -->
+    <nav class="tabs-nav">
+        <button class="tab-btn active" id="btn_nav_aba_0" onclick="trocarAba(0)">1. Inscrição Cadastral</button>
+        <button class="tab-btn" id="btn_nav_aba_1" onclick="trocarAba(1)">2. Endereço</button>
+        <button class="tab-btn" id="btn_nav_aba_2" onclick="trocarAba(2)">3. Proprietário</button>
+        <button class="tab-btn" id="btn_nav_aba_3" onclick="trocarAba(3)">4. Terreno & Medidas</button>
+        <button class="tab-btn" id="btn_nav_aba_4" onclick="trocarAba(4)">5. Melhorias Públicas</button>
+        <button class="tab-btn" id="btn_nav_aba_5" onclick="trocarAba(5)">
+            6. Edificação <span class="badge-tab" id="badge_aba_edificacao">Ativa</span>
+        </button>
+        <button class="tab-btn" id="btn_nav_aba_6" onclick="trocarAba(6)">7. Documentação & Obs</button>
+    </nav>
+
+    <form id="formBCI">
+        <!-- ABA 1: INSCRIÇÃO CADASTRAL -->
+        <div class="tab-content active" id="aba-0">
+            <div id="box_bloqueio_aba_0" class="card-aba-bloqueada" style="display: none;">
+                <h3>🔒 Inscrição Cadastral Herdada da Unidade A</h3>
+                <p>Os dados do Lote (Setor, Loteamento, Quadra, Lote e Dígito) são compartilhados com a Unidade A. O campo <strong>UNIDADE</strong> foi configurado automaticamente em segundo plano para esta unidade.</p>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+            </div>
+
+            <div id="campos_aba_0">
+                <h2 class="section-title">01 - Inscrição Cadastral Atual & Manutenção</h2>
+                <div class="grid-row grid-6">
+                    <div class="form-group">
+                        <label><span class="badge">06</span>Setor</label>
+                        <input type="text" class="form-control" id="f_setor" maxlength="4" placeholder="Ex: 001 ou 0001">
+                    </div>
+                    <div class="form-group">
+                        <label>Loteamento</label>
+                        <input type="text" class="form-control" id="f_loteamento" placeholder="Ex: 001">
+                    </div>
+                    <div class="form-group">
+                        <label>Quadra</label>
+                        <input type="text" class="form-control" id="f_quadra" placeholder="Ex: 012">
+                    </div>
+                    <div class="form-group">
+                        <label>Lote</label>
+                        <input type="text" class="form-control" id="f_lote" placeholder="Ex: 034">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidade <small id="lbl_status_unidade" style="font-weight:normal; color:#64748b;">(Em branco se única)</small></label>
+                        <input type="text" class="form-control" id="f_unidade" maxlength="4" style="text-transform: uppercase; font-weight: bold; text-align: center;" placeholder="(Em branco)">
+                    </div>
+                    <div class="form-group">
+                        <label>D (Dígito)</label>
+                        <input type="text" class="form-control" id="f_digito" maxlength="1" placeholder="Ex: 0">
+                    </div>
+                </div>
+
+                <div class="grid-row grid-2" style="margin-top: 10px;">
+                    <div class="form-group">
+                        <label><span class="badge">07</span>Tipo de Manutenção</label>
+                        <select class="form-control" id="f_tipo_manutencao">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Incluir</option>
+                            <option value="2">2 - Excluir</option>
+                            <option value="3">3 - Alterar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2 class="section-title" style="margin-top: 25px;">05 - Inscrição Cadastral Anterior</h2>
+                <div class="grid-row grid-6">
+                    <div class="form-group">
+                        <label>Setor Ant.</label>
+                        <input type="text" class="form-control" id="f_ant_setor" maxlength="4" placeholder="Ex: 001 ou 0001">
+                    </div>
+                    <div class="form-group">
+                        <label>Loteamento Ant.</label>
+                        <input type="text" class="form-control" id="f_ant_loteamento">
+                    </div>
+                    <div class="form-group">
+                        <label>Quadra Ant.</label>
+                        <input type="text" class="form-control" id="f_ant_quadra">
+                    </div>
+                    <div class="form-group">
+                        <label>Lote Ant.</label>
+                        <input type="text" class="form-control" id="f_ant_lote">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidade Ant.</label>
+                        <input type="text" class="form-control" id="f_ant_unidade">
+                    </div>
+                    <div class="form-group">
+                        <label>Dígito Ant.</label>
+                        <input type="text" class="form-control" id="f_ant_digito" maxlength="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <div></div>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(1)">Próximo: Endereço ➡️</button>
+            </div>
+        </div>
+
+        <!-- ABA 2: ENDEREÇO DO IMÓVEL -->
+        <div class="tab-content" id="aba-1">
+            <div id="box_bloqueio_aba_1" class="card-aba-bloqueada" style="display: none;">
+                <h3>🔒 Endereço do Imóvel Herdado da Unidade A</h3>
+                <p>O endereço do lote é idêntico ao cadastrado na Unidade A. O campo Complemento pode ser ajustado especificamente para esta unidade na Aba de Edificação se necessário.</p>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+            </div>
+
+            <div id="campos_aba_1">
+                <h2 class="section-title">08 - Localização do Imóvel</h2>
+                <div class="grid-row grid-4">
+                    <div class="form-group">
+                        <label><span class="badge">09</span>Tipo Logradouro</label>
+                        <select class="form-control" id="f_tipo_logradouro">
+                            <option value="Rua">Rua</option>
+                            <option value="Avenida">Avenida</option>
+                            <option value="Travessa">Travessa</option>
+                            <option value="Alameda">Alameda</option>
+                            <option value="Beco">Beco</option>
+                            <option value="Boulevard">Boulevard</option>
+                            <option value="Caminho">Caminho</option>
+                            <option value="Chácara">Chácara</option>
+                            <option value="Colônia">Colônia</option>
+                            <option value="Condomínio">Condomínio</option>
+                            <option value="Conjunto">Conjunto</option>
+                            <option value="Distrito">Distrito</option>
+                            <option value="Estrada">Estrada</option>
+                            <option value="Fazenda">Fazenda</option>
+                            <option value="Ladeira">Ladeira</option>
+                            <option value="Largo">Largo</option>
+                            <option value="Loteamento">Loteamento</option>
+                            <option value="Morro">Morro</option>
+                            <option value="Parque">Parque</option>
+                            <option value="Passagem">Passagem</option>
+                            <option value="Passarela">Passarela</option>
+                            <option value="Pátio">Pátio</option>
+                            <option value="Praça">Praça</option>
+                            <option value="Prolongamento">Prolongamento</option>
+                            <option value="Quadra">Quadra</option>
+                            <option value="Quinta">Quinta</option>
+                            <option value="Ramal">Ramal</option>
+                            <option value="Recanto">Recanto</option>
+                            <option value="Residencial">Residencial</option>
+                            <option value="Rodovia">Rodovia</option>
+                            <option value="Rótula">Rótula</option>
+                            <option value="Servidão">Servidão</option>
+                            <option value="Setor">Setor</option>
+                            <option value="Sítio">Sítio</option>
+                            <option value="Trecho">Trecho</option>
+                            <option value="Trevo">Trevo</option>
+                            <option value="Vale">Vale</option>
+                            <option value="Vereda">Vereda</option>
+                            <option value="Via">Via</option>
+                            <option value="Viaduto">Viaduto</option>
+                            <option value="Viela">Viela</option>
+                            <option value="Vila">Vila</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: span 3;">
+                        <label><span class="badge">10</span>Nome do Logradouro</label>
+                        <input type="text" class="form-control" id="f_nome_logradouro" placeholder="Ex: Av. Brasil">
+                    </div>
+                </div>
+
+                <div class="grid-row grid-4">
+                    <div class="form-group">
+                        <label><span class="badge">11</span>Cód. Logradouro</label>
+                        <input type="text" class="form-control" id="f_cod_logradouro" placeholder="Ex: 185">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">12</span>Número</label>
+                        <input type="text" class="form-control" id="f_numero" placeholder="Ex: S/N ou 1234">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">13</span>Complemento</label>
+                        <input type="text" class="form-control" id="f_complemento" placeholder="Ex: Apto 101, Loja B, Fundos">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">14</span>Bairro</label>
+                        <input type="text" class="form-control" id="f_bairro" placeholder="Ex: Nova Brasília">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <button type="button" class="btn btn-secondary" onclick="trocarAba(0)">⬅️ Voltar</button>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(2)">Próximo: Proprietário ➡️</button>
+            </div>
+        </div>
+
+        <!-- ABA 3: PROPRIETÁRIO -->
+        <div class="tab-content" id="aba-2">
+            <div id="box_bloqueio_aba_2" class="card-aba-bloqueada" style="display: none;">
+                <h3>🔒 Dados do Proprietário / Posseiro Herdados da Unidade A</h3>
+                <p>Os dados do proprietário (Nome, CPF/CNPJ, RG, Endereço de Correspondência) foram replicados automaticamente da Unidade A para este BCI.</p>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+            </div>
+
+            <div id="campos_aba_2">
+                <h2 class="section-title">15 - Identificação do Proprietário / Posseiro / Domínio Útil</h2>
+                <div class="grid-row">
+                    <div class="form-group">
+                        <label><span class="badge">16</span>Nome do Proprietário / Posseiro</label>
+                        <input type="text" class="form-control" id="f_proprietario" placeholder="Nome Completo">
+                    </div>
+                </div>
+                <div class="grid-row">
+                    <div class="form-group">
+                        <label>Endereço para Correspondência</label>
+                        <input type="text" class="form-control" id="f_end_correspondencia" placeholder="Rua, Número, Bairro, Cidade - UF">
+                    </div>
+                </div>
+                <div class="grid-row grid-4">
+                    <div class="form-group">
+                        <label><span class="badge">17</span>CPF nº</label>
+                        <input type="text" class="form-control" id="f_cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off">
+                        <div id="msg_cpf" style="min-height: 16px; margin-top: 2px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">18</span>CNPJ nº (Antigo ou Novo Alfanumérico)</label>
+                        <input type="text" class="form-control" id="f_cnpj" placeholder="00.000.000/0000-00 ou XX.XXX.XXX/XXXX-00" maxlength="18" autocomplete="off" style="text-transform: uppercase;">
+                        <div id="msg_cnpj" style="min-height: 16px; margin-top: 2px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">19</span>RG / I.E. nº</label>
+                        <input type="text" class="form-control" id="f_rg" placeholder="Número do documento">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">20</span>Órgão Emissor</label>
+                        <input type="text" class="form-control" id="f_orgao_rg" placeholder="SSP / SESDEC">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <button type="button" class="btn btn-secondary" onclick="trocarAba(1)">⬅️ Voltar</button>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(3)">Próximo: Terreno ➡️</button>
+            </div>
+        </div>
+
+        <!-- ABA 4: TERRENO E MEDIDAS -->
+        <div class="tab-content" id="aba-3">
+            <div id="box_bloqueio_aba_3" class="card-aba-bloqueada" style="display: none;">
+                <h3>🔒 Características do Terreno Dispensadas (Preenchidas com 'X')</h3>
+                <p>Para unidades subsequentes (B, C, D...), as características físicas do terreno (Topografia, Nível, Pedologia, Benfeitorias e Medidas) <strong>não são preenchidas novamente</strong>. No documento oficial BCI, todos esses campos sairão marcados com <strong>'X'</strong> automaticamente.</p>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+            </div>
+
+            <div id="campos_aba_3">
+                <h2 class="section-title">21 - Características do Terreno</h2>
+                <div class="grid-row grid-3">
+                    <div class="form-group">
+                        <label><span class="badge">22</span>Topografia</label>
+                        <select class="form-control" id="f_topografia">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Normal</option>
+                            <option value="2">2 - Aclive</option>
+                            <option value="3">3 - Declive</option>
+                            <option value="4">4 - Irregular</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">23</span>Nível</label>
+                        <select class="form-control" id="f_nivel">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Ao Nível</option>
+                            <option value="2">2 - Abaixo</option>
+                            <option value="3">3 - Acima</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">24</span>Pedologia</label>
+                        <select class="form-control" id="f_pedologia">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Normal</option>
+                            <option value="2">2 - Arenoso</option>
+                            <option value="3">3 - Aterrado</option>
+                            <option value="4">4 - Alagável</option>
+                            <option value="5">5 - Brejo</option>
+                            <option value="6">6 - Rochoso</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-row grid-3">
+                    <div class="form-group">
+                        <label><span class="badge">25</span>Situação</label>
+                        <select class="form-control" id="f_situacao">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Uma Frente</option>
+                            <option value="2">2 - Duas Frentes</option>
+                            <option value="3">3 - Três Frentes</option>
+                            <option value="4">4 - Quatro Frentes</option>
+                            <option value="5">5 - Encravado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">26</span>Benfeitorias</label>
+                        <select class="form-control" id="f_benfeitorias">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Sem</option>
+                            <option value="2">2 - Muro c/ Calç.</option>
+                            <option value="3">3 - Cerca</option>
+                            <option value="4">4 - Cerca c/ Calç.</option>
+                            <option value="5">5 - Muro</option>
+                            <option value="6">6 - Mureta c/ Calç.</option>
+                            <option value="7">7 - Mureta</option>
+                            <option value="8">8 - Mista</option>
+                            <option value="9">9 - Calçada</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">27</span>Zona</label>
+                        <input type="text" class="form-control" id="f_zona" placeholder="Código da Zona">
+                    </div>
+                </div>
+
+                <div class="grid-row grid-4" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label><span class="badge">28</span>Iluminação</label>
+                        <select class="form-control" id="f_iluminacao">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Sim</option>
+                            <option value="2">2 - Não</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">29</span>Coleta de Lixo</label>
+                        <select class="form-control" id="f_coleta_lixo">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Sim</option>
+                            <option value="2">2 - Não</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">30</span>Pavimentação</label>
+                        <select class="form-control" id="f_pavimentacao">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Paralelepípedo</option>
+                            <option value="2">2 - Asfalto</option>
+                            <option value="3">3 - Outros</option>
+                            <option value="4">4 - Sem Pav. c/ Guia</option>
+                            <option value="5">5 - Sem Pav. s/ Guia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">31</span>Ocupação</label>
+                        <select class="form-control" id="f_ocupacao">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Lote Vago</option>
+                            <option value="2">2 - Const. Andam.</option>
+                            <option value="3">3 - Const. Paral.</option>
+                            <option value="4">4 - Const. Estac.</option>
+                            <option value="5">5 - Ed. Residencial</option>
+                            <option value="6">6 - Ed. Comercial</option>
+                            <option value="7">7 - Ed. Res./Com.</option>
+                            <option value="8">8 - Ed. Industrial</option>
+                            <option value="9">9 - Ed. Res./Ind.</option>
+                            <option value="10">10 - Ed. Serviço</option>
+                            <option value="11">11 - Ed. Res./Serv.</option>
+                            <option value="12">12 - Ed. Res./Agri.</option>
+                            <option value="13">13 - Ed. Chác. Recreio</option>
+                            <option value="14">14 - Ed. Adm. Públ.</option>
+                            <option value="15">15 - Ed. Religiosa</option>
+                            <option value="16">16 - Ed. Associação</option>
+                            <option value="17">17 - Ed. Clube</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2 class="section-title" style="margin-top: 25px;">Medidas do Terreno</h2>
+                <div class="grid-row grid-6">
+                    <div class="form-group">
+                        <label><span class="badge">32</span>Área Terreno (m²)</label>
+                        <input type="text" class="form-control" id="f_area_terreno" placeholder="Ex: 300,00">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">33</span>Frente (m)</label>
+                        <input type="text" class="form-control" id="f_frente" placeholder="Ex: 10,00">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">34</span>Fundos (m)</label>
+                        <input type="text" class="form-control" id="f_fundos" placeholder="Ex: 10,00">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">35</span>Direita (m)</label>
+                        <input type="text" class="form-control" id="f_direita" placeholder="Ex: 30,00">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="badge">36</span>Esquerda (m)</label>
+                        <input type="text" class="form-control" id="f_esquerda" placeholder="Ex: 30,00">
+                    </div>
+                    <div class="form-group">
+                        <label>ID Mapa/Obs Medidas</label>
+                        <input type="text" class="form-control" id="f_mapa_id" placeholder="ID do mapa">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <button type="button" class="btn btn-secondary" onclick="trocarAba(2)">⬅️ Voltar</button>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(4)">Próximo: Melhorias ➡️</button>
+            </div>
+        </div>
+
+        <!-- ABA 5: MELHORIAS PÚBLICAS -->
+        <div class="tab-content" id="aba-4">
+            <div id="box_bloqueio_aba_4" class="card-aba-bloqueada" style="display: none;">
+                <h3>🔒 Melhorias Públicas Herdadas da Unidade A</h3>
+                <p>As informações de infraestrutura pública urbana (Água, Luz, Esgoto, Asfalto) pertencem ao logradouro do lote e foram herdadas da Unidade A.</p>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+            </div>
+
+            <div id="campos_aba_4">
+                <h2 class="section-title">Informações sobre Melhoria Pública (Avaliação Territorial)</h2>
+                <div class="grid-row grid-2">
+                    <div class="form-group">
+                        <label>Pavimentação</label>
+                        <select class="form-control" id="f_melh_pavimentacao">
+                            <option value="">Selecione...</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rede de Água</label>
+                        <select class="form-control" id="f_melh_agua">
+                            <option value="">Selecione...</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-row grid-2">
+                    <div class="form-group">
+                        <label>Rede de Energia</label>
+                        <select class="form-control" id="f_melh_energia">
+                            <option value="">Selecione...</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rede de Telefonia</label>
+                        <select class="form-control" id="f_melh_telefonia">
+                            <option value="">Selecione...</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                            <option value="SIM, FIBRA ÓPTICA (DADOS)">SIM, FIBRA ÓPTICA (DADOS)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-row grid-2">
+                    <div class="form-group">
+                        <label>Rede de Galerias Pluviais</label>
+                        <select class="form-control" id="f_melh_galerias">
+                            <option value="">Selecione...</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rede de Esgoto Sanitário</label>
+                        <select class="form-control" id="f_melh_esgoto">
+                            <option value="">Selecione...</option>
+                            <option value="SIM">SIM</option>
+                            <option value="NÃO">NÃO</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <button type="button" class="btn btn-secondary" onclick="trocarAba(3)">⬅️ Voltar</button>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Próximo: Edificação ➡️</button>
+            </div>
+        </div>
+
+        <!-- ABA 6: EDIFICAÇÃO (SEMPRE ABERTA E ESPECÍFICA PARA CADA UNIDADE) -->
+        <div class="tab-content" id="aba-5">
+            <h2 class="section-title">
+                🏢 Caracterização da Edificação — <span id="titulo_edificacao_unidade" style="color: #b45309;">Unidade A</span>
+            </h2>
+            <div class="grid-row grid-3">
+                <div class="form-group">
+                    <label><span class="badge">38</span>Estrutura</label>
+                    <select class="form-control" id="f_estrutura">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Madeira Tratada</option>
+                        <option value="2">2 - Alvenaria</option>
+                        <option value="3">3 - Concreto</option>
+                        <option value="4">4 - Metálica</option>
+                        <option value="5">5 - Mista Mad./Alv.</option>
+                        <option value="6">6 - Mista Alv./Met.</option>
+                        <option value="7">7 - Mista Conc./Met.</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">39</span>Cobertura</label>
+                    <select class="form-control" id="f_cobertura">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Amianto</option>
+                        <option value="2">2 - Alumínio</option>
+                        <option value="3">3 - Barro</option>
+                        <option value="4">4 - Amianto Especial</option>
+                        <option value="5">5 - Laje</option>
+                        <option value="6">6 - Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">40</span>Paredes</label>
+                    <select class="form-control" id="f_paredes">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Madeira Bruta</option>
+                        <option value="2">2 - Madeira Tratada</option>
+                        <option value="3">3 - Alvenaria</option>
+                        <option value="4">4 - Especial</option>
+                        <option value="5">5 - Mista</option>
+                        <option value="6">6 - Sem</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-row grid-3">
+                <div class="form-group">
+                    <label><span class="badge">41</span>Piso</label>
+                    <select class="form-control" id="f_piso">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Terra</option>
+                        <option value="2">2 - Cimento</option>
+                        <option value="3">3 - Cerâmica</option>
+                        <option value="4">4 - Madeira Tratada</option>
+                        <option value="5">5 - Especial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">42</span>Esquadrias</label>
+                    <select class="form-control" id="f_esquadrias">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Madeira Tratada</option>
+                        <option value="3">3 - Ferro</option>
+                        <option value="4">4 - Alumínio</option>
+                        <option value="5">5 - Especial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">43</span>Forro</label>
+                    <select class="form-control" id="f_forro">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Madeira</option>
+                        <option value="3">3 - Laje</option>
+                        <option value="4">4 - Gesso</option>
+                        <option value="5">5 - Especial</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-row grid-3" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label><span class="badge">44</span>Revest. Externo</label>
+                    <select class="form-control" id="f_revest_externo">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Madeira</option>
+                        <option value="3">3 - Reboco s/ Massa</option>
+                        <option value="4">4 - Reboco c/ Massa</option>
+                        <option value="5">5 - Cerâmica</option>
+                        <option value="6">6 - Especial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">45</span>Revest. Interno</label>
+                    <select class="form-control" id="f_revest_interno">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Madeira</option>
+                        <option value="3">3 - Reboco s/ Massa</option>
+                        <option value="4">4 - Reboco c/ Massa</option>
+                        <option value="5">5 - Cerâmica</option>
+                        <option value="6">6 - Especial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">46</span>Pintura Externa</label>
+                    <select class="form-control" id="f_pintura_externa">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Base d'Água</option>
+                        <option value="3">3 - Caiação</option>
+                        <option value="4">4 - Plástica</option>
+                        <option value="5">5 - A Óleo</option>
+                        <option value="6">6 - Especial</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-row grid-3">
+                <div class="form-group">
+                    <label><span class="badge">47</span>Pintura Interna</label>
+                    <select class="form-control" id="f_pintura_interna">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Base d'Água</option>
+                        <option value="3">3 - Caiação</option>
+                        <option value="4">4 - Plástica</option>
+                        <option value="5">5 - A Óleo</option>
+                        <option value="6">6 - Especial</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">48</span>Cozinha</label>
+                    <select class="form-control" id="f_cozinha">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Pia c/ Azulejo</option>
+                        <option value="2">2 - Pia Simples</option>
+                        <option value="3">3 - Sem Pia</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">49</span>Banheiros</label>
+                    <select class="form-control" id="f_banheiros">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem Banheiro</option>
+                        <option value="2">2 - Banheiro Externo</option>
+                        <option value="3">3 - Um Banh. Interno</option>
+                        <option value="4">4 - Dois Banh. Internos</option>
+                        <option value="5">5 - Mais de 2 Banh. Internos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-row grid-3" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label><span class="badge">50</span>Inst. de Água</label>
+                    <select class="form-control" id="f_inst_agua">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Poço</option>
+                        <option value="3">3 - Poço c/ Reservatório</option>
+                        <option value="4">4 - Rede Pública</option>
+                        <option value="5">5 - Rede Púb. c/ Reservatório</option>
+                        <option value="6">6 - Poço c/ Rede Pública</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">51</span>Inst. Elétrica</label>
+                    <select class="form-control" id="f_inst_eletrica">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Sem</option>
+                        <option value="2">2 - Aparente</option>
+                        <option value="3">3 - Semi-Embutida</option>
+                        <option value="4">4 - Embutida</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">52</span>Posição</label>
+                    <select class="form-control" id="f_posicao">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Isolada e Alinhada</option>
+                        <option value="2">2 - Isolada e Recuada</option>
+                        <option value="3">3 - Conj. e Alinhada</option>
+                        <option value="4">4 - Conj. e Recuada</option>
+                        <option value="5">5 - De Fundos</option>
+                        <option value="6">6 - Apartamento</option>
+                        <option value="7">7 - Sala</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-row grid-3">
+                <div class="form-group">
+                    <label><span class="badge">53</span>Conservação</label>
+                    <select class="form-control" id="f_conservacao">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Ruim</option>
+                        <option value="2">2 - Regular</option>
+                        <option value="3">3 - Bom</option>
+                        <option value="4">4 - Nova</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">54</span>Caracterização</label>
+                    <select class="form-control" id="f_caracterizacao">
+                        <option value="">Selecione...</option>
+                        <option value="1">1 - Barraco</option>
+                        <option value="2">2 - Telheiro</option>
+                        <option value="3">3 - Galpão</option>
+                        <option value="4">4 - Casa</option>
+                        <option value="5">5 - Sobrado</option>
+                        <option value="6">6 - Ed. Residencial</option>
+                        <option value="7">7 - Ed. Comercial</option>
+                        <option value="8">8 - Hotel</option>
+                        <option value="9">9 - Escola</option>
+                        <option value="10">10 - C. Saúde</option>
+                        <option value="11">11 - Esp. e Div.</option>
+                        <option value="12">12 - Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><span class="badge">55</span>Área Edificada (m²)</label>
+                    <input type="text" class="form-control" id="f_area_edificada" placeholder="Ex: 85,00">
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <button type="button" class="btn btn-secondary" onclick="trocarAba(4)">⬅️ Voltar</button>
+                <button type="button" class="btn btn-primary" onclick="trocarAba(6)">Próximo: Documentação ➡️</button>
+            </div>
+        </div>
+
+        <!-- ABA 7: DOCUMENTAÇÃO & OBSERVAÇÕES -->
+        <div class="tab-content" id="aba-6">
+            <div id="box_bloqueio_aba_6" class="card-aba-bloqueada" style="display: none;">
+                <h3>🔒 Documentação do Imóvel Herdada da Unidade A</h3>
+                <p>Os dados de registro, cartório e posse foram herdados da Unidade A. Caso queira colocar observações específicas desta unidade, utilize o campo abaixo.</p>
+            </div>
+
+            <div id="campos_aba_6">
+                <h2 class="section-title">Documentação do Imóvel & Situação da Posse</h2>
+                <div class="grid-row grid-2">
+                    <div class="form-group">
+                        <label><span class="badge">57</span>Documentação do Imóvel</label>
+                        <select class="form-control" id="f_doc_imovel">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Sem</option>
+                            <option value="2">2 - Cadastrado</option>
+                            <option value="3">3 - Autorização Escritura</option>
+                            <option value="4">4 - Escritura Pública</option>
+                            <option value="5">5 - Registro no Cartório</option>
+                            <option value="6">6 - Titulado nº</option>
+                            <option value="7">7 - Processo nº</option>
+                            <option value="8">8 - Documento nº</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nº Titulado / Processo / Documento</label>
+                        <input type="text" class="form-control" id="f_num_documento" placeholder="Número do título/processo">
+                    </div>
+                </div>
+
+                <div class="grid-row grid-2">
+                    <div class="form-group">
+                        <label><span class="badge">58</span>Situação da Posse ou Propriedade</label>
+                        <select class="form-control" id="f_sit_posse">
+                            <option value="">Selecione...</option>
+                            <option value="1">1 - Litígio</option>
+                            <option value="2">2 - Penhora</option>
+                            <option value="3">3 - Espólio</option>
+                            <option value="4">4 - Duplicidade de Posse</option>
+                            <option value="5">5 - Dúvida da Posse</option>
+                            <option value="6">6 - Auto Arresto</option>
+                            <option value="7">7 - Posseiro / Dom. Útil</option>
+                            <option value="8">8 - Proprietário</option>
+                            <option value="9">9 - Lib. Arresto</option>
+                            <option value="10">10 - Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nº Auto Arresto / Liberação</label>
+                        <input type="text" class="form-control" id="f_num_posse" placeholder="Número se houver">
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title" style="margin-top: 25px;">Observações Complementares da Unidade</h2>
+            <div class="grid-row">
+                <div class="form-group">
+                    <textarea class="form-control" id="f_observacoes" rows="4" placeholder="Digite observações gerais sobre a unidade ou vistoria..."></textarea>
+                </div>
+            </div>
+
+            <div class="tab-footer">
+                <button type="button" class="btn btn-secondary" onclick="trocarAba(5)">⬅️ Voltar para Edificação</button>
+                <button type="button" class="btn btn-success" onclick="abrirPreviaBCI()">✅ Concluir e Visualizar BCI</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- MODAL PREVIEW DO BCI OFICIAL -->
+<div id="modalPrevia">
+    <div class="modal-body-container">
+        <div class="modal-header-bar">
+            <h2>Pré-Visualização do BCI Oficial A4 (Pronto para Impressão)</h2>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span id="label_seletor_previa_unidade" style="font-size: 12px; color: #cbd5e1;">Imprimir:</span>
+                <select id="sel_unidade_previa" class="form-control" style="padding: 4px 8px; font-size: 12px; font-weight: bold; width: auto;" onchange="renderizarPreviaSelecionada()">
+                    <!-- Opções dinâmicas -->
+                </select>
+                <button class="btn btn-primary" onclick="imprimirIframe()">🖨️ Imprimir / Salvar PDF</button>
+                <button class="btn btn-danger" onclick="fecharPrevia()">✖ Fechar</button>
+            </div>
+        </div>
+        <iframe id="frameBCI" class="modal-content-frame"></iframe>
+    </div>
+</div>
+
+<script>
+    // --- ESTADO GLOBAL DO CADASTRO (MULTI-UNIDADES) ---
+    let modoLoteAtual = 'unico'; // 'unico' ou 'multiplo'
+    let unidadeAtiva = 'A';       // 'A', 'B', 'C', 'D'...
+    let listaUnidades = ['A'];    // Array de letras cadastradas no lote
+    let dadosUnidades = {
+        'A': {}
+    };
+
+    // Campos exclusivos da Edificação (Aba 6) + Observações
+    const camposEdificacao = [
+        'f_estrutura', 'f_cobertura', 'f_paredes', 'f_piso', 'f_esquadrias', 'f_forro',
+        'f_revest_externo', 'f_revest_interno', 'f_pintura_externa', 'f_pintura_interna',
+        'f_cozinha', 'f_banheiros', 'f_inst_agua', 'f_inst_eletrica', 'f_posicao',
+        'f_conservacao', 'f_caracterizacao', 'f_area_edificada', 'f_observacoes'
+    ];
+
+    // Navegação de Abas
+    function trocarAba(idx) {
+        // Se estiver em unidade subsequente (B, C, D...) e tentar entrar em abas herdadas
+        if (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A' && idx !== 5 && idx !== 6) {
+            // Permite visualizar o card de bloqueio explicativo na aba
+        }
+
+        const tabs = document.querySelectorAll('.tab-content');
+        const btns = document.querySelectorAll('.tab-btn');
+        tabs.forEach((t, i) => {
+            t.classList.toggle('active', i === idx);
+            btns[i].classList.toggle('active', i === idx);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Modo Único vs Múltiplas Edificações
+    function definirModoLote(modo) {
+        salvarCamposFormularioNaMemoria();
+        modoLoteAtual = modo;
+
+        const lblUnico = document.getElementById('lbl_modo_unico');
+        const lblMultiplo = document.getElementById('lbl_modo_multiplo');
+        const radioUnico = document.getElementById('radio_unico');
+        const radioMultiplo = document.getElementById('radio_multiplo');
+        const barUnidades = document.getElementById('bar_unidades');
+
+        if (modo === 'unico') {
+            lblUnico.classList.add('selected');
+            lblMultiplo.classList.remove('selected');
+            radioUnico.checked = true;
+            barUnidades.style.display = 'none';
+
+            // No lote único, a unidade fica em branco
+            unidadeAtiva = 'A';
+            document.getElementById('f_unidade').value = '';
+            document.getElementById('f_unidade').placeholder = '(Em branco)';
+            document.getElementById('lbl_status_unidade').innerText = '(Em branco conforme padrão oficial)';
+            
+            aplicarRestricoesAba(false);
+            trocarAba(0);
+        } else {
+            lblUnico.classList.remove('selected');
+            lblMultiplo.classList.add('selected');
+            radioMultiplo.checked = true;
+            barUnidades.style.display = 'flex';
+
+            if (!listaUnidades.includes('A')) {
+                listaUnidades = ['A'];
+            }
+            if (listaUnidades.length === 1) {
+                // Adiciona automaticamente a Unidade B para dar fluxo imediato
+                listaUnidades.push('B');
+                dadosUnidades['B'] = {};
+            }
+
+            atualizarBarraPills();
+            selecionarUnidade(unidadeAtiva || 'A');
+        }
+    }
+
+    // Gerenciador de Pills das Unidades (A, B, C...)
+    function atualizarBarraPills() {
+        const container = document.getElementById('lista_unidades_pills');
+        container.innerHTML = '';
+
+        listaUnidades.forEach(letra => {
+            const pill = document.createElement('div');
+            pill.className = `unidade-pill ${letra === unidadeAtiva ? 'active' : ''}`;
+            const tipoLabel = letra === 'A' ? 'Matriz' : 'Sub';
+            pill.innerHTML = `<span>Unidade ${letra}</span> <span class="tag-tipo">${tipoLabel}</span>`;
+            pill.onclick = () => {
+                salvarCamposFormularioNaMemoria();
+                selecionarUnidade(letra);
+            };
+            container.appendChild(pill);
+        });
+
+        // Mostra botão de remover se não for a Unidade A
+        const btnRemover = document.getElementById('btn_remover_unidade');
+        btnRemover.style.display = (unidadeAtiva !== 'A' && listaUnidades.length > 1) ? 'inline-flex' : 'none';
+    }
+
+    function selecionarUnidade(letra) {
+        unidadeAtiva = letra;
+        atualizarBarraPills();
+
+        const banner = document.getElementById('banner_status_unidade');
+        const titEdif = document.getElementById('titulo_edificacao_unidade');
+        banner.style.display = 'block';
+
+        if (letra === 'A') {
+            banner.className = 'banner-unidade-status matriz';
+            banner.innerHTML = `🏠 <strong>UNIDADE A (MATRIZ DO LOTE):</strong> Preencha o BCI completo com os dados gerais do Lote, Endereço, Proprietário, Terreno e a Edificação da Unidade A.`;
+            titEdif.innerText = `Unidade A (Matriz)`;
+            
+            document.getElementById('f_unidade').value = 'A';
+            document.getElementById('lbl_status_unidade').innerText = `(Unidade A)`;
+
+            aplicarRestricoesAba(false);
+            carregarDadosMemoriaNoFormulario('A');
+            trocarAba(0);
+        } else {
+            banner.className = 'banner-unidade-status subsequente';
+            banner.innerHTML = `🏢 <strong>UNIDADE ${letra} (SUBSEQUENTE):</strong> Inscrição Cadastral, Endereço e Proprietário herdados da Unidade A. Dados do Terreno marcados com 'X'. <strong>Preencha apenas a Aba 6 (Edificação)</strong>.`;
+            titEdif.innerText = `Unidade ${letra}`;
+
+            document.getElementById('f_unidade').value = letra;
+            document.getElementById('lbl_status_unidade').innerText = `(Unidade ${letra})`;
+
+            aplicarRestricoesAba(true);
+            carregarDadosMemoriaNoFormulario(letra);
+            // Direciona imediatamente para a Aba 6 (Edificação)!
+            trocarAba(5);
+        }
+    }
+
+    function adicionarNovaUnidade() {
+        salvarCamposFormularioNaMemoria();
+        // Achar próxima letra disponível
+        const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let proxima = null;
+        for (let l of alfabeto) {
+            if (!listaUnidades.includes(l)) {
+                proxima = l;
+                break;
+            }
+        }
+        if (!proxima) {
+            alert('Limite de unidades (A-Z) atingido!');
+            return;
+        }
+
+        listaUnidades.push(proxima);
+        dadosUnidades[proxima] = {};
+        selecionarUnidade(proxima);
+    }
+
+    function removerUnidadeAtual() {
+        if (unidadeAtiva === 'A') {
+            alert('A Unidade A (Matriz) não pode ser excluída!');
+            return;
+        }
+        if (confirm(`Tem certeza de que deseja remover a Unidade ${unidadeAtiva}?`)) {
+            delete dadosUnidades[unidadeAtiva];
+            listaUnidades = listaUnidades.filter(l => l !== unidadeAtiva);
+            selecionarUnidade('A');
+        }
+    }
+
+    // Bloqueia ou libera abas conforme a regra da Unidade
+    function aplicarRestricoesAba(isSubsequente) {
+        const abasBloqueaveis = [0, 1, 2, 3, 4, 6];
+        const badgeEdif = document.getElementById('badge_aba_edificacao');
+
+        if (isSubsequente) {
+            badgeEdif.innerText = 'Preenchimento Ativo';
+            badgeEdif.style.background = '#28a745';
+            badgeEdif.style.color = '#fff';
+
+            abasBloqueaveis.forEach(idx => {
+                const btnNav = document.getElementById(`btn_nav_aba_${idx}`);
+                const boxBloqueio = document.getElementById(`box_bloqueio_aba_${idx}`);
+                const campos = document.getElementById(`campos_aba_${idx}`);
+
+                if (btnNav) btnNav.classList.add('tab-disabled');
+                if (boxBloqueio) boxBloqueio.style.display = 'block';
+                if (campos) campos.style.display = 'none';
+            });
+        } else {
+            badgeEdif.innerText = 'Ativa';
+            badgeEdif.style.background = '#e2e8f0';
+            badgeEdif.style.color = '#475569';
+
+            abasBloqueaveis.forEach(idx => {
+                const btnNav = document.getElementById(`btn_nav_aba_${idx}`);
+                const boxBloqueio = document.getElementById(`box_bloqueio_aba_${idx}`);
+                const campos = document.getElementById(`campos_aba_${idx}`);
+
+                if (btnNav) btnNav.classList.remove('tab-disabled');
+                if (boxBloqueio) boxBloqueio.style.display = 'none';
+                if (campos) campos.style.display = 'block';
+            });
+        }
+    }
+
+    // Salvar campos do DOM no objeto de memória
+    function salvarCamposFormularioNaMemoria() {
+        const inputs = document.querySelectorAll('#formBCI input, #formBCI select, #formBCI textarea');
+        if (!dadosUnidades[unidadeAtiva]) {
+            dadosUnidades[unidadeAtiva] = {};
+        }
+
+        inputs.forEach(el => {
+            if (unidadeAtiva === 'A' || modoLoteAtual === 'unico') {
+                // Unidade A grava todos os campos
+                dadosUnidades[unidadeAtiva][el.id] = el.value || '';
+            } else {
+                // Unidades B, C, D... gravam apenas os campos de edificação e observações
+                if (camposEdificacao.includes(el.id)) {
+                    dadosUnidades[unidadeAtiva][el.id] = el.value || '';
+                }
+            }
+        });
+    }
+
+    // Carregar dados da memória de volta para o formulário no DOM
+    function carregarDadosMemoriaNoFormulario(letra) {
+        const dadosMatriz = dadosUnidades['A'] || {};
+        const dadosDesta = dadosUnidades[letra] || {};
+
+        const inputs = document.querySelectorAll('#formBCI input, #formBCI select, #formBCI textarea');
+
+        inputs.forEach(el => {
+            if (letra === 'A' || modoLoteAtual === 'unico') {
+                el.value = dadosMatriz[el.id] !== undefined ? dadosMatriz[el.id] : '';
+            } else {
+                if (camposEdificacao.includes(el.id)) {
+                    el.value = dadosDesta[el.id] !== undefined ? dadosDesta[el.id] : '';
+                } else {
+                    // Herdado de A
+                    el.value = dadosMatriz[el.id] !== undefined ? dadosMatriz[el.id] : '';
+                }
+            }
+        });
+
+        // Configuração garantida do campo Unidade
+        if (modoLoteAtual === 'unico') {
+            document.getElementById('f_unidade').value = '';
+        } else {
+            document.getElementById('f_unidade').value = letra;
+        }
+    }
+
+    // Persistência local (LocalStorage)
+    function salvarRascunho() {
+        salvarCamposFormularioNaMemoria();
+        const pacote = {
+            modoLoteAtual,
+            unidadeAtiva,
+            listaUnidades,
+            dadosUnidades
+        };
+        localStorage.setItem('rascunho_bci_semurfh_v2', JSON.stringify(pacote));
+        alert('Rascunho do lote e de todas as unidades salvo com sucesso!');
+    }
+
+    function carregarRascunho() {
+        const salvo = localStorage.getItem('rascunho_bci_semurfh_v2');
+        if (salvo) {
+            try {
+                const p = JSON.parse(salvo);
+                modoLoteAtual = p.modoLoteAtual || 'unico';
+                unidadeAtiva = p.unidadeAtiva || 'A';
+                listaUnidades = p.listaUnidades || ['A'];
+                dadosUnidades = p.dadosUnidades || { 'A': {} };
+
+                definirModoLote(modoLoteAtual);
+            } catch(e) {
+                console.error('Erro ao ler rascunho:', e);
+            }
+        }
+    }
+
+    function limparTudo() {
+        if (confirm('Tem certeza de que deseja limpar todos os campos e reiniciar o lote?')) {
+            document.getElementById('formBCI').reset();
+            localStorage.removeItem('rascunho_bci_semurfh_v2');
+            modoLoteAtual = 'unico';
+            unidadeAtiva = 'A';
+            listaUnidades = ['A'];
+            dadosUnidades = { 'A': {} };
+            definirModoLote('unico');
+        }
+    }
+
+    // Coleta dados consolidados para gerar o BCI de uma unidade específica
+    function montarDadosConsolidadosUnidade(letra) {
+        const matriz = dadosUnidades['A'] || {};
+        const propria = dadosUnidades[letra] || {};
+        const ehSub = (modoLoteAtual === 'multiplo' && letra !== 'A');
+
+        const d = Object.assign({}, matriz);
+
+        if (modoLoteAtual === 'unico') {
+            d.f_unidade = '';
+        } else {
+            d.f_unidade = letra;
+        }
+
+        if (ehSub) {
+            // Sobrescreve com os dados da edificação desta unidade
+            camposEdificacao.forEach(cp => {
+                d[cp] = propria[cp] !== undefined ? propria[cp] : '';
+            });
+
+            // Conforme solicitado: no BCI subsequente, campos de Terreno saem com "X"
+            d.f_topografia = 'X';
+            d.f_nivel = 'X';
+            d.f_pedologia = 'X';
+            d.f_situacao = 'X';
+            d.f_benfeitorias = 'X';
+            d.f_zona = 'X';
+            d.f_iluminacao = 'X';
+            d.f_coleta_lixo = 'X';
+            d.f_pavimentacao = 'X';
+            d.f_ocupacao = 'X';
+            d.f_area_terreno = 'X';
+            d.f_frente = 'X';
+            d.f_fundos = 'X';
+            d.f_direita = 'X';
+            d.f_esquerda = 'X';
+            d.f_mapa_id = 'X';
+        }
+
+        return d;
+    }
+
+    // Gerador HTML Oficial A4 do BCI
+        // --- GERADOR MODULAR DE FOLHAS BCI (1 FOLHA A4 INDIVIDUAL POR UNIDADE) ---
+
+    function gerarFolhaIndividualBCI(d) {
+        return `<div class="folha-a4">
+    <div class="quadro-topo">
+        <div class="col-1">
+            <div class="quadro-interno">
+                <div class="conteudo-col1">
+                    <img src="logo.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                    <span class="texto-prefeitura">PREFEITURA DE JI-PARANÁ</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="quadro-interno">
+                <div class="conteudo-col2">
+                    <span class="texto-col2">BOLETIM IMOBILIÁRIO</span>
+                    <span class="texto-col2">SÓCIO-ECONÔMICO</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="quadro-interno">
+                <div class="conteudo-col2">
+                    <span class="texto-col3">SECRETÁRIA MUNICIPAL DE REGULARIZAÇÃO FUNDIÁRIA E HABITAÇÃO - SEMURFH</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="bci-grid">
+        <colgroup>
+            <col style="width: 2.04%"> <col style="width: 5.16%"> <col style="width: 2.76%"> <col style="width: 3.00%">
+            <col style="width: 2.88%"> <col style="width: 4.08%"> <col style="width: 2.16%"> <col style="width: 2.04%">
+            <col style="width: 3.00%"> <col style="width: 6.01%"> <col style="width: 1.80%"> <col style="width: 3.00%">
+            <col style="width: 2.40%"> <col style="width: 2.52%"> <col style="width: 2.40%"> <col style="width: 2.16%">
+            <col style="width: 1.20%"> <col style="width: 2.04%"> <col style="width: 2.64%"> <col style="width: 4.08%">
+            <col style="width: 2.64%"> <col style="width: 9.37%"> <col style="width: 2.28%"> <col style="width: 2.76%">
+            <col style="width: 3.97%"> <col style="width: 2.04%"> <col style="width: 2.40%"> <col style="width: 2.76%">
+            <col style="width: 2.40%"> <col style="width: 7.69%"> <col style="width: 2.28%"> <col style="width: 2.04%">
+        </colgroup>
+
+        <tr class="r-header">
+            <td class="ba cod">01</td>
+            <td colspan="10" class="ba sec-title">INSCRIÇÃO CADASTRAL</td>
+            <td colspan="5" class="ba sec-title">TIPO DE MANUTENÇÃO</td>
+            <td></td>
+            <td class="ba cod">05</td>
+            <td colspan="14" class="ba sec-title">INSCRIÇÃO CADASTRAL ANTERIOR</td>
+        </tr>
+        <tr class="r-label">
+            <td class="ba cod">06</td>
+            <td class="ba center">SETOR</td>
+            <td colspan="3" class="ba center">LOTEAMENTO</td>
+            <td colspan="2" class="ba center">QUADRA</td>
+            <td colspan="2" class="ba center">LOTE</td>
+            <td class="ba center">UNIDADE</td>
+            <td class="ba center">D</td>
+            <td colspan="3" rowspan="2" class="ba" style="font-size:6px; line-height:1.3; padding-left:3px;">
+                1 - INCLUIR<br>2 - EXCLUIR<br>3 - ALTERAR
+            </td>
+            <td rowspan="2" class="ba cod">07</td>
+            <td class="ba center bold">M</td>
+            <td></td>
+            <td colspan="2" class="ba center">SETOR</td>
+            <td colspan="5" class="ba center">LOTEAMENTO</td>
+            <td colspan="2" class="ba center">QUADRA</td>
+            <td colspan="3" class="ba center">LOTE</td>
+            <td class="ba center">UNIDADE</td>
+            <td colspan="2" class="ba center">D</td>
+        </tr>
+        <tr class="r-input">
+            <td class="ba center"></td>
+            <td class="ba center">${d.f_setor || ''}</td>
+            <td colspan="3" class="ba center">${d.f_loteamento || ''}</td>
+            <td colspan="2" class="ba center">${d.f_quadra || ''}</td>
+            <td colspan="2" class="ba center">${d.f_lote || ''}</td>
+            <td class="ba center" style="color: #003d80;">${d.f_unidade || ''}</td>
+            <td class="ba center">${d.f_digito || ''}</td>
+            <td class="ba center">${d.f_tipo_manutencao || ''}</td>
+            <td></td>
+            <td colspan="2" class="ba center">${d.f_ant_setor || ''}</td>
+            <td colspan="5" class="ba center">${d.f_ant_loteamento || ''}</td>
+            <td colspan="2" class="ba center">${d.f_ant_quadra || ''}</td>
+            <td colspan="3" class="ba center">${d.f_ant_lote || ''}</td>
+            <td class="ba center">${d.f_ant_unidade || ''}</td>
+            <td colspan="2" class="ba center">${d.f_ant_digito || ''}</td>
+        </tr>
+
+        <tr class="r-gap"><td colspan="32"></td></tr>
+
+        <tr class="r-header">
+            <td class="ba cod">08</td>
+            <td colspan="31" class="ba sec-title">ENDEREÇO DO IMÓVEL</td>
+        </tr>
+        <tr class="r-label">
+            <td rowspan="2" class="ba cod">09</td>
+            <td class="ba center">TIPO</td>
+            <td rowspan="2" class="ba cod">10</td>
+            <td colspan="29" class="ba" style="padding-left:4px;">NOME DO LOGRADOURO</td>
+        </tr>
+        <tr class="r-input">
+            <td class="ba center">${d.f_tipo_logradouro || ''}</td>
+            <td colspan="29" class="ba" style="padding-left:4px;">${d.f_nome_logradouro || ''}</td>
+        </tr>
+        <tr class="r-label">
+            <td rowspan="2" class="ba cod">11</td>
+            <td colspan="6" class="ba center">CÓDIGO DO LOGRADOURO</td>
+            <td rowspan="2" class="ba cod">12</td>
+            <td colspan="4" class="ba center">NÚMERO</td>
+            <td rowspan="2" class="ba cod">13</td>
+            <td colspan="10" class="ba center">COMPLEMENTO</td>
+            <td rowspan="2" class="ba cod">14</td>
+            <td colspan="8" class="ba center">BAIRRO</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="6" class="ba center">${d.f_cod_logradouro || ''}</td>
+            <td colspan="4" class="ba center">${d.f_numero || ''}</td>
+            <td colspan="10" class="ba center">${d.f_complemento || ''}</td>
+            <td colspan="8" class="ba center">${d.f_bairro || ''}</td>
+        </tr>
+
+        <tr class="r-header">
+            <td class="ba cod">15</td>
+            <td colspan="31" class="ba sec-title">IDENTIFICAÇÃO DO PROPRIETÁRIO / POSSUIDOR / TITULAR DE DOMÍNIO ÚTIL</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="7" class="ba bold" style="font-size:6.2px;">PROPRIETÁRIO / POSSEIRO / DOM. ÚTIL</td>
+            <td rowspan="2" class="ba cod">16</td>
+            <td colspan="24" class="ba" style="padding-left:4px;">${d.f_proprietario || ''}</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="7" class="ba bold" style="font-size:6.2px;">ENDEREÇO P/ CORRESPONDÊNCIA</td>
+            <td colspan="24" class="ba" style="padding-left:4px;">${d.f_end_correspondencia || ''}</td>
+        </tr>
+        <tr class="r-label">
+            <td rowspan="2" class="ba cod">17</td>
+            <td colspan="6" class="ba center">CPF nº</td>
+            <td rowspan="2" class="ba cod">18</td>
+            <td colspan="9" class="ba center">CNPJ nº</td>
+            <td rowspan="2" class="ba cod">19</td>
+            <td colspan="9" class="ba center">RG / I.E. nº</td>
+            <td rowspan="2" class="ba cod">20</td>
+            <td colspan="4" class="ba center">SSP / SESDEC</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="6" class="ba center">${d.f_cpf || ''}</td>
+            <td colspan="9" class="ba center">${d.f_cnpj || ''}</td>
+            <td colspan="9" class="ba center">${d.f_rg || ''}</td>
+            <td colspan="4" class="ba center">${d.f_orgao_rg || ''}</td>
+        </tr>
+
+        <tr class="r-header">
+            <td class="ba cod">21</td>
+            <td colspan="31" class="ba sec-title">INFORMAÇÃO DO TERRENO</td>
+        </tr>
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">TOPOGRAFIA</td>
+            <td colspan="4" class="ba sub-title">NÍVEL</td>
+            <td colspan="4" class="ba sub-title">PEDOLOGIA</td>
+            <td colspan="6" class="ba sub-title">SITUAÇÃO</td>
+            <td colspan="9" class="ba sub-title">BENFEITORIAS</td>
+            <td colspan="4" class="ba sub-title">ZONA</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-NORMAL</td> <td colspan="4" class="bl br">1-AO NÍVEL</td> <td colspan="4" class="bl br">1-NORMAL</td>
+            <td colspan="6" class="bl br">1-UMA FRENTE</td> <td colspan="5" class="bl">1-SEM</td> <td colspan="4" class="br">2-MURO C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-ACLIVE</td> <td colspan="4" class="bl br">2-ABAIXO</td> <td colspan="4" class="bl br">2-ARENOSO</td>
+            <td colspan="6" class="bl br">2-DUAS FRENTES</td> <td colspan="5" class="bl">3-CERCA</td> <td colspan="4" class="br">4-CERCA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-DECLIVE</td> <td colspan="4" class="bl br">3-ACIMA</td> <td colspan="4" class="bl br">3-ATERRADO</td>
+            <td colspan="6" class="bl br">3-TRÊS FRENTES</td> <td colspan="5" class="bl">5-MURO</td> <td colspan="4" class="br">6-MURETA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-IRREGULAR</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">4-ALAGÁVEL</td>
+            <td colspan="6" class="bl br">4-QUATRO FRENTES</td> <td colspan="5" class="bl">7-MURETA</td> <td colspan="4" class="br">8-MISTA</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">5-BREJO</td>
+            <td colspan="6" class="bl br">5-ENCRAVADO</td> <td colspan="9" class="bl br">9-CALÇADA</td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">6-ROCHOSO</td>
+            <td colspan="6" class="bl br"></td> <td colspan="9" class="bl br"></td> <td colspan="4" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">22</td> <td class="ba center">${d.f_topografia || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">23</td> <td class="ba center">${d.f_nivel || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">24</td> <td class="ba center">${d.f_pedologia || ''}</td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">25</td> <td class="ba center">${d.f_situacao || ''}</td>
+            <td colspan="7" class="bl bb"></td>
+            <td class="ba cod">26</td> <td class="ba center">${d.f_benfeitorias || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">27</td> <td class="ba center">${d.f_zona || ''}</td>
+        </tr>
+
+        <tr class="r-label">
+            <td colspan="4" class="ba sub-title">ILUMINAÇÃO</td>
+            <td colspan="4" class="ba sub-title">COLETA DE LIXO</td>
+            <td colspan="6" class="ba sub-title">PAVIMENTAÇÃO</td>
+            <td colspan="10" class="ba sub-title">OCUPAÇÃO</td>
+            <td colspan="8" class="bt bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br">1-SIM</td> <td colspan="4" class="bl br">1-SIM</td> <td colspan="6" class="bl br">1-PARALELEPÍPEDO</td>
+            <td colspan="5" class="bl">1-LOTE VAGO</td> <td colspan="5" class="br">12-ED. RES./AGRI.</td>
+            <td colspan="4" class="bl bold">ÁREA DO TERRENO</td> <td class="ba cod">32</td> <td colspan="3" class="ba bg-gray center">${d.f_area_terreno || ''}</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br">2-NÃO</td> <td colspan="4" class="bl br">2-NÃO</td> <td colspan="6" class="bl br">2-ASFALTO</td>
+            <td colspan="5" class="bl">2-CONST. ANDAM.</td> <td colspan="5" class="br">13-ED. CHÁC. RECREIO</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">3-OUTROS</td>
+            <td colspan="5" class="bl">3-CONST. PARAL.</td> <td colspan="5" class="br">14-ED. ADM. PÚBL.</td>
+            <td colspan="4" class="bl bold">FRENTE (PRINCIPAL)</td> <td class="ba cod">33</td> <td colspan="3" class="ba bg-gray center">${d.f_frente || ''}</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">4-SEM PAV. C/ GUIA E SARJETA</td>
+            <td colspan="5" class="bl">4-CONST. ESTAC.</td> <td colspan="5" class="br">15-ED. RELIGIOSA</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">5-SEM PAV. S/ GUIA E SARJETA</td>
+            <td colspan="5" class="bl">5-ED. RESIDENCIAL</td> <td colspan="5" class="br">16-ED. ASSOCIAÇÃO</td>
+            <td colspan="4" class="bl bold">FUNDOS</td> <td class="ba cod">34</td> <td colspan="3" class="ba bg-gray center">${d.f_fundos || ''}</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="5" class="bl">6-ED. COMERCIAL</td> <td colspan="5" class="br">17-ED. CLUBE</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">7-ED. RES./COM.</td>
+            <td colspan="4" class="bl bold">DIREITA</td> <td class="ba cod">35</td> <td colspan="3" class="ba bg-gray center">${d.f_direita || ''}</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">8-ED. INDUSTRIAL</td>
+            <td colspan="8" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">9-ED. RES./IND.</td>
+            <td colspan="4" class="bl bold">ESQUERDA</td> <td class="ba cod">36</td> <td colspan="3" class="ba bg-gray center">${d.f_esquerda || ''}</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
+            <td colspan="10" class="bl br">10-ED. SERVIÇO</td>
+            <td class="bl bold">OBS.:</td>
+            <td colspan="7" class="br bg-blue" style="padding-left:2px;">medidas conforme mapa ID: ${d.f_mapa_id || ''}</td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="2" class="bl bb"></td> <td class="ba cod">28</td> <td class="ba center">${d.f_iluminacao || ''}</td>
+            <td colspan="2" class="bl bb"></td> <td class="ba cod">29</td> <td class="ba center">${d.f_coleta_lixo || ''}</td>
+            <td colspan="4" class="bl bb"></td> <td class="ba cod">30</td> <td class="ba center">${d.f_pavimentacao || ''}</td>
+            <td colspan="8" class="bl bb">11-ED. RES./SERV.</td> <td class="ba cod">31</td> <td class="ba center">${d.f_ocupacao || ''}</td>
+            <td colspan="8" class="bl bb br"></td>
+        </tr>
+
+        <tr class="r-header">
+            <td colspan="32" class="ba sec-title">INFORMAÇÕES SOBRE MELHORIA PÚBLICA (Avaliação Territorial)</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="4" class="ba bold">PAVIMENTAÇÃO:</td> <td colspan="11" class="ba" style="padding-left:4px;">${d.f_melh_pavimentacao || ''}</td>
+            <td colspan="6" class="ba bold">REDE DE ÁGUA:</td> <td colspan="11" class="ba" style="padding-left:4px;">${d.f_melh_agua || ''}</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="5" class="ba bold">REDE DE ENERGIA:</td> <td colspan="10" class="ba" style="padding-left:4px;">${d.f_melh_energia || ''}</td>
+            <td colspan="6" class="ba bold">REDE DE TELEFONIA:</td> <td colspan="11" class="ba" style="padding-left:4px;">${d.f_melh_telefonia || ''}</td>
+        </tr>
+        <tr class="r-input">
+            <td colspan="8" class="ba bold">REDE DE GALERIAS DE ÁGUAS PLUVIAIS:</td> <td colspan="7" class="ba" style="padding-left:4px;">${d.f_melh_galerias || ''}</td>
+            <td colspan="8" class="ba bold">REDE DE ESGOTO SANITÁRIO:</td> <td colspan="9" class="ba" style="padding-left:4px;">${d.f_melh_esgoto || ''}</td>
+        </tr>
+
+        <tr class="r-header">
+            <td colspan="32" class="ba sec-title">INFORMAÇÃO DA EDIFICAÇÃO</td>
+        </tr>
+        <tr class="r-label">
+            <td colspan="32" class="ba center italic">OBS.: USO EXCLUSIVO PARA TERRENOS COM EDIFICAÇÕES</td>
+        </tr>
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">ESTRUTURA</td> <td colspan="4" class="ba sub-title">COBERTURA</td>
+            <td colspan="4" class="ba sub-title">PAREDES</td> <td colspan="6" class="ba sub-title">PISO</td>
+            <td colspan="8" class="ba sub-title">ESQUADRIAS</td> <td colspan="5" class="ba sub-title">FORRO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-MADEIRA TRATADA</td> <td colspan="4" class="bl br">1-AMIANTO</td> <td colspan="4" class="bl br">1-MADEIRA BRUTA</td>
+            <td colspan="6" class="bl br">1-TERRA</td> <td colspan="8" class="bl br">1-SEM</td> <td colspan="5" class="bl br">1-SEM</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-ALVENARIA</td> <td colspan="4" class="bl br">2-ALUMÍNIO</td> <td colspan="4" class="bl br">2-MADEIRA TRATADA</td>
+            <td colspan="6" class="bl br">2-CIMENTO</td> <td colspan="8" class="bl br">2-MADEIRA TRATADA</td> <td colspan="5" class="bl br">2-MADEIRA</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-CONCRETO</td> <td colspan="4" class="bl br">3-BARRO</td> <td colspan="4" class="bl br">3-ALVENARIA</td>
+            <td colspan="6" class="bl br">3-CERÂMICA</td> <td colspan="8" class="bl br">3-FERRO</td> <td colspan="5" class="bl br">3-LAJE</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-METÁLICA</td> <td colspan="4" class="bl br">4-AMIANTO ESPECIAL</td> <td colspan="4" class="bl br">4-ESPECIAL</td>
+            <td colspan="6" class="bl br">4-MADEIRA TRATADA</td> <td colspan="8" class="bl br">4-ALUMÍNIO</td> <td colspan="5" class="bl br">4-GESSO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">5-MISTA MAD./ALV.</td> <td colspan="4" class="bl br">5-LAJE</td> <td colspan="4" class="bl br">5-MISTA</td>
+            <td colspan="6" class="bl br">5-ESPECIAL</td> <td colspan="8" class="bl br">5-ESPECIAL</td> <td colspan="5" class="bl br">5-ESPECIAL</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">6-MISTA ALV./MET.</td> <td colspan="4" class="bl br">6-OUTROS</td> <td colspan="4" class="bl br">6-SEM</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">7-MISTA CONC./MET.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">38</td> <td class="ba center">${d.f_estrutura || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">39</td> <td class="ba center">${d.f_cobertura || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">40</td> <td class="ba center">${d.f_paredes || ''}</td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">41</td> <td class="ba center">${d.f_piso || ''}</td>
+            <td colspan="6" class="bl bb"></td>
+            <td class="ba cod">42</td> <td class="ba center">${d.f_esquadrias || ''}</td>
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">43</td> <td class="ba center">${d.f_forro || ''}</td>
+        </tr>
+
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">REVEST. EXTERNO</td> <td colspan="4" class="ba sub-title">REVEST. INTERNO</td>
+            <td colspan="4" class="ba sub-title">PINTURA EXTERNA</td> <td colspan="6" class="ba sub-title">PINTURA INTERNA</td>
+            <td colspan="8" class="ba sub-title">COZINHA</td> <td colspan="5" class="ba sub-title">BANHEIROS</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td>
+            <td colspan="6" class="bl br">1-SEM</td> <td colspan="8" class="bl br">1-PIA C/ AZULEJO</td> <td colspan="5" class="bl br">1-SEM BANHEIRO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-MADEIRA</td> <td colspan="4" class="bl br">2-MADEIRA</td> <td colspan="4" class="bl br">2-BASE D'ÁGUA</td>
+            <td colspan="6" class="bl br">2-BASE D'ÁGUA</td> <td colspan="8" class="bl br">2-PIA SIMPLES</td> <td colspan="5" class="bl br">2-BANHEIRO EXTERNO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-REBOCO S/ MASSA</td> <td colspan="4" class="bl br">3-REBOCO S/ MASSA</td> <td colspan="4" class="bl br">3-CAIAÇÃO</td>
+            <td colspan="6" class="bl br">3-CAIAÇÃO</td> <td colspan="8" class="bl br">3-SEM PIA</td> <td colspan="5" class="bl br">3-UM BANH. INTERNO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-REBOCO C/ MASSA</td> <td colspan="4" class="bl br">4-REBOCO C/ MASSA</td> <td colspan="4" class="bl br">4-PLÁSTICA</td>
+            <td colspan="6" class="bl br">4-PLÁSTICA</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br">4-DOIS BANH. INTERNOS</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">5-CERÂMICA</td> <td colspan="4" class="bl br">5-CERÂMICA</td> <td colspan="4" class="bl br">5-A ÓLEO</td>
+            <td colspan="6" class="bl br">5-A ÓLEO</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br">5-MAIS DE 02 BANH. INTERNO</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">6-ESPECIAL</td> <td colspan="4" class="bl br">6-ESPECIAL</td> <td colspan="4" class="bl br">6-ESPECIAL</td>
+            <td colspan="6" class="bl br">6-ESPECIAL</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">44</td> <td class="ba center">${d.f_revest_externo || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">45</td> <td class="ba center">${d.f_revest_interno || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">46</td> <td class="ba center">${d.f_pintura_externa || ''}</td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">47</td> <td class="ba center">${d.f_pintura_interna || ''}</td>
+            <td colspan="6" class="bl bb"></td>
+            <td class="ba cod">48</td> <td class="ba center">${d.f_cozinha || ''}</td>
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">49</td> <td class="ba center">${d.f_banheiros || ''}</td>
+        </tr>
+
+        <tr class="r-label">
+            <td colspan="5" class="ba sub-title">INST. DE ÁGUA</td> <td colspan="4" class="ba sub-title">INST. ELÉTRICA</td>
+            <td colspan="4" class="ba sub-title">POSIÇÃO</td> <td colspan="6" class="ba sub-title">CONSERV. DA ED.</td>
+            <td colspan="8" class="ba sub-title">CARACTERIZAÇÃO</td> <td colspan="5" class="ba sub-title">ÁREA EDIFICADA</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-ISOLADA E ALINHADA</td>
+            <td colspan="6" class="bl br">1-RUIM</td> <td colspan="4" class="bl">1-BARRACO</td> <td colspan="4" class="br">9-ESCOLA</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">2-POÇO</td> <td colspan="4" class="bl br">2-APARENTE</td> <td colspan="4" class="bl br">2-ISOLADA E RECUADA</td>
+            <td colspan="6" class="bl br">2-REGULAR</td> <td colspan="4" class="bl">2-TELHEIRO</td> <td colspan="4" class="br">10-C. SAÚDE</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">3-POÇO C/ RESERV.</td> <td colspan="4" class="bl br">3-SEMI-EMBUTIDA</td> <td colspan="4" class="bl br">3-CONJ. E ALINHADA</td>
+            <td colspan="6" class="bl br">3-BOM</td> <td colspan="4" class="bl">3-GALPÃO</td> <td colspan="4" class="br">11-ESP. E DIV.</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">4-REDE PÚBLICA</td> <td colspan="4" class="bl br">4-EMBUTIDA</td> <td colspan="4" class="bl br">4-CONJ. E RECUADA</td>
+            <td colspan="6" class="bl br">4-NOVA</td> <td colspan="4" class="bl">4-CASA</td> <td colspan="4" class="br">12-OUTROS</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">5-REDE PÚB. C/ RESERV.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">5-DE FUNDOS</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">5-SOBRADO</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br">6-POÇO C/ REDE PÚBL.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">6-APARTAMENTO</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">6-ED. RES.</td>
+            <td class="bl"></td> <td class="ba cod">55</td> <td colspan="3" class="ba center">${d.f_area_edificada || ''}</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">7-SALA</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">7-ED. COM.</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">8-HOTEL</td> <td colspan="5" class="bl br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="3" class="bl bb"></td>
+            <td class="ba cod">50</td> <td class="ba center">${d.f_inst_agua || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">51</td> <td class="ba center">${d.f_inst_eletrica || ''}</td>
+            <td colspan="2" class="bl bb"></td>
+            <td class="ba cod">52</td> <td class="ba center">${d.f_posicao || ''}</td>
+            <td colspan="4" class="bl bb"></td>
+            <td class="ba cod">53</td> <td class="ba center">${d.f_conservacao || ''}</td>
+            <td colspan="6" class="bl bb"></td>
+            <td class="ba cod">54</td> <td class="ba center">${d.f_caracterizacao || ''}</td>
+            <td colspan="5" class="bl bb br"></td>
+        </tr>
+        <tr class="r-code">
+            <td class="ba cod">56</td>
+            <td colspan="31" class="ba"></td>
+        </tr>
+
+        <tr class="r-header">
+            <td colspan="13" class="ba sec-title">DOCUMENTAÇÃO DO IMÓVEL</td>
+            <td colspan="19" class="ba sec-title">SITUAÇÃO DA POSSE OU PROPRIEDADE</td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl">1-SEM</td> <td colspan="4">6-TITULADO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '6' ? d.f_num_documento : ''}</td> <td class="br"></td>
+            <td colspan="8" class="bl">1-LITÍGIO</td> <td colspan="6">6-AUTO ARRESTO</td> <td colspan="3" rowspan="2" class="ba center">${d.f_sit_posse == '6' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl">2-CADASTRADO</td> <td colspan="4">7-PROCESSO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '7' ? d.f_num_documento : ''}</td> <td class="br"></td>
+            <td colspan="8" class="bl">2-PENHORA</td> <td colspan="6">7-POSSEIRO / DOM. ÚTIL</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="5" class="bl">3-AUTORIZAÇÃO ESCRITURA</td> <td colspan="4">8-DOCUMENTO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '8' ? d.f_num_documento : ''}</td> <td class="br"></td>
+            <td colspan="8" class="bl">3-ESPÓLIO</td> <td colspan="6">8-PROPRIETÁRIO</td> <td colspan="3" rowspan="2" class="ba center">${d.f_sit_posse == '9' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="13" class="bl br">4-ESCRITURA PÚBLICA</td> <td colspan="8" class="bl">4-DUPLIC. DE POSSE</td> <td colspan="6">9-LIB. ARRESTO</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-opt">
+            <td colspan="13" class="bl br">5-REGISTRO NO CARTÓRIO</td> <td colspan="8" class="bl">5-DÚVIDA DA POSSE</td> <td colspan="6">10-OUTROS</td> <td colspan="3" class="ba center">${d.f_sit_posse == '10' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
+        </tr>
+        <tr class="r-code">
+            <td colspan="11" class="bl bb"></td> <td class="ba cod">57</td> <td class="ba center">${d.f_doc_imovel || ''}</td>
+            <td colspan="17" class="bl bb"></td> <td class="ba cod">58</td> <td class="ba center">${d.f_sit_posse || ''}</td>
+        </tr>
+
+        <tr class="r-label">
+            <td colspan="32" class="bt bl br bold" style="padding-top:1px;">Observações:</td>
+        </tr>
+        <tr class="r-obs-input">
+            <td colspan="32" class="bl br bb" style="vertical-align:top; white-space:pre-wrap; padding:2px 4px;">${d.f_observacoes || ''}</td>
+        </tr>
+    </table>
+</div>`;
+    }
+
+    function gerarDocumentoCompletoBCI(htmlFolhas) {
+        return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>BCI - Oficial</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000;
+        }
+        body {
+            background-color: #525659;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        .folha-a4 {
+            background: #ffffff;
+            width: 210mm;
+            height: 297mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            padding: 5mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            page-break-after: always;
+            break-after: page;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin: 0 auto;
+        }
+        .quadro-topo {
+            width: 100%;
+            height: 25mm;
+            border: 1.5px solid #000;
+            display: flex;
+            flex-shrink: 0;
+        }
+        .col-1 { width: 25%; height: 100%; border-right: 1.5px solid #000; padding: 1mm; }
+        .col-2 { width: 35%; height: 100%; border-right: 1.5px solid #000; padding: 1mm; }
+        .col-3 { width: 40%; height: 100%; padding: 1mm; }
+        .quadro-interno {
+            width: 100%;
+            height: 100%;
+            border: 0.8mm solid #000;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .conteudo-col1 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 0.5mm;
+        }
+        .logo-img {
+            max-width: 88%;
+            max-height: 13.5mm;
+            object-fit: contain;
+        }
+        .texto-prefeitura {
+            font-size: 7.5px;
+            font-weight: 900;
+            text-align: center;
+            margin-top: 0.8mm;
+        }
+        .conteudo-col2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1.2mm;
+            padding: 1mm;
+        }
+        .texto-col2, .texto-col3 {
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            line-height: 1.15;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        table.bci-grid {
+            width: 100%;
+            height: 261mm;
+            flex: 1;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top: 1mm;
+            font-size: 7px;
+            line-height: 1.1;
+        }
+        table.bci-grid td {
+            padding: 0 2px;
+            vertical-align: middle;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        tr.r-header td { height: 3.9mm; font-weight: 800; font-size: 7.4px; }
+        tr.r-label td  { height: 3.5mm; font-weight: 700; font-size: 6.6px; }
+        tr.r-input td  { height: 5.2mm; font-size: 8.2px; font-weight: bold; }
+        tr.r-opt td    { height: 2.42mm; font-size: 6.4px; }
+        tr.r-code td   { height: 3.9mm; font-size: 7.4px; font-weight: bold; }
+        tr.r-obs-input td { height: 12.5mm; font-size: 8px; font-weight: normal; }
+        tr.r-gap td    { height: 1.0mm; }
+
+        .ba { border: 1px solid #000; }
+        .bt { border-top: 1px solid #000; }
+        .bb { border-bottom: 1px solid #000; }
+        .bl { border-left: 1px solid #000; }
+        .br { border-right: 1px solid #000; }
+
+        .cod { text-align: center; font-weight: 800; font-size: 7.2px; background-color: #fff; }
+        .sec-title { text-align: center; font-weight: 900; font-size: 7.6px; letter-spacing: 0.3px; background-color: #f2f2f2; }
+        .sub-title { text-align: center; font-weight: 800; font-size: 6.8px; background-color: #f9f9f9; }
+        .center { text-align: center; }
+        .bold { font-weight: 800; }
+        .italic { font-style: italic; }
+        .bg-gray { background-color: #e6e6e6; }
+        .bg-blue { background-color: #dce6f1; }
+
+        @media print {
+            html, body {
+                background: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+                width: 210mm !important;
+            }
+            body {
+                gap: 0 !important;
+            }
+            .folha-a4 {
+                box-shadow: none !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                padding: 5mm !important;
+                margin: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                display: flex !important;
+            }
+            .folha-a4:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+${htmlFolhas}
+</body>
+</html>`;
+    }
+
+function abrirPreviaBCI() {
+        salvarCamposFormularioNaMemoria();
+        
+        const selPrevia = document.getElementById('sel_unidade_previa');
+        selPrevia.innerHTML = '';
+
+        if (modoLoteAtual === 'unico') {
+            selPrevia.innerHTML = `<option value="A">BCI Único (Lote Individual)</option>`;
+        } else {
+            listaUnidades.forEach(letra => {
+                const opt = document.createElement('option');
+                opt.value = letra;
+                opt.innerText = `Unidade ${letra} ${letra === 'A' ? '(Matriz Completa)' : '(Edificação Subsequente)'}`;
+                if (letra === unidadeAtiva) opt.selected = true;
+                selPrevia.appendChild(opt);
+            });
+
+            // Opção extra de imprimir todas as unidades
+            const optTodas = document.createElement('option');
+            optTodas.value = 'TODAS';
+            optTodas.innerText = `📄 Imprimir TODOS os BCIs do Lote (${listaUnidades.join(', ')})`;
+            selPrevia.appendChild(optTodas);
+        }
+
+        renderizarPreviaSelecionada();
+        document.getElementById('modalPrevia').style.display = 'flex';
+    }
+
+        function renderizarPreviaSelecionada() {
+        const selPrevia = document.getElementById('sel_unidade_previa');
+        const escolha = selPrevia.value;
+        const iframe = document.getElementById('frameBCI');
+
+        if (escolha === 'TODAS') {
+            // Gera uma folha A4 individual para cada unidade, garantindo 1 BCI por folha A4
+            let htmlFolhas = '';
+            listaUnidades.forEach(letra => {
+                const d = montarDadosConsolidadosUnidade(letra);
+                htmlFolhas += gerarFolhaIndividualBCI(d);
+            });
+            iframe.srcdoc = gerarDocumentoCompletoBCI(htmlFolhas);
+        } else {
+            const d = montarDadosConsolidadosUnidade(escolha);
+            iframe.srcdoc = gerarDocumentoCompletoBCI(gerarFolhaIndividualBCI(d));
+        }
+    }
+
+function fecharPrevia() {
+        document.getElementById('modalPrevia').style.display = 'none';
+    }
+
+    function imprimirIframe() {
+        const iframe = document.getElementById('frameBCI');
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+        carregarRascunho();
+    });
+
+    // --- MÁSCARA E VALIDAÇÃO DE CPF E CNPJ ---
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/\D/g, '');
+        if (cpf.length !== 11) return false;
+        if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(10))) return false;
+
+        return true;
+    }
+
+    function validarCNPJ(cnpj) {
+        cnpj = cnpj.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        if (cnpj.length !== 14) return false;
+        if (/^(\d)\1{13}$/.test(cnpj)) return false;
+        if (!/\d{2}$/.test(cnpj)) return false;
+
+        const valorChar = (char) => char.charCodeAt(0) - 48;
+        const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+        let soma1 = 0;
+        for (let i = 0; i < 12; i++) {
+            soma1 += valorChar(cnpj[i]) * pesos1[i];
+        }
+        let resto1 = soma1 % 11;
+        let dv1 = resto1 < 2 ? 0 : 11 - resto1;
+        if (parseInt(cnpj.charAt(12)) !== dv1) return false;
+
+        const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+        let soma2 = 0;
+        for (let i = 0; i < 12; i++) {
+            soma2 += valorChar(cnpj[i]) * pesos2[i];
+        }
+        soma2 += dv1 * 2;
+        let resto2 = soma2 % 11;
+        let dv2 = resto2 < 2 ? 0 : 11 - resto2;
+        if (parseInt(cnpj.charAt(13)) !== dv2) return false;
+
+        const isAlfanumerico = /[A-Z]/.test(cnpj.substring(0, 12));
+        return { valido: true, tipo: isAlfanumerico ? 'Novo Alfanumérico' : 'Tradicional Numérico' };
+    }
+
+    function aplicarMascaraCPF(v) {
+        v = v.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 9) {
+            v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+        } else if (v.length > 6) {
+            v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+        } else if (v.length > 3) {
+            v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+        }
+        return v;
+    }
+
+    function aplicarMascaraCNPJ(v) {
+        v = v.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        if (v.length > 14) v = v.slice(0, 14);
+        if (v.length > 12) {
+            v = v.replace(/^(.{2})(.{3})(.{3})(.{4})(.{1,2})/, '$1.$2.$3/$4-$5');
+        } else if (v.length > 8) {
+            v = v.replace(/^(.{2})(.{3})(.{3})(.{1,4})/, '$1.$2.$3/$4');
+        } else if (v.length > 5) {
+            v = v.replace(/^(.{2})(.{3})(.{1,3})/, '$1.$2.$3');
+        } else if (v.length > 2) {
+            v = v.replace(/^(.{2})(.{1,3})/, '$1.$2');
+        }
+        return v;
+    }
+
+    const inputCPF = document.getElementById('f_cpf');
+    const msgCPF = document.getElementById('msg_cpf');
+    if (inputCPF) {
+        inputCPF.addEventListener('input', function() {
+            this.value = aplicarMascaraCPF(this.value);
+            const limpo = this.value.replace(/\D/g, '');
+            if (limpo.length === 0) {
+                msgCPF.innerText = '';
+                this.style.borderColor = '';
+            } else if (limpo.length === 11) {
+                if (validarCPF(limpo)) {
+                    msgCPF.innerHTML = '<span style="color:#28a745; font-size:11px; font-weight:bold;">✔ CPF Válido</span>';
+                    this.style.borderColor = '#28a745';
+                } else {
+                    msgCPF.innerHTML = '<span style="color:#dc3545; font-size:11px; font-weight:bold;">✖ CPF Inválido</span>';
+                    this.style.borderColor = '#dc3545';
+                }
+            } else {
+                msgCPF.innerHTML = '<span style="color:#6c757d; font-size:11px;">Digitando... (11 dígitos)</span>';
+                this.style.borderColor = '';
+            }
+        });
+    }
+
+    const inputCNPJ = document.getElementById('f_cnpj');
+    const msgCNPJ = document.getElementById('msg_cnpj');
+    if (inputCNPJ) {
+        inputCNPJ.addEventListener('input', function() {
+            this.value = aplicarMascaraCNPJ(this.value);
+            const limpo = this.value.replace(/[^a-zA-Z0-9]/g, '');
+            if (limpo.length === 0) {
+                msgCNPJ.innerText = '';
+                this.style.borderColor = '';
+            } else if (limpo.length === 14) {
+                const res = validarCNPJ(limpo);
+                if (res && res.valido) {
+                    msgCNPJ.innerHTML = `<span style="color:#28a745; font-size:11px; font-weight:bold;">✔ CNPJ Válido (\${res.tipo})</span>`;
+                    this.style.borderColor = '#28a745';
+                } else {
+                    msgCNPJ.innerHTML = '<span style="color:#dc3545; font-size:11px; font-weight:bold;">✖ CNPJ Inválido</span>';
+                    this.style.borderColor = '#dc3545';
+                }
+            } else {
+                msgCNPJ.innerHTML = '<span style="color:#6c757d; font-size:11px;">Digitando... (14 caracteres)</span>';
+                this.style.borderColor = '';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
