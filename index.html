@@ -1,3 +1,6 @@
+
+index.html
+100%
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -13,13 +16,14 @@
         /* Título com cursor de padrão normal mas sensível ao clique */
         h1 { color: #34495e; font-size: 20px; margin-bottom: 25px; margin-top: 20px; cursor: pointer; user-select: none; }
         
-        .btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: background 0.3s; box-sizing: border-box; text-transform: uppercase; font-size: 14px; }
+        .btn { display: block; width: 100%; padding: 18px; margin-bottom: 15px; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: background 0.3s, transform 0.2s; box-sizing: border-box; text-transform: uppercase; font-size: 14px; }
         
         /* Cores dos Botões */
         .btn-lavratura { background-color: #2980b9; } 
         .btn-vistoria { background-color: #27ae60; }  
         .btn-prejudicada { background-color: #c0392b; }
         .btn-geral { background-color: #34495e; } 
+        .btn-bci { background-color: #8e44ad; } /* Destaque para o BCI */
         
         .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .footer-logo { margin-top: 25px; font-size: 12px; color: #7f8c8d; line-height: 1.5; }
@@ -29,7 +33,7 @@
 <body>
     <div class="container">
         <header>
-            <img src="logo.jpg" alt="Logo Prefeitura">
+            <img src="logo.jpg" alt="Logo Prefeitura" class="logo-img" onerror="this.style.display='none'">
             <h2>Estado de Rondônia</h2>
             <h2>Prefeitura Municipal de Ji-Paraná</h2>
             <h2 style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">Secretaria de Regularização Fundiária e Habitação - SEMURFH</h2>
@@ -42,6 +46,8 @@
         <a href="VISTORIA_E_CADASTRO.html" class="btn btn-vistoria">Vistoria e Cadastro</a>
         <a href="VISTORIA_PREJUDICADA.html" class="btn btn-prejudicada">Vistoria Prejudicada</a>
         <a href="TERMO_GERAL.html" class="btn btn-geral">Termo Geral</a>
+        <!-- Novo botão de acesso ao BCI -->
+        <a href="BCI/preechimentoBCI.html" class="btn btn-bci">Boletim Cadastral Imobiliário (BCI)</a>
         
         <div class="footer-logo">
             Ji-Paraná - RO<br>
@@ -61,3 +67,4 @@
     </script>
 </body>
 </html>
+Exibindo index.html…
