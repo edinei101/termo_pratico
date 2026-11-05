@@ -341,6 +341,7 @@
             margin-right: 4px;
         }
 
+        /* Todos os campos centralizados e em maiúsculas por padrão */
         .form-control {
             padding: 8px 12px;
             border: 1px solid var(--border);
@@ -348,6 +349,19 @@
             font-size: 13px;
             transition: border-color 0.2s;
             background: #fff;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        /* Placeholders sem transformação forçada para manter estética */
+        .form-control::placeholder {
+            text-transform: none;
+        }
+
+        /* Exceção da Aba 7: Observações Complementares com digitação livre */
+        #f_observacoes {
+            text-align: left;
+            text-transform: none;
         }
 
         .form-control:focus {
@@ -365,6 +379,8 @@
 
         select.form-control {
             cursor: pointer;
+            text-align: center;
+            text-align-last: center;
         }
 
         .tab-footer {
@@ -462,8 +478,10 @@
             <p>Prefeitura Municipal de Ji-Paraná • SEMURFH</p>
         </div>
         <div class="header-actions">
-            <a href="index.html" class="btn btn-secondary" style="text-decoration: none; color: white;" onclick="if(!confirm('Deseja voltar ao menu principal? Certifique-se de ter salvo o rascunho.')) return false;">⬅️ Menu Principal</a>
+            <a href="../../index.html" class="btn btn-secondary" style="text-decoration: none; color: white;" onclick="if(!confirm('Deseja voltar ao menu principal? Certifique-se de ter salvo o rascunho.')) return false;">⬅️ Menu Principal</a>
             <button type="button" class="btn btn-secondary" onclick="salvarRascunho()">💾 Salvar Rascunho</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('input_abrir_arquivo').click()">📂 Abrir Rascunho</button>
+            <input type="file" id="input_abrir_arquivo" accept=".json" style="display: none;" onchange="carregarRascunhoArquivo(event)">
             <button type="button" class="btn btn-danger" onclick="limparTudo()">🗑️ Limpar</button>
             <button type="button" class="btn btn-primary" onclick="abrirPreviaBCI()">📄 Visualizar / Imprimir BCI Oficial</button>
         </div>
@@ -559,7 +577,7 @@
                     </div>
                     <div class="form-group">
                         <label>Unidade <small id="lbl_status_unidade" style="font-weight:normal; color:#64748b;">(Em branco se única)</small></label>
-                        <input type="text" class="form-control" id="f_unidade" maxlength="4" style="text-transform: uppercase; font-weight: bold; text-align: center;" placeholder="(Em branco)">
+                        <input type="text" class="form-control" id="f_unidade" maxlength="4" style="font-weight: bold;" placeholder="(Em branco)">
                     </div>
                     <div class="form-group">
                         <label>D (Dígito)</label>
@@ -572,9 +590,9 @@
                         <label><span class="badge">07</span>Tipo de Manutenção</label>
                         <select class="form-control" id="f_tipo_manutencao">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Incluir</option>
-                            <option value="2">2 - Excluir</option>
-                            <option value="3">3 - Alterar</option>
+                            <option value="1">1 - INCLUIR</option>
+                            <option value="2">2 - EXCLUIR</option>
+                            <option value="3">3 - ALTERAR</option>
                         </select>
                     </div>
                 </div>
@@ -628,54 +646,54 @@
                     <div class="form-group">
                         <label><span class="badge">09</span>Tipo Logradouro</label>
                         <select class="form-control" id="f_tipo_logradouro">
-                            <option value="Rua">Rua</option>
-                            <option value="Avenida">Avenida</option>
-                            <option value="Travessa">Travessa</option>
-                            <option value="Alameda">Alameda</option>
-                            <option value="Beco">Beco</option>
-                            <option value="Boulevard">Boulevard</option>
-                            <option value="Caminho">Caminho</option>
-                            <option value="Chácara">Chácara</option>
-                            <option value="Colônia">Colônia</option>
-                            <option value="Condomínio">Condomínio</option>
-                            <option value="Conjunto">Conjunto</option>
-                            <option value="Distrito">Distrito</option>
-                            <option value="Estrada">Estrada</option>
-                            <option value="Fazenda">Fazenda</option>
-                            <option value="Ladeira">Ladeira</option>
-                            <option value="Largo">Largo</option>
-                            <option value="Loteamento">Loteamento</option>
-                            <option value="Morro">Morro</option>
-                            <option value="Parque">Parque</option>
-                            <option value="Passagem">Passagem</option>
-                            <option value="Passarela">Passarela</option>
-                            <option value="Pátio">Pátio</option>
-                            <option value="Praça">Praça</option>
-                            <option value="Prolongamento">Prolongamento</option>
-                            <option value="Quadra">Quadra</option>
-                            <option value="Quinta">Quinta</option>
-                            <option value="Ramal">Ramal</option>
-                            <option value="Recanto">Recanto</option>
-                            <option value="Residencial">Residencial</option>
-                            <option value="Rodovia">Rodovia</option>
-                            <option value="Rótula">Rótula</option>
-                            <option value="Servidão">Servidão</option>
-                            <option value="Setor">Setor</option>
-                            <option value="Sítio">Sítio</option>
-                            <option value="Trecho">Trecho</option>
-                            <option value="Trevo">Trevo</option>
-                            <option value="Vale">Vale</option>
-                            <option value="Vereda">Vereda</option>
-                            <option value="Via">Via</option>
-                            <option value="Viaduto">Viaduto</option>
-                            <option value="Viela">Viela</option>
-                            <option value="Vila">Vila</option>
-                            <option value="Outro">Outro</option>
+                            <option value="RUA">RUA</option>
+                            <option value="AVENIDA">AVENIDA</option>
+                            <option value="TRAVESSA">TRAVESSA</option>
+                            <option value="ALAMEDA">ALAMEDA</option>
+                            <option value="BECO">BECO</option>
+                            <option value="BOULEVARD">BOULEVARD</option>
+                            <option value="CAMINHO">CAMINHO</option>
+                            <option value="CHÁCARA">CHÁCARA</option>
+                            <option value="COLÔNIA">COLÔNIA</option>
+                            <option value="CONDOMÍNIO">CONDOMÍNIO</option>
+                            <option value="CONJUNTO">CONJUNTO</option>
+                            <option value="DISTRITO">DISTRITO</option>
+                            <option value="ESTRADA">ESTRADA</option>
+                            <option value="FAZENDA">FAZENDA</option>
+                            <option value="LADEIRA">LADEIRA</option>
+                            <option value="LARGO">LARGO</option>
+                            <option value="LOTEAMENTO">LOTEAMENTO</option>
+                            <option value="MORRO">MORRO</option>
+                            <option value="PARQUE">PARQUE</option>
+                            <option value="PASSAGEM">PASSAGEM</option>
+                            <option value="PASSARELA">PASSARELA</option>
+                            <option value="PÁTIO">PÁTIO</option>
+                            <option value="PRAÇA">PRAÇA</option>
+                            <option value="PROLONGAMENTO">PROLONGAMENTO</option>
+                            <option value="QUADRA">QUADRA</option>
+                            <option value="QUINTA">QUINTA</option>
+                            <option value="RAMAL">RAMAL</option>
+                            <option value="RECANTO">RECANTO</option>
+                            <option value="RESIDENCIAL">RESIDENCIAL</option>
+                            <option value="RODOVIA">RODOVIA</option>
+                            <option value="RÓTULA">RÓTULA</option>
+                            <option value="SERVIDÃO">SERVIDÃO</option>
+                            <option value="SETOR">SETOR</option>
+                            <option value="SÍTIO">SÍTIO</option>
+                            <option value="TRECHO">TRECHO</option>
+                            <option value="TREVO">TREVO</option>
+                            <option value="VALE">VALE</option>
+                            <option value="VEREDA">VEREDA</option>
+                            <option value="VIA">VIA</option>
+                            <option value="VIADUTO">VIADUTO</option>
+                            <option value="VIELA">VIELA</option>
+                            <option value="VILA">VILA</option>
+                            <option value="OUTRO">OUTRO</option>
                         </select>
                     </div>
                     <div class="form-group" style="grid-column: span 3;">
                         <label><span class="badge">10</span>Nome do Logradouro</label>
-                        <input type="text" class="form-control" id="f_nome_logradouro" placeholder="Ex: Av. Brasil">
+                        <input type="text" class="form-control" id="f_nome_logradouro" placeholder="Ex: AV. BRASIL">
                     </div>
                 </div>
 
@@ -690,11 +708,11 @@
                     </div>
                     <div class="form-group">
                         <label><span class="badge">13</span>Complemento</label>
-                        <input type="text" class="form-control" id="f_complemento" placeholder="Ex: Apto 101, Loja B, Fundos">
+                        <input type="text" class="form-control" id="f_complemento" placeholder="Ex: APTO 101, LOJA B, FUNDOS">
                     </div>
                     <div class="form-group">
                         <label><span class="badge">14</span>Bairro</label>
-                        <input type="text" class="form-control" id="f_bairro" placeholder="Ex: Nova Brasília">
+                        <input type="text" class="form-control" id="f_bairro" placeholder="Ex: NOVA BRASÍLIA">
                     </div>
                 </div>
             </div>
@@ -718,29 +736,29 @@
                 <div class="grid-row">
                     <div class="form-group">
                         <label><span class="badge">16</span>Nome do Proprietário / Posseiro</label>
-                        <input type="text" class="form-control" id="f_proprietario" placeholder="Nome Completo">
+                        <input type="text" class="form-control" id="f_proprietario" placeholder="NOME COMPLETO">
                     </div>
                 </div>
                 <div class="grid-row">
                     <div class="form-group">
                         <label>Endereço para Correspondência</label>
-                        <input type="text" class="form-control" id="f_end_correspondencia" placeholder="Rua, Número, Bairro, Cidade - UF">
+                        <input type="text" class="form-control" id="f_end_correspondencia" placeholder="RUA, NÚMERO, BAIRRO, CIDADE - UF">
                     </div>
                 </div>
                 <div class="grid-row grid-4">
                     <div class="form-group">
                         <label><span class="badge">17</span>CPF nº</label>
                         <input type="text" class="form-control" id="f_cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off">
-                        <div id="msg_cpf" style="min-height: 16px; margin-top: 2px;"></div>
+                        <div id="msg_cpf" style="min-height: 16px; margin-top: 2px; text-align: center;"></div>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">18</span>CNPJ nº (Antigo ou Novo Alfanumérico)</label>
-                        <input type="text" class="form-control" id="f_cnpj" placeholder="00.000.000/0000-00 ou XX.XXX.XXX/XXXX-00" maxlength="18" autocomplete="off" style="text-transform: uppercase;">
-                        <div id="msg_cnpj" style="min-height: 16px; margin-top: 2px;"></div>
+                        <input type="text" class="form-control" id="f_cnpj" placeholder="00.000.000/0000-00 ou XX.XXX.XXX/XXXX-00" maxlength="18" autocomplete="off">
+                        <div id="msg_cnpj" style="min-height: 16px; margin-top: 2px; text-align: center;"></div>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">19</span>RG / I.E. nº</label>
-                        <input type="text" class="form-control" id="f_rg" placeholder="Número do documento">
+                        <input type="text" class="form-control" id="f_rg" placeholder="NÚMERO DO DOCUMENTO">
                     </div>
                     <div class="form-group">
                         <label><span class="badge">20</span>Órgão Emissor</label>
@@ -770,31 +788,31 @@
                         <label><span class="badge">22</span>Topografia</label>
                         <select class="form-control" id="f_topografia">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Normal</option>
-                            <option value="2">2 - Aclive</option>
-                            <option value="3">3 - Declive</option>
-                            <option value="4">4 - Irregular</option>
+                            <option value="1">1 - NORMAL</option>
+                            <option value="2">2 - ACLIVE</option>
+                            <option value="3">3 - DECLIVE</option>
+                            <option value="4">4 - IRREGULAR</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">23</span>Nível</label>
                         <select class="form-control" id="f_nivel">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Ao Nível</option>
-                            <option value="2">2 - Abaixo</option>
-                            <option value="3">3 - Acima</option>
+                            <option value="1">1 - AO NÍVEL</option>
+                            <option value="2">2 - ABAIXO</option>
+                            <option value="3">3 - ACIMA</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">24</span>Pedologia</label>
                         <select class="form-control" id="f_pedologia">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Normal</option>
-                            <option value="2">2 - Arenoso</option>
-                            <option value="3">3 - Aterrado</option>
-                            <option value="4">4 - Alagável</option>
-                            <option value="5">5 - Brejo</option>
-                            <option value="6">6 - Rochoso</option>
+                            <option value="1">1 - NORMAL</option>
+                            <option value="2">2 - ARENOSO</option>
+                            <option value="3">3 - ATERRADO</option>
+                            <option value="4">4 - ALAGÁVEL</option>
+                            <option value="5">5 - BREJO</option>
+                            <option value="6">6 - ROCHOSO</option>
                         </select>
                     </div>
                 </div>
@@ -804,31 +822,31 @@
                         <label><span class="badge">25</span>Situação</label>
                         <select class="form-control" id="f_situacao">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Uma Frente</option>
-                            <option value="2">2 - Duas Frentes</option>
-                            <option value="3">3 - Três Frentes</option>
-                            <option value="4">4 - Quatro Frentes</option>
-                            <option value="5">5 - Encravado</option>
+                            <option value="1">1 - UMA FRENTE</option>
+                            <option value="2">2 - DUAS FRENTES</option>
+                            <option value="3">3 - TRÊS FRENTES</option>
+                            <option value="4">4 - QUATRO FRENTES</option>
+                            <option value="5">5 - ENCRAVADO</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">26</span>Benfeitorias</label>
                         <select class="form-control" id="f_benfeitorias">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Sem</option>
-                            <option value="2">2 - Muro c/ Calç.</option>
-                            <option value="3">3 - Cerca</option>
-                            <option value="4">4 - Cerca c/ Calç.</option>
-                            <option value="5">5 - Muro</option>
-                            <option value="6">6 - Mureta c/ Calç.</option>
-                            <option value="7">7 - Mureta</option>
-                            <option value="8">8 - Mista</option>
-                            <option value="9">9 - Calçada</option>
+                            <option value="1">1 - SEM</option>
+                            <option value="2">2 - MURO C/ CALÇ.</option>
+                            <option value="3">3 - CERCA</option>
+                            <option value="4">4 - CERCA C/ CALÇ.</option>
+                            <option value="5">5 - MURO</option>
+                            <option value="6">6 - MURETA C/ CALÇ.</option>
+                            <option value="7">7 - MURETA</option>
+                            <option value="8">8 - MISTA</option>
+                            <option value="9">9 - CALÇADA</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">27</span>Zona</label>
-                        <input type="text" class="form-control" id="f_zona" placeholder="Código da Zona">
+                        <input type="text" class="form-control" id="f_zona" placeholder="CÓDIGO DA ZONA">
                     </div>
                 </div>
 
@@ -837,50 +855,50 @@
                         <label><span class="badge">28</span>Iluminação</label>
                         <select class="form-control" id="f_iluminacao">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Sim</option>
-                            <option value="2">2 - Não</option>
+                            <option value="1">1 - SIM</option>
+                            <option value="2">2 - NÃO</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">29</span>Coleta de Lixo</label>
                         <select class="form-control" id="f_coleta_lixo">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Sim</option>
-                            <option value="2">2 - Não</option>
+                            <option value="1">1 - SIM</option>
+                            <option value="2">2 - NÃO</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">30</span>Pavimentação</label>
                         <select class="form-control" id="f_pavimentacao">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Paralelepípedo</option>
-                            <option value="2">2 - Asfalto</option>
-                            <option value="3">3 - Outros</option>
-                            <option value="4">4 - Sem Pav. c/ Guia</option>
-                            <option value="5">5 - Sem Pav. s/ Guia</option>
+                            <option value="1">1 - PARALELEPÍPEDO</option>
+                            <option value="2">2 - ASFALTO</option>
+                            <option value="3">3 - OUTROS</option>
+                            <option value="4">4 - SEM PAV. C/ GUIA</option>
+                            <option value="5">5 - SEM PAV. S/ GUIA</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label><span class="badge">31</span>Ocupação</label>
                         <select class="form-control" id="f_ocupacao">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Lote Vago</option>
-                            <option value="2">2 - Const. Andam.</option>
-                            <option value="3">3 - Const. Paral.</option>
-                            <option value="4">4 - Const. Estac.</option>
-                            <option value="5">5 - Ed. Residencial</option>
-                            <option value="6">6 - Ed. Comercial</option>
-                            <option value="7">7 - Ed. Res./Com.</option>
-                            <option value="8">8 - Ed. Industrial</option>
-                            <option value="9">9 - Ed. Res./Ind.</option>
-                            <option value="10">10 - Ed. Serviço</option>
-                            <option value="11">11 - Ed. Res./Serv.</option>
-                            <option value="12">12 - Ed. Res./Agri.</option>
-                            <option value="13">13 - Ed. Chác. Recreio</option>
-                            <option value="14">14 - Ed. Adm. Públ.</option>
-                            <option value="15">15 - Ed. Religiosa</option>
-                            <option value="16">16 - Ed. Associação</option>
-                            <option value="17">17 - Ed. Clube</option>
+                            <option value="1">1 - LOTE VAGO</option>
+                            <option value="2">2 - CONST. ANDAM.</option>
+                            <option value="3">3 - CONST. PARAL.</option>
+                            <option value="4">4 - CONST. ESTAC.</option>
+                            <option value="5">5 - ED. RESIDENCIAL</option>
+                            <option value="6">6 - ED. COMERCIAL</option>
+                            <option value="7">7 - ED. RES./COM.</option>
+                            <option value="8">8 - ED. INDUSTRIAL</option>
+                            <option value="9">9 - ED. RES./IND.</option>
+                            <option value="10">10 - ED. SERVIÇO</option>
+                            <option value="11">11 - ED. RES./SERV.</option>
+                            <option value="12">12 - ED. RES./AGRI.</option>
+                            <option value="13">13 - ED. CHÁC. RECREIO</option>
+                            <option value="14">14 - ED. ADM. PÚBL.</option>
+                            <option value="15">15 - ED. RELIGIOSA</option>
+                            <option value="16">16 - ED. ASSOCIAÇÃO</option>
+                            <option value="17">17 - ED. CLUBE</option>
                         </select>
                     </div>
                 </div>
@@ -889,27 +907,27 @@
                 <div class="grid-row grid-6">
                     <div class="form-group">
                         <label><span class="badge">32</span>Área Terreno (m²)</label>
-                        <input type="text" class="form-control" id="f_area_terreno" placeholder="Ex: 300,00">
+                        <input type="text" class="form-control" id="f_area_terreno" placeholder="Ex: 300,00 m²">
                     </div>
                     <div class="form-group">
                         <label><span class="badge">33</span>Frente (m)</label>
-                        <input type="text" class="form-control" id="f_frente" placeholder="Ex: 10,00">
+                        <input type="text" class="form-control" id="f_frente" placeholder="Ex: 10,00 m">
                     </div>
                     <div class="form-group">
                         <label><span class="badge">34</span>Fundos (m)</label>
-                        <input type="text" class="form-control" id="f_fundos" placeholder="Ex: 10,00">
+                        <input type="text" class="form-control" id="f_fundos" placeholder="Ex: 10,00 m">
                     </div>
                     <div class="form-group">
                         <label><span class="badge">35</span>Direita (m)</label>
-                        <input type="text" class="form-control" id="f_direita" placeholder="Ex: 30,00">
+                        <input type="text" class="form-control" id="f_direita" placeholder="Ex: 30,00 m">
                     </div>
                     <div class="form-group">
                         <label><span class="badge">36</span>Esquerda (m)</label>
-                        <input type="text" class="form-control" id="f_esquerda" placeholder="Ex: 30,00">
+                        <input type="text" class="form-control" id="f_esquerda" placeholder="Ex: 30,00 m">
                     </div>
                     <div class="form-group">
                         <label>ID Mapa/Obs Medidas</label>
-                        <input type="text" class="form-control" id="f_mapa_id" placeholder="ID do mapa">
+                        <input type="text" class="form-control" id="f_mapa_id" placeholder="ID DO MAPA">
                     </div>
                 </div>
             </div>
@@ -1005,37 +1023,37 @@
                     <label><span class="badge">38</span>Estrutura</label>
                     <select class="form-control" id="f_estrutura">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Madeira Tratada</option>
-                        <option value="2">2 - Alvenaria</option>
-                        <option value="3">3 - Concreto</option>
-                        <option value="4">4 - Metálica</option>
-                        <option value="5">5 - Mista Mad./Alv.</option>
-                        <option value="6">6 - Mista Alv./Met.</option>
-                        <option value="7">7 - Mista Conc./Met.</option>
+                        <option value="1">1 - MADEIRA TRATADA</option>
+                        <option value="2">2 - ALVENARIA</option>
+                        <option value="3">3 - CONCRETO</option>
+                        <option value="4">4 - METÁLICA</option>
+                        <option value="5">5 - MISTA MAD./ALV.</option>
+                        <option value="6">6 - MISTA ALV./MET.</option>
+                        <option value="7">7 - MISTA CONC./MET.</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">39</span>Cobertura</label>
                     <select class="form-control" id="f_cobertura">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Amianto</option>
-                        <option value="2">2 - Alumínio</option>
-                        <option value="3">3 - Barro</option>
-                        <option value="4">4 - Amianto Especial</option>
-                        <option value="5">5 - Laje</option>
-                        <option value="6">6 - Outros</option>
+                        <option value="1">1 - AMIANTO</option>
+                        <option value="2">2 - ALUMÍNIO</option>
+                        <option value="3">3 - BARRO</option>
+                        <option value="4">4 - AMIANTO ESPECIAL</option>
+                        <option value="5">5 - LAJE</option>
+                        <option value="6">6 - OUTROS</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">40</span>Paredes</label>
                     <select class="form-control" id="f_paredes">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Madeira Bruta</option>
-                        <option value="2">2 - Madeira Tratada</option>
-                        <option value="3">3 - Alvenaria</option>
-                        <option value="4">4 - Especial</option>
-                        <option value="5">5 - Mista</option>
-                        <option value="6">6 - Sem</option>
+                        <option value="1">1 - MADEIRA BRUTA</option>
+                        <option value="2">2 - MADEIRA TRATADA</option>
+                        <option value="3">3 - ALVENARIA</option>
+                        <option value="4">4 - ESPECIAL</option>
+                        <option value="5">5 - MISTA</option>
+                        <option value="6">6 - SEM</option>
                     </select>
                 </div>
             </div>
@@ -1045,33 +1063,33 @@
                     <label><span class="badge">41</span>Piso</label>
                     <select class="form-control" id="f_piso">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Terra</option>
-                        <option value="2">2 - Cimento</option>
-                        <option value="3">3 - Cerâmica</option>
-                        <option value="4">4 - Madeira Tratada</option>
-                        <option value="5">5 - Especial</option>
+                        <option value="1">1 - TERRA</option>
+                        <option value="2">2 - CIMENTO</option>
+                        <option value="3">3 - CERÂMICA</option>
+                        <option value="4">4 - MADEIRA TRATADA</option>
+                        <option value="5">5 - ESPECIAL</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">42</span>Esquadrias</label>
                     <select class="form-control" id="f_esquadrias">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Madeira Tratada</option>
-                        <option value="3">3 - Ferro</option>
-                        <option value="4">4 - Alumínio</option>
-                        <option value="5">5 - Especial</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - MADEIRA TRATADA</option>
+                        <option value="3">3 - FERRO</option>
+                        <option value="4">4 - ALUMÍNIO</option>
+                        <option value="5">5 - ESPECIAL</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">43</span>Forro</label>
                     <select class="form-control" id="f_forro">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Madeira</option>
-                        <option value="3">3 - Laje</option>
-                        <option value="4">4 - Gesso</option>
-                        <option value="5">5 - Especial</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - MADEIRA</option>
+                        <option value="3">3 - LAJE</option>
+                        <option value="4">4 - GESSO</option>
+                        <option value="5">5 - ESPECIAL</option>
                     </select>
                 </div>
             </div>
@@ -1081,36 +1099,36 @@
                     <label><span class="badge">44</span>Revest. Externo</label>
                     <select class="form-control" id="f_revest_externo">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Madeira</option>
-                        <option value="3">3 - Reboco s/ Massa</option>
-                        <option value="4">4 - Reboco c/ Massa</option>
-                        <option value="5">5 - Cerâmica</option>
-                        <option value="6">6 - Especial</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - MADEIRA</option>
+                        <option value="3">3 - REBOCO S/ MASSA</option>
+                        <option value="4">4 - REBOCO C/ MASSA</option>
+                        <option value="5">5 - CERÂMICA</option>
+                        <option value="6">6 - ESPECIAL</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">45</span>Revest. Interno</label>
                     <select class="form-control" id="f_revest_interno">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Madeira</option>
-                        <option value="3">3 - Reboco s/ Massa</option>
-                        <option value="4">4 - Reboco c/ Massa</option>
-                        <option value="5">5 - Cerâmica</option>
-                        <option value="6">6 - Especial</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - MADEIRA</option>
+                        <option value="3">3 - REBOCO S/ MASSA</option>
+                        <option value="4">4 - REBOCO C/ MASSA</option>
+                        <option value="5">5 - CERÂMICA</option>
+                        <option value="6">6 - ESPECIAL</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">46</span>Pintura Externa</label>
                     <select class="form-control" id="f_pintura_externa">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Base d'Água</option>
-                        <option value="3">3 - Caiação</option>
-                        <option value="4">4 - Plástica</option>
-                        <option value="5">5 - A Óleo</option>
-                        <option value="6">6 - Especial</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - BASE D'ÁGUA</option>
+                        <option value="3">3 - CAIAÇÃO</option>
+                        <option value="4">4 - PLÁSTICA</option>
+                        <option value="5">5 - A ÓLEO</option>
+                        <option value="6">6 - ESPECIAL</option>
                     </select>
                 </div>
             </div>
@@ -1120,32 +1138,32 @@
                     <label><span class="badge">47</span>Pintura Interna</label>
                     <select class="form-control" id="f_pintura_interna">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Base d'Água</option>
-                        <option value="3">3 - Caiação</option>
-                        <option value="4">4 - Plástica</option>
-                        <option value="5">5 - A Óleo</option>
-                        <option value="6">6 - Especial</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - BASE D'ÁGUA</option>
+                        <option value="3">3 - CAIAÇÃO</option>
+                        <option value="4">4 - PLÁSTICA</option>
+                        <option value="5">5 - A ÓLEO</option>
+                        <option value="6">6 - ESPECIAL</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">48</span>Cozinha</label>
                     <select class="form-control" id="f_cozinha">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Pia c/ Azulejo</option>
-                        <option value="2">2 - Pia Simples</option>
-                        <option value="3">3 - Sem Pia</option>
+                        <option value="1">1 - PIA C/ AZULEJO</option>
+                        <option value="2">2 - PIA SIMPLES</option>
+                        <option value="3">3 - SEM PIA</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">49</span>Banheiros</label>
                     <select class="form-control" id="f_banheiros">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem Banheiro</option>
-                        <option value="2">2 - Banheiro Externo</option>
-                        <option value="3">3 - Um Banh. Interno</option>
-                        <option value="4">4 - Dois Banh. Internos</option>
-                        <option value="5">5 - Mais de 2 Banh. Internos</option>
+                        <option value="1">1 - SEM BANHEIRO</option>
+                        <option value="2">2 - BANHEIRO EXTERNO</option>
+                        <option value="3">3 - UM BANH. INTERNO</option>
+                        <option value="4">4 - DOIS BANH. INTERNOS</option>
+                        <option value="5">5 - MAIS DE 2 BANH. INTERNOS</option>
                     </select>
                 </div>
             </div>
@@ -1155,35 +1173,35 @@
                     <label><span class="badge">50</span>Inst. de Água</label>
                     <select class="form-control" id="f_inst_agua">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Poço</option>
-                        <option value="3">3 - Poço c/ Reservatório</option>
-                        <option value="4">4 - Rede Pública</option>
-                        <option value="5">5 - Rede Púb. c/ Reservatório</option>
-                        <option value="6">6 - Poço c/ Rede Pública</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - POÇO</option>
+                        <option value="3">3 - POÇO C/ RESERVATÓRIO</option>
+                        <option value="4">4 - REDE PÚBLICA</option>
+                        <option value="5">5 - REDE PÚBL. C/ RESERVATÓRIO</option>
+                        <option value="6">6 - POÇO C/ REDE PÚBLICA</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">51</span>Inst. Elétrica</label>
                     <select class="form-control" id="f_inst_eletrica">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Sem</option>
-                        <option value="2">2 - Aparente</option>
-                        <option value="3">3 - Semi-Embutida</option>
-                        <option value="4">4 - Embutida</option>
+                        <option value="1">1 - SEM</option>
+                        <option value="2">2 - APARENTE</option>
+                        <option value="3">3 - SEMI-EMBUTIDA</option>
+                        <option value="4">4 - EMBUTIDA</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">52</span>Posição</label>
                     <select class="form-control" id="f_posicao">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Isolada e Alinhada</option>
-                        <option value="2">2 - Isolada e Recuada</option>
-                        <option value="3">3 - Conj. e Alinhada</option>
-                        <option value="4">4 - Conj. e Recuada</option>
-                        <option value="5">5 - De Fundos</option>
-                        <option value="6">6 - Apartamento</option>
-                        <option value="7">7 - Sala</option>
+                        <option value="1">1 - ISOLADA E ALINHADA</option>
+                        <option value="2">2 - ISOLADA E RECUADA</option>
+                        <option value="3">3 - CONJ. E ALINHADA</option>
+                        <option value="4">4 - CONJ. E RECUADA</option>
+                        <option value="5">5 - DE FUNDOS</option>
+                        <option value="6">6 - APARTAMENTO</option>
+                        <option value="7">7 - SALA</option>
                     </select>
                 </div>
             </div>
@@ -1193,33 +1211,33 @@
                     <label><span class="badge">53</span>Conservação</label>
                     <select class="form-control" id="f_conservacao">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Ruim</option>
-                        <option value="2">2 - Regular</option>
-                        <option value="3">3 - Bom</option>
-                        <option value="4">4 - Nova</option>
+                        <option value="1">1 - RUIM</option>
+                        <option value="2">2 - REGULAR</option>
+                        <option value="3">3 - BOM</option>
+                        <option value="4">4 - NOVA</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">54</span>Caracterização</label>
                     <select class="form-control" id="f_caracterizacao">
                         <option value="">Selecione...</option>
-                        <option value="1">1 - Barraco</option>
-                        <option value="2">2 - Telheiro</option>
-                        <option value="3">3 - Galpão</option>
-                        <option value="4">4 - Casa</option>
-                        <option value="5">5 - Sobrado</option>
-                        <option value="6">6 - Ed. Residencial</option>
-                        <option value="7">7 - Ed. Comercial</option>
-                        <option value="8">8 - Hotel</option>
-                        <option value="9">9 - Escola</option>
-                        <option value="10">10 - C. Saúde</option>
-                        <option value="11">11 - Esp. e Div.</option>
-                        <option value="12">12 - Outros</option>
+                        <option value="1">1 - BARRACO</option>
+                        <option value="2">2 - TELHEIRO</option>
+                        <option value="3">3 - GALPÃO</option>
+                        <option value="4">4 - CASA</option>
+                        <option value="5">5 - SOBRADO</option>
+                        <option value="6">6 - ED. RESIDENCIAL</option>
+                        <option value="7">7 - ED. COMERCIAL</option>
+                        <option value="8">8 - HOTEL</option>
+                        <option value="9">9 - ESCOLA</option>
+                        <option value="10">10 - C. SAÚDE</option>
+                        <option value="11">11 - ESP. E DIV.</option>
+                        <option value="12">12 - OUTROS</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><span class="badge">55</span>Área Edificada (m²)</label>
-                    <input type="text" class="form-control" id="f_area_edificada" placeholder="Ex: 85,00">
+                    <input type="text" class="form-control" id="f_area_edificada" placeholder="Ex: 85,00 m²">
                 </div>
             </div>
 
@@ -1243,19 +1261,19 @@
                         <label><span class="badge">57</span>Documentação do Imóvel</label>
                         <select class="form-control" id="f_doc_imovel">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Sem</option>
-                            <option value="2">2 - Cadastrado</option>
-                            <option value="3">3 - Autorização Escritura</option>
-                            <option value="4">4 - Escritura Pública</option>
-                            <option value="5">5 - Registro no Cartório</option>
-                            <option value="6">6 - Titulado nº</option>
-                            <option value="7">7 - Processo nº</option>
-                            <option value="8">8 - Documento nº</option>
+                            <option value="1">1 - SEM</option>
+                            <option value="2">2 - CADASTRADO</option>
+                            <option value="3">3 - AUTORIZAÇÃO ESCRITURA</option>
+                            <option value="4">4 - ESCRITURA PÚBLICA</option>
+                            <option value="5">5 - REGISTRO NO CARTÓRIO</option>
+                            <option value="6">6 - TITULADO Nº</option>
+                            <option value="7">7 - PROCESSO Nº</option>
+                            <option value="8">8 - DOCUMENTO Nº</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Nº Titulado / Processo / Documento</label>
-                        <input type="text" class="form-control" id="f_num_documento" placeholder="Número do título/processo">
+                        <input type="text" class="form-control" id="f_num_documento" placeholder="NÚMERO DO TÍTULO/PROCESSO">
                     </div>
                 </div>
 
@@ -1264,21 +1282,21 @@
                         <label><span class="badge">58</span>Situação da Posse ou Propriedade</label>
                         <select class="form-control" id="f_sit_posse">
                             <option value="">Selecione...</option>
-                            <option value="1">1 - Litígio</option>
-                            <option value="2">2 - Penhora</option>
-                            <option value="3">3 - Espólio</option>
-                            <option value="4">4 - Duplicidade de Posse</option>
-                            <option value="5">5 - Dúvida da Posse</option>
-                            <option value="6">6 - Auto Arresto</option>
-                            <option value="7">7 - Posseiro / Dom. Útil</option>
-                            <option value="8">8 - Proprietário</option>
-                            <option value="9">9 - Lib. Arresto</option>
-                            <option value="10">10 - Outros</option>
+                            <option value="1">1 - LITÍGIO</option>
+                            <option value="2">2 - PENHORA</option>
+                            <option value="3">3 - ESPÓLIO</option>
+                            <option value="4">4 - DUPLICIDADE DE POSSE</option>
+                            <option value="5">5 - DÚVIDA DA POSSE</option>
+                            <option value="6">6 - AUTO ARRESTO</option>
+                            <option value="7">7 - POSSEIRO / DOM. ÚTIL</option>
+                            <option value="8">8 - PROPRIETÁRIO</option>
+                            <option value="9">9 - LIB. ARRESTO</option>
+                            <option value="10">10 - OUTROS</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Nº Auto Arresto / Liberação</label>
-                        <input type="text" class="form-control" id="f_num_posse" placeholder="Número se houver">
+                        <input type="text" class="form-control" id="f_num_posse" placeholder="NÚMERO SE HOUVER">
                     </div>
                 </div>
             </div>
@@ -1286,7 +1304,7 @@
             <h2 class="section-title" style="margin-top: 25px;">Observações Complementares da Unidade</h2>
             <div class="grid-row">
                 <div class="form-group">
-                    <textarea class="form-control" id="f_observacoes" rows="4" placeholder="Digite observações gerais sobre a unidade ou vistoria..."></textarea>
+                    <textarea class="form-control" id="f_observacoes" rows="4" placeholder="Digite observações gerais sobre a unidade ou vistoria (digitação livre)..."></textarea>
                 </div>
             </div>
 
@@ -1305,7 +1323,7 @@
             <h2>Pré-Visualização do BCI Oficial A4 (Pronto para Impressão)</h2>
             <div style="display:flex; gap:10px; align-items:center;">
                 <span id="label_seletor_previa_unidade" style="font-size: 12px; color: #cbd5e1;">Imprimir:</span>
-                <select id="sel_unidade_previa" class="form-control" style="padding: 4px 8px; font-size: 12px; font-weight: bold; width: auto;" onchange="renderizarPreviaSelecionada()">
+                <select id="sel_unidade_previa" class="form-control" style="padding: 4px 8px; font-size: 12px; font-weight: bold; width: auto; text-transform: none;" onchange="renderizarPreviaSelecionada()">
                     <!-- Opções dinâmicas -->
                 </select>
                 <button class="btn btn-primary" onclick="imprimirIframe()">🖨️ Imprimir / Salvar PDF</button>
@@ -1319,8 +1337,8 @@
 <script>
     // --- ESTADO GLOBAL DO CADASTRO (MULTI-UNIDADES) ---
     let modoLoteAtual = 'unico'; // 'unico' ou 'multiplo'
-    let unidadeAtiva = 'A';       // 'A', 'B', 'C', 'D'...
-    let listaUnidades = ['A'];    // Array de letras cadastradas no lote
+    let unidadeAtiva = 'A';      // 'A', 'B', 'C', 'D'...
+    let listaUnidades = ['A'];   // Array de letras cadastradas no lote
     let dadosUnidades = {
         'A': {}
     };
@@ -1333,13 +1351,41 @@
         'f_conservacao', 'f_caracterizacao', 'f_area_edificada', 'f_observacoes'
     ];
 
+    // Campos de Metragem Linear (m) e Área (m²)
+    const camposMetros = ['f_frente', 'f_fundos', 'f_direita', 'f_esquerda'];
+    const camposArea = ['f_area_terreno', 'f_area_edificada'];
+
+    // Função utilitária para formatar sufixo m e m²
+    function formatarComSufixo(valor, sufixo) {
+        if (!valor) return '';
+        let v = String(valor).trim();
+        if (v === '' || v.toUpperCase() === 'X') return v.toUpperCase();
+        // Remove sufixos existentes no final para não duplicar
+        v = v.replace(/\s*(m²|m2|m)\s*$/i, '').trim();
+        if (v === '') return '';
+        return `${v} ${sufixo}`;
+    }
+
+    function removerSufixoParaEdicao(valor) {
+        if (!valor) return '';
+        let v = String(valor).trim();
+        if (v.toUpperCase() === 'X') return 'X';
+        return v.replace(/\s*(m²|m2|m)\s*$/i, '').trim();
+    }
+
+    function aplicarSufixosNosCamposDOM() {
+        camposMetros.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.value) el.value = formatarComSufixo(el.value, 'm');
+        });
+        camposArea.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.value) el.value = formatarComSufixo(el.value, 'm²');
+        });
+    }
+
     // Navegação de Abas
     function trocarAba(idx) {
-        // Se estiver em unidade subsequente (B, C, D...) e tentar entrar em abas herdadas
-        if (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A' && idx !== 5 && idx !== 6) {
-            // Permite visualizar o card de bloqueio explicativo na aba
-        }
-
         const tabs = document.querySelectorAll('.tab-content');
         const btns = document.querySelectorAll('.tab-btn');
         tabs.forEach((t, i) => {
@@ -1350,8 +1396,11 @@
     }
 
     // Modo Único vs Múltiplas Edificações
-    function definirModoLote(modo) {
-        salvarCamposFormularioNaMemoria();
+    // O parâmetro pularSalvamento evita sobrescrever dados ao carregar um rascunho JSON
+    function definirModoLote(modo, pularSalvamento = false) {
+        if (!pularSalvamento) {
+            salvarCamposFormularioNaMemoria();
+        }
         modoLoteAtual = modo;
 
         const lblUnico = document.getElementById('lbl_modo_unico');
@@ -1359,15 +1408,18 @@
         const radioUnico = document.getElementById('radio_unico');
         const radioMultiplo = document.getElementById('radio_multiplo');
         const barUnidades = document.getElementById('bar_unidades');
+        const banner = document.getElementById('banner_status_unidade');
 
         if (modo === 'unico') {
             lblUnico.classList.add('selected');
             lblMultiplo.classList.remove('selected');
             radioUnico.checked = true;
             barUnidades.style.display = 'none';
+            banner.style.display = 'none';
 
             // No lote único, a unidade fica em branco
             unidadeAtiva = 'A';
+            carregarDadosMemoriaNoFormulario('A');
             document.getElementById('f_unidade').value = '';
             document.getElementById('f_unidade').placeholder = '(Em branco)';
             document.getElementById('lbl_status_unidade').innerText = '(Em branco conforme padrão oficial)';
@@ -1384,7 +1436,6 @@
                 listaUnidades = ['A'];
             }
             if (listaUnidades.length === 1) {
-                // Adiciona automaticamente a Unidade B para dar fluxo imediato
                 listaUnidades.push('B');
                 dadosUnidades['B'] = {};
             }
@@ -1411,7 +1462,6 @@
             container.appendChild(pill);
         });
 
-        // Mostra botão de remover se não for a Unidade A
         const btnRemover = document.getElementById('btn_remover_unidade');
         btnRemover.style.display = (unidadeAtiva !== 'A' && listaUnidades.length > 1) ? 'inline-flex' : 'none';
     }
@@ -1445,14 +1495,12 @@
 
             aplicarRestricoesAba(true);
             carregarDadosMemoriaNoFormulario(letra);
-            // Direciona imediatamente para a Aba 6 (Edificação)!
             trocarAba(5);
         }
     }
 
     function adicionarNovaUnidade() {
         salvarCamposFormularioNaMemoria();
-        // Achar próxima letra disponível
         const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         let proxima = null;
         for (let l of alfabeto) {
@@ -1521,19 +1569,32 @@
 
     // Salvar campos do DOM no objeto de memória
     function salvarCamposFormularioNaMemoria() {
+        aplicarSufixosNosCamposDOM();
+
         const inputs = document.querySelectorAll('#formBCI input, #formBCI select, #formBCI textarea');
         if (!dadosUnidades[unidadeAtiva]) {
             dadosUnidades[unidadeAtiva] = {};
         }
 
         inputs.forEach(el => {
+            let val = el.value || '';
+            // Garante maiúsculas em tudo exceto f_observacoes e os sufixos m / m²
+            if (el.id !== 'f_observacoes' && el.tagName === 'INPUT') {
+                if (camposMetros.includes(el.id)) {
+                    val = formatarComSufixo(val.toUpperCase(), 'm');
+                } else if (camposArea.includes(el.id)) {
+                    val = formatarComSufixo(val.toUpperCase(), 'm²');
+                } else {
+                    val = val.toUpperCase();
+                }
+                el.value = val;
+            }
+
             if (unidadeAtiva === 'A' || modoLoteAtual === 'unico') {
-                // Unidade A grava todos os campos
-                dadosUnidades[unidadeAtiva][el.id] = el.value || '';
+                dadosUnidades[unidadeAtiva][el.id] = val;
             } else {
-                // Unidades B, C, D... gravam apenas os campos de edificação e observações
                 if (camposEdificacao.includes(el.id)) {
-                    dadosUnidades[unidadeAtiva][el.id] = el.value || '';
+                    dadosUnidades[unidadeAtiva][el.id] = val;
                 }
             }
         });
@@ -1553,48 +1614,118 @@
                 if (camposEdificacao.includes(el.id)) {
                     el.value = dadosDesta[el.id] !== undefined ? dadosDesta[el.id] : '';
                 } else {
-                    // Herdado de A
                     el.value = dadosMatriz[el.id] !== undefined ? dadosMatriz[el.id] : '';
                 }
             }
         });
 
-        // Configuração garantida do campo Unidade
+        aplicarSufixosNosCamposDOM();
+
         if (modoLoteAtual === 'unico') {
             document.getElementById('f_unidade').value = '';
         } else {
             document.getElementById('f_unidade').value = letra;
         }
+
+        // Atualiza feedback visual de CPF e CNPJ se houverem valores carregados
+        if (typeof atualizarStatusVisualCPFCNPJ === 'function') {
+            atualizarStatusVisualCPFCNPJ();
+        }
     }
 
-    // Persistência local (LocalStorage)
-    function salvarRascunho() {
+    // Carrega o rascunho salvo no LocalStorage ao abrir a página
+    function carregarRascunho() {
+        const salvo = localStorage.getItem('rascunho_bci_semurfh_v2');
+        if (!salvo) return;
+        try {
+            const p = JSON.parse(salvo);
+            modoLoteAtual = p.modoLoteAtual || 'unico';
+            unidadeAtiva = p.unidadeAtiva || 'A';
+            listaUnidades = p.listaUnidades || ['A'];
+            dadosUnidades = p.dadosUnidades || { 'A': {} };
+            definirModoLote(modoLoteAtual, true);
+        } catch (err) {
+            console.warn('Erro ao restaurar rascunho do LocalStorage:', err);
+        }
+    }
+
+    // Persistência com escolha de diretório/arquivo no Sistema Operacional
+    async function salvarRascunho() {
         salvarCamposFormularioNaMemoria();
+
         const pacote = {
             modoLoteAtual,
             unidadeAtiva,
             listaUnidades,
             dadosUnidades
         };
+
         localStorage.setItem('rascunho_bci_semurfh_v2', JSON.stringify(pacote));
-        alert('Rascunho do lote e de todas as unidades salvo com sucesso!');
+
+        const conteudo = JSON.stringify(pacote, null, 2);
+        
+        const setor = (dadosUnidades['A'] && dadosUnidades['A']['f_setor']) ? dadosUnidades['A']['f_setor'] : '';
+        const lote = (dadosUnidades['A'] && dadosUnidades['A']['f_lote']) ? dadosUnidades['A']['f_lote'] : '';
+        const nomeSugerido = (setor || lote) 
+            ? `rascunho_BCI_Setor_${setor}_Lote_${lote}.json` 
+            : `rascunho_BCI_${new Date().toISOString().slice(0,10)}.json`;
+
+        if ('showSaveFilePicker' in window) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: nomeSugerido,
+                    types: [{
+                        description: 'Arquivo de Rascunho BCI (*.json)',
+                        accept: { 'application/json': ['.json'] }
+                    }]
+                });
+
+                const writableStream = await handle.createWritable();
+                await writableStream.write(conteudo);
+                await writableStream.close();
+                alert('Rascunho salvo com sucesso no local escolhido!');
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                console.warn('Erro ao usar showSaveFilePicker, acionando fallback:', err);
+            }
+        }
+
+        const blob = new Blob([conteudo], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = nomeSugerido;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        alert('Download do rascunho iniciado!');
     }
 
-    function carregarRascunho() {
-        const salvo = localStorage.getItem('rascunho_bci_semurfh_v2');
-        if (salvo) {
+    // Carregar o arquivo salvo pelo Explorer de volta para o formulário (CORRIGIDO)
+    function carregarRascunhoArquivo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
             try {
-                const p = JSON.parse(salvo);
+                const p = JSON.parse(e.target.result);
                 modoLoteAtual = p.modoLoteAtual || 'unico';
                 unidadeAtiva = p.unidadeAtiva || 'A';
                 listaUnidades = p.listaUnidades || ['A'];
                 dadosUnidades = p.dadosUnidades || { 'A': {} };
 
-                definirModoLote(modoLoteAtual);
-            } catch(e) {
-                console.error('Erro ao ler rascunho:', e);
+                // Passa "true" para NÃO sobrescrever os dados recém-carregados com o formulário vazio da tela!
+                definirModoLote(modoLoteAtual, true);
+                localStorage.setItem('rascunho_bci_semurfh_v2', JSON.stringify(p));
+                alert('Rascunho carregado com sucesso!');
+            } catch (err) {
+                alert('Erro ao ler o arquivo JSON selecionado: ' + err.message);
             }
-        }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
     }
 
     function limparTudo() {
@@ -1605,7 +1736,11 @@
             unidadeAtiva = 'A';
             listaUnidades = ['A'];
             dadosUnidades = { 'A': {} };
-            definirModoLote('unico');
+            document.getElementById('msg_cpf').innerText = '';
+            document.getElementById('msg_cnpj').innerText = '';
+            document.getElementById('f_cpf').style.borderColor = '';
+            document.getElementById('f_cnpj').style.borderColor = '';
+            definirModoLote('unico', true);
         }
     }
 
@@ -1624,12 +1759,10 @@
         }
 
         if (ehSub) {
-            // Sobrescreve com os dados da edificação desta unidade
             camposEdificacao.forEach(cp => {
                 d[cp] = propria[cp] !== undefined ? propria[cp] : '';
             });
 
-            // Conforme solicitado: no BCI subsequente, campos de Terreno saem com "X"
             d.f_topografia = 'X';
             d.f_nivel = 'X';
             d.f_pedologia = 'X';
@@ -1646,21 +1779,29 @@
             d.f_direita = 'X';
             d.f_esquerda = 'X';
             d.f_mapa_id = 'X';
+        } else {
+            // Garante a formatação de sufixos m e m² na impressão
+            camposMetros.forEach(cp => {
+                if (d[cp]) d[cp] = formatarComSufixo(d[cp], 'm');
+            });
+            if (d.f_area_terreno) d.f_area_terreno = formatarComSufixo(d.f_area_terreno, 'm²');
+        }
+
+        if (d.f_area_edificada) {
+            d.f_area_edificada = formatarComSufixo(d.f_area_edificada, 'm²');
         }
 
         return d;
     }
 
-    // Gerador HTML Oficial A4 do BCI
-        // --- GERADOR MODULAR DE FOLHAS BCI (1 FOLHA A4 INDIVIDUAL POR UNIDADE) ---
-
+    // --- GERADOR MODULAR DE FOLHAS BCI (1 FOLHA A4 INDIVIDUAL POR UNIDADE) ---
     function gerarFolhaIndividualBCI(d) {
         return `<div class="folha-a4">
     <div class="quadro-topo">
         <div class="col-1">
             <div class="quadro-interno">
                 <div class="conteudo-col1">
-                    <img src="logo.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                    <img src="imagem/logo.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
                     <span class="texto-prefeitura">PREFEITURA DE JI-PARANÁ</span>
                 </div>
             </div>
@@ -1751,11 +1892,11 @@
             <td rowspan="2" class="ba cod">09</td>
             <td class="ba center">TIPO</td>
             <td rowspan="2" class="ba cod">10</td>
-            <td colspan="29" class="ba" style="padding-left:4px;">NOME DO LOGRADOURO</td>
+            <td colspan="29" class="ba center">NOME DO LOGRADOURO</td>
         </tr>
         <tr class="r-input">
             <td class="ba center">${d.f_tipo_logradouro || ''}</td>
-            <td colspan="29" class="ba" style="padding-left:4px;">${d.f_nome_logradouro || ''}</td>
+            <td colspan="29" class="ba center">${d.f_nome_logradouro || ''}</td>
         </tr>
         <tr class="r-label">
             <td rowspan="2" class="ba cod">11</td>
@@ -1781,11 +1922,11 @@
         <tr class="r-input">
             <td colspan="7" class="ba bold" style="font-size:6.2px;">PROPRIETÁRIO / POSSEIRO / DOM. ÚTIL</td>
             <td rowspan="2" class="ba cod">16</td>
-            <td colspan="24" class="ba" style="padding-left:4px;">${d.f_proprietario || ''}</td>
+            <td colspan="24" class="ba center">${d.f_proprietario || ''}</td>
         </tr>
         <tr class="r-input">
             <td colspan="7" class="ba bold" style="font-size:6.2px;">ENDEREÇO P/ CORRESPONDÊNCIA</td>
-            <td colspan="24" class="ba" style="padding-left:4px;">${d.f_end_correspondencia || ''}</td>
+            <td colspan="24" class="ba center">${d.f_end_correspondencia || ''}</td>
         </tr>
         <tr class="r-label">
             <td rowspan="2" class="ba cod">17</td>
@@ -1911,7 +2052,7 @@
             <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
             <td colspan="10" class="bl br">10-ED. SERVIÇO</td>
             <td class="bl bold">OBS.:</td>
-            <td colspan="7" class="br bg-blue" style="padding-left:2px;">medidas conforme mapa ID: ${d.f_mapa_id || ''}</td>
+            <td colspan="7" class="br bg-blue center">MEDIDAS CONFORME MAPA ID: ${d.f_mapa_id || ''}</td>
         </tr>
         <tr class="r-code">
             <td colspan="2" class="bl bb"></td> <td class="ba cod">28</td> <td class="ba center">${d.f_iluminacao || ''}</td>
@@ -1925,16 +2066,16 @@
             <td colspan="32" class="ba sec-title">INFORMAÇÕES SOBRE MELHORIA PÚBLICA (Avaliação Territorial)</td>
         </tr>
         <tr class="r-input">
-            <td colspan="4" class="ba bold">PAVIMENTAÇÃO:</td> <td colspan="11" class="ba" style="padding-left:4px;">${d.f_melh_pavimentacao || ''}</td>
-            <td colspan="6" class="ba bold">REDE DE ÁGUA:</td> <td colspan="11" class="ba" style="padding-left:4px;">${d.f_melh_agua || ''}</td>
+            <td colspan="4" class="ba bold">PAVIMENTAÇÃO:</td> <td colspan="11" class="ba center">${d.f_melh_pavimentacao || ''}</td>
+            <td colspan="6" class="ba bold">REDE DE ÁGUA:</td> <td colspan="11" class="ba center">${d.f_melh_agua || ''}</td>
         </tr>
         <tr class="r-input">
-            <td colspan="5" class="ba bold">REDE DE ENERGIA:</td> <td colspan="10" class="ba" style="padding-left:4px;">${d.f_melh_energia || ''}</td>
-            <td colspan="6" class="ba bold">REDE DE TELEFONIA:</td> <td colspan="11" class="ba" style="padding-left:4px;">${d.f_melh_telefonia || ''}</td>
+            <td colspan="5" class="ba bold">REDE DE ENERGIA:</td> <td colspan="10" class="ba center">${d.f_melh_energia || ''}</td>
+            <td colspan="6" class="ba bold">REDE DE TELEFONIA:</td> <td colspan="11" class="ba center">${d.f_melh_telefonia || ''}</td>
         </tr>
         <tr class="r-input">
-            <td colspan="8" class="ba bold">REDE DE GALERIAS DE ÁGUAS PLUVIAIS:</td> <td colspan="7" class="ba" style="padding-left:4px;">${d.f_melh_galerias || ''}</td>
-            <td colspan="8" class="ba bold">REDE DE ESGOTO SANITÁRIO:</td> <td colspan="9" class="ba" style="padding-left:4px;">${d.f_melh_esgoto || ''}</td>
+            <td colspan="8" class="ba bold">REDE DE GALERIAS DE ÁGUAS PLUVIAIS:</td> <td colspan="7" class="ba center">${d.f_melh_galerias || ''}</td>
+            <td colspan="8" class="ba bold">REDE DE ESGOTO SANITÁRIO:</td> <td colspan="9" class="ba center">${d.f_melh_esgoto || ''}</td>
         </tr>
 
         <tr class="r-header">
@@ -2122,7 +2263,7 @@
             <td colspan="32" class="bt bl br bold" style="padding-top:1px;">Observações:</td>
         </tr>
         <tr class="r-obs-input">
-            <td colspan="32" class="bl br bb" style="vertical-align:top; white-space:pre-wrap; padding:2px 4px;">${d.f_observacoes || ''}</td>
+            <td colspan="32" class="bl br bb" style="vertical-align:top; white-space:pre-wrap; padding:2px 4px; text-align:left;">${d.f_observacoes || ''}</td>
         </tr>
     </table>
 </div>`;
@@ -2310,7 +2451,7 @@ ${htmlFolhas}
 </html>`;
     }
 
-function abrirPreviaBCI() {
+    function abrirPreviaBCI() {
         salvarCamposFormularioNaMemoria();
         
         const selPrevia = document.getElementById('sel_unidade_previa');
@@ -2327,7 +2468,6 @@ function abrirPreviaBCI() {
                 selPrevia.appendChild(opt);
             });
 
-            // Opção extra de imprimir todas as unidades
             const optTodas = document.createElement('option');
             optTodas.value = 'TODAS';
             optTodas.innerText = `📄 Imprimir TODOS os BCIs do Lote (${listaUnidades.join(', ')})`;
@@ -2338,13 +2478,12 @@ function abrirPreviaBCI() {
         document.getElementById('modalPrevia').style.display = 'flex';
     }
 
-        function renderizarPreviaSelecionada() {
+    function renderizarPreviaSelecionada() {
         const selPrevia = document.getElementById('sel_unidade_previa');
         const escolha = selPrevia.value;
         const iframe = document.getElementById('frameBCI');
 
         if (escolha === 'TODAS') {
-            // Gera uma folha A4 individual para cada unidade, garantindo 1 BCI por folha A4
             let htmlFolhas = '';
             listaUnidades.forEach(letra => {
                 const d = montarDadosConsolidadosUnidade(letra);
@@ -2357,7 +2496,7 @@ function abrirPreviaBCI() {
         }
     }
 
-function fecharPrevia() {
+    function fecharPrevia() {
         document.getElementById('modalPrevia').style.display = 'none';
     }
 
@@ -2367,10 +2506,46 @@ function fecharPrevia() {
         iframe.contentWindow.print();
     }
 
-    // Inicialização
-    window.addEventListener('DOMContentLoaded', () => {
-        carregarRascunho();
-    });
+    // --- CONFIGURAÇÃO DE MAIÚSCULAS E SUFIXOS (m e m²) ---
+    function configurarEventosDeFormatacao() {
+        // 1. Forçar maiúsculas em todos os inputs de texto (exceto f_observacoes)
+        const inputsTexto = document.querySelectorAll('#formBCI input[type="text"]');
+        inputsTexto.forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.id === 'f_cpf' || this.id === 'f_cnpj') return; // Já possuem máscara própria
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.toUpperCase();
+                if (start !== null && end !== null) {
+                    this.setSelectionRange(start, end);
+                }
+            });
+        });
+
+        // 2. Sufixo "m" nos campos de medidas lineares
+        camposMetros.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('focus', function() {
+                this.value = removerSufixoParaEdicao(this.value);
+            });
+            el.addEventListener('blur', function() {
+                this.value = formatarComSufixo(this.value, 'm');
+            });
+        });
+
+        // 3. Sufixo "m²" nos campos de área
+        camposArea.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('focus', function() {
+                this.value = removerSufixoParaEdicao(this.value);
+            });
+            el.addEventListener('blur', function() {
+                this.value = formatarComSufixo(this.value, 'm²');
+            });
+        });
+    }
 
     // --- MÁSCARA E VALIDAÇÃO DE CPF E CNPJ ---
     function validarCPF(cpf) {
@@ -2457,52 +2632,64 @@ function fecharPrevia() {
 
     const inputCPF = document.getElementById('f_cpf');
     const msgCPF = document.getElementById('msg_cpf');
-    if (inputCPF) {
-        inputCPF.addEventListener('input', function() {
-            this.value = aplicarMascaraCPF(this.value);
-            const limpo = this.value.replace(/\D/g, '');
+    const inputCNPJ = document.getElementById('f_cnpj');
+    const msgCNPJ = document.getElementById('msg_cnpj');
+
+    function atualizarStatusVisualCPFCNPJ() {
+        if (inputCPF && msgCPF) {
+            inputCPF.value = aplicarMascaraCPF(inputCPF.value);
+            const limpo = inputCPF.value.replace(/\D/g, '');
             if (limpo.length === 0) {
                 msgCPF.innerText = '';
-                this.style.borderColor = '';
+                inputCPF.style.borderColor = '';
             } else if (limpo.length === 11) {
                 if (validarCPF(limpo)) {
                     msgCPF.innerHTML = '<span style="color:#28a745; font-size:11px; font-weight:bold;">✔ CPF Válido</span>';
-                    this.style.borderColor = '#28a745';
+                    inputCPF.style.borderColor = '#28a745';
                 } else {
                     msgCPF.innerHTML = '<span style="color:#dc3545; font-size:11px; font-weight:bold;">✖ CPF Inválido</span>';
-                    this.style.borderColor = '#dc3545';
+                    inputCPF.style.borderColor = '#dc3545';
                 }
             } else {
                 msgCPF.innerHTML = '<span style="color:#6c757d; font-size:11px;">Digitando... (11 dígitos)</span>';
-                this.style.borderColor = '';
+                inputCPF.style.borderColor = '';
             }
-        });
-    }
+        }
 
-    const inputCNPJ = document.getElementById('f_cnpj');
-    const msgCNPJ = document.getElementById('msg_cnpj');
-    if (inputCNPJ) {
-        inputCNPJ.addEventListener('input', function() {
-            this.value = aplicarMascaraCNPJ(this.value);
-            const limpo = this.value.replace(/[^a-zA-Z0-9]/g, '');
+        if (inputCNPJ && msgCNPJ) {
+            inputCNPJ.value = aplicarMascaraCNPJ(inputCNPJ.value);
+            const limpo = inputCNPJ.value.replace(/[^a-zA-Z0-9]/g, '');
             if (limpo.length === 0) {
                 msgCNPJ.innerText = '';
-                this.style.borderColor = '';
+                inputCNPJ.style.borderColor = '';
             } else if (limpo.length === 14) {
                 const res = validarCNPJ(limpo);
                 if (res && res.valido) {
-                    msgCNPJ.innerHTML = `<span style="color:#28a745; font-size:11px; font-weight:bold;">✔ CNPJ Válido (\${res.tipo})</span>`;
-                    this.style.borderColor = '#28a745';
+                    msgCNPJ.innerHTML = `<span style="color:#28a745; font-size:11px; font-weight:bold;">✔ CNPJ Válido (${res.tipo})</span>`;
+                    inputCNPJ.style.borderColor = '#28a745';
                 } else {
                     msgCNPJ.innerHTML = '<span style="color:#dc3545; font-size:11px; font-weight:bold;">✖ CNPJ Inválido</span>';
-                    this.style.borderColor = '#dc3545';
+                    inputCNPJ.style.borderColor = '#dc3545';
                 }
             } else {
                 msgCNPJ.innerHTML = '<span style="color:#6c757d; font-size:11px;">Digitando... (14 caracteres)</span>';
-                this.style.borderColor = '';
+                inputCNPJ.style.borderColor = '';
             }
-        });
+        }
     }
+
+    if (inputCPF) {
+        inputCPF.addEventListener('input', atualizarStatusVisualCPFCNPJ);
+    }
+    if (inputCNPJ) {
+        inputCNPJ.addEventListener('input', atualizarStatusVisualCPFCNPJ);
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+        configurarEventosDeFormatacao();
+        carregarRascunho();
+    });
 </script>
 
 </body>
