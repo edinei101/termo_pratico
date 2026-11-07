@@ -346,7 +346,7 @@
             border: 1px solid var(--border);
             border-radius: 5px;
             font-size: 13px;
-            transition: border-color 0.2s;
+            transition: all 0.2s ease;
             background: #fff;
         }
 
@@ -372,17 +372,31 @@
             text-transform: none;
         }
 
+        /* DESTAQUE EM AZUL APENAS NOS CAMPOS DO FORMULÁRIO JÁ PREENCHIDOS */
+        .form-control.campo-preenchido {
+            background-color: #e0f2fe;
+            border-color: #0284c7;
+            color: #003d80;
+            font-weight: 600;
+        }
+
+        select.form-control.campo-preenchido option {
+            background-color: #ffffff;
+            color: #333333;
+            font-weight: normal;
+        }
+
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0,86,179,0.15);
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.2);
         }
 
-        .form-control[readonly] {
-            background-color: #f8fafc;
-            color: #475569;
+        .form-control[readonly], .form-control:disabled {
+            background-color: #f1f5f9;
+            color: #64748b;
             cursor: not-allowed;
-            border-color: #e2e8f0;
+            border-color: #cbd5e1;
         }
 
         .tab-footer {
@@ -1372,10 +1386,26 @@
     const camposMetros = ['f_frente', 'f_fundos', 'f_direita', 'f_esquerda'];
     const camposArea = ['f_area_terreno', 'f_area_edificada'];
 
+    // --- FUNÇÃO PARA APLICAR COR AZUL APENAS NOS CAMPOS DO FORMULÁRIO ---
+    function atualizarCorCampo(el) {
+        if (!el || el.id === 'sel_unidade_previa') return;
+        const valor = (el.value || '').trim();
+        if (valor !== '' && !el.disabled) {
+            el.classList.add('campo-preenchido');
+        } else {
+            el.classList.remove('campo-preenchido');
+        }
+    }
+
+    function atualizarCoresTodosOsCampos() {
+        const controles = document.querySelectorAll('#formBCI .form-control');
+        controles.forEach(el => atualizarCorCampo(el));
+    }
+
     // Verifica se a unidade atual está marcada como Terreno Vago (Campo 31 = '1')
     function isTerrenoVagoAtivo() {
         const ehSub = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A');
-        if (ehSub) return false; // Unidades subsequentes B, C, D são edificações extras
+        if (ehSub) return false;
         const elOcupacao = document.getElementById('f_ocupacao');
         return elOcupacao && elOcupacao.value === '1';
     }
@@ -1396,13 +1426,11 @@
         if (!dadosUnidades['A']) dadosUnidades['A'] = {};
 
         if (vago) {
-            // Preenche todos os campos da Caracterização da Edificação com 'X'
             camposApenasEdificacao.forEach(id => {
                 dadosUnidades['A'][id] = 'X';
                 const el = document.getElementById(id);
                 if (el) {
                     if (el.tagName === 'SELECT') {
-                        // Adiciona opção temporária 'X' caso não exista para refletir visualmente
                         if (!el.querySelector('option[value="X"]')) {
                             const optX = document.createElement('option');
                             optX.value = 'X';
@@ -1415,7 +1443,6 @@
                 }
             });
 
-            // Bloqueia visualmente a Aba 6
             if (btnNavEdif) btnNavEdif.classList.add('tab-disabled');
             if (boxBloqueioEdif) boxBloqueioEdif.style.display = 'block';
             if (camposEdifDOM) camposEdifDOM.style.display = 'none';
@@ -1429,7 +1456,6 @@
             if (btnProximoAba4) btnProximoAba4.innerText = 'Próximo: Documentação ➡️';
             if (btnVoltarAba6) btnVoltarAba6.innerText = '⬅️ Voltar para Melhorias';
         } else {
-            // Desbloqueia a Aba 6 e remove os 'X' automáticos se houverem
             camposApenasEdificacao.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -1458,11 +1484,13 @@
             if (btnProximoAba4) btnProximoAba4.innerText = 'Próximo: Edificação ➡️';
             if (btnVoltarAba6) btnVoltarAba6.innerText = '⬅️ Voltar para Edificação';
         }
+
+        atualizarCoresTodosOsCampos();
     }
 
     function avancarDeMelhorias() {
         if (isTerrenoVagoAtivo()) {
-            trocarAba(6); // Pula a Aba 6 (Edificação) se for Lote Vago
+            trocarAba(6);
         } else {
             trocarAba(5);
         }
@@ -1470,7 +1498,7 @@
 
     function voltarDeDocumentacao() {
         if (isTerrenoVagoAtivo()) {
-            trocarAba(4); // Volta direto para Melhorias se a Aba 6 estiver bloqueada por Lote Vago
+            trocarAba(4);
         } else {
             trocarAba(5);
         }
@@ -1542,6 +1570,7 @@
             document.getElementById('f_unidade').value = '';
             document.getElementById('f_unidade').placeholder = '(Em branco)';
             document.getElementById('lbl_status_unidade').innerText = '(Em branco conforme padrão oficial)';
+            atualizarCoresTodosOsCampos();
             
             trocarAba(0);
         } else {
@@ -1658,7 +1687,6 @@
         const camposEdifDOM = document.getElementById('campos_aba_5');
 
         if (isSubsequente) {
-            // Garante que na unidade B, C, D... a Aba 6 esteja sempre aberta e habilitada
             if (btnNavEdif) btnNavEdif.classList.remove('tab-disabled');
             if (boxBloqueioEdif) boxBloqueioEdif.style.display = 'none';
             if (camposEdifDOM) camposEdifDOM.style.display = 'block';
@@ -1765,7 +1793,6 @@
             }
         });
 
-        // Verifica se a Unidade A está com Ocupação = 1 (Lote Vago) para aplicar bloqueio e 'X'
         if (letra === 'A' || modoLoteAtual === 'unico') {
             verificarRegraOcupacaoTerrenoVago();
         }
@@ -1781,12 +1808,17 @@
         if (typeof atualizarStatusVisualCPFCNPJ === 'function') {
             atualizarStatusVisualCPFCNPJ();
         }
+
+        atualizarCoresTodosOsCampos();
     }
 
     // Carrega o rascunho salvo no LocalStorage ao abrir a página
     function carregarRascunho() {
         const salvo = localStorage.getItem('rascunho_bci_semurfh_v2');
-        if (!salvo) return;
+        if (!salvo) {
+            atualizarCoresTodosOsCampos();
+            return;
+        }
         try {
             const p = JSON.parse(salvo);
             modoLoteAtual = p.modoLoteAtual || 'unico';
@@ -1891,6 +1923,7 @@
             document.getElementById('f_cnpj').style.borderColor = '';
             verificarRegraOcupacaoTerrenoVago();
             definirModoLote('unico', true);
+            atualizarCoresTodosOsCampos();
         }
     }
 
@@ -1935,7 +1968,6 @@
             });
             if (d.f_area_terreno) d.f_area_terreno = formatarComSufixo(d.f_area_terreno, 'm²');
 
-            // Se a ocupação for 1 (Lote Vago), todos os campos da Edificação recebem 'X'
             if (d.f_ocupacao === '1') {
                 camposApenasEdificacao.forEach(cp => {
                     d[cp] = 'X';
@@ -1948,6 +1980,11 @@
         }
 
         return d;
+    }
+
+    // Mantém a folha A4 do BCI sem destaque em azul nas opções
+    function clsOpt(valorAtual, codigoEsperado, classesBase = '') {
+        return classesBase.trim();
     }
 
     // --- GERADOR MODULAR DE FOLHAS BCI (1 FOLHA A4 INDIVIDUAL POR UNIDADE) ---
@@ -2026,7 +2063,7 @@
             <td colspan="3" class="ba center">${d.f_loteamento || ''}</td>
             <td colspan="2" class="ba center">${d.f_quadra || ''}</td>
             <td colspan="2" class="ba center">${d.f_lote || ''}</td>
-            <td class="ba center" style="color: #003d80;">${d.f_unidade || ''}</td>
+            <td class="ba center">${d.f_unidade || ''}</td>
             <td class="ba center">${d.f_digito || ''}</td>
             <td class="ba center">${d.f_tipo_manutencao || ''}</td>
             <td></td>
@@ -2114,27 +2151,27 @@
             <td colspan="4" class="ba sub-title">ZONA</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">1-NORMAL</td> <td colspan="4" class="bl br">1-AO NÍVEL</td> <td colspan="4" class="bl br">1-NORMAL</td>
-            <td colspan="6" class="bl br">1-UMA FRENTE</td> <td colspan="5" class="bl">1-SEM</td> <td colspan="4" class="br">2-MURO C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_topografia, 1, 'bl br')}">1-NORMAL</td> <td colspan="4" class="${clsOpt(d.f_nivel, 1, 'bl br')}">1-AO NÍVEL</td> <td colspan="4" class="${clsOpt(d.f_pedologia, 1, 'bl br')}">1-NORMAL</td>
+            <td colspan="6" class="${clsOpt(d.f_situacao, 1, 'bl br')}">1-UMA FRENTE</td> <td colspan="5" class="${clsOpt(d.f_benfeitorias, 1, 'bl')}">1-SEM</td> <td colspan="4" class="${clsOpt(d.f_benfeitorias, 2, 'br')}">2-MURO C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">2-ACLIVE</td> <td colspan="4" class="bl br">2-ABAIXO</td> <td colspan="4" class="bl br">2-ARENOSO</td>
-            <td colspan="6" class="bl br">2-DUAS FRENTES</td> <td colspan="5" class="bl">3-CERCA</td> <td colspan="4" class="br">4-CERCA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_topografia, 2, 'bl br')}">2-ACLIVE</td> <td colspan="4" class="${clsOpt(d.f_nivel, 2, 'bl br')}">2-ABAIXO</td> <td colspan="4" class="${clsOpt(d.f_pedologia, 2, 'bl br')}">2-ARENOSO</td>
+            <td colspan="6" class="${clsOpt(d.f_situacao, 2, 'bl br')}">2-DUAS FRENTES</td> <td colspan="5" class="${clsOpt(d.f_benfeitorias, 3, 'bl')}">3-CERCA</td> <td colspan="4" class="${clsOpt(d.f_benfeitorias, 4, 'br')}">4-CERCA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">3-DECLIVE</td> <td colspan="4" class="bl br">3-ACIMA</td> <td colspan="4" class="bl br">3-ATERRADO</td>
-            <td colspan="6" class="bl br">3-TRÊS FRENTES</td> <td colspan="5" class="bl">5-MURO</td> <td colspan="4" class="br">6-MURETA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_topografia, 3, 'bl br')}">3-DECLIVE</td> <td colspan="4" class="${clsOpt(d.f_nivel, 3, 'bl br')}">3-ACIMA</td> <td colspan="4" class="${clsOpt(d.f_pedologia, 3, 'bl br')}">3-ATERRADO</td>
+            <td colspan="6" class="${clsOpt(d.f_situacao, 3, 'bl br')}">3-TRÊS FRENTES</td> <td colspan="5" class="${clsOpt(d.f_benfeitorias, 5, 'bl')}">5-MURO</td> <td colspan="4" class="${clsOpt(d.f_benfeitorias, 6, 'br')}">6-MURETA C/ CALÇ.</td> <td colspan="4" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">4-IRREGULAR</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">4-ALAGÁVEL</td>
-            <td colspan="6" class="bl br">4-QUATRO FRENTES</td> <td colspan="5" class="bl">7-MURETA</td> <td colspan="4" class="br">8-MISTA</td> <td colspan="4" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_topografia, 4, 'bl br')}">4-IRREGULAR</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="${clsOpt(d.f_pedologia, 4, 'bl br')}">4-ALAGÁVEL</td>
+            <td colspan="6" class="${clsOpt(d.f_situacao, 4, 'bl br')}">4-QUATRO FRENTES</td> <td colspan="5" class="${clsOpt(d.f_benfeitorias, 7, 'bl')}">7-MURETA</td> <td colspan="4" class="${clsOpt(d.f_benfeitorias, 8, 'br')}">8-MISTA</td> <td colspan="4" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">5-BREJO</td>
-            <td colspan="6" class="bl br">5-ENCRAVADO</td> <td colspan="9" class="bl br">9-CALÇADA</td> <td colspan="4" class="bl br"></td>
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="${clsOpt(d.f_pedologia, 5, 'bl br')}">5-BREJO</td>
+            <td colspan="6" class="${clsOpt(d.f_situacao, 5, 'bl br')}">5-ENCRAVADO</td> <td colspan="9" class="${clsOpt(d.f_benfeitorias, 9, 'bl br')}">9-CALÇADA</td> <td colspan="4" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">6-ROCHOSO</td>
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="${clsOpt(d.f_pedologia, 6, 'bl br')}">6-ROCHOSO</td>
             <td colspan="6" class="bl br"></td> <td colspan="9" class="bl br"></td> <td colspan="4" class="bl br"></td>
         </tr>
         <tr class="r-code">
@@ -2160,53 +2197,53 @@
             <td colspan="8" class="bt bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="4" class="bl br">1-SIM</td> <td colspan="4" class="bl br">1-SIM</td> <td colspan="6" class="bl br">1-PARALELEPÍPEDO</td>
-            <td colspan="5" class="bl">1-LOTE VAGO</td> <td colspan="5" class="br">12-ED. RES./AGRI.</td>
+            <td colspan="4" class="${clsOpt(d.f_iluminacao, 1, 'bl br')}">1-SIM</td> <td colspan="4" class="${clsOpt(d.f_coleta_lixo, 1, 'bl br')}">1-SIM</td> <td colspan="6" class="${clsOpt(d.f_pavimentacao, 1, 'bl br')}">1-PARALELEPÍPEDO</td>
+            <td colspan="5" class="${clsOpt(d.f_ocupacao, 1, 'bl')}">1-LOTE VAGO</td> <td colspan="5" class="${clsOpt(d.f_ocupacao, 12, 'br')}">12-ED. RES./AGRI.</td>
             <td colspan="4" class="bl bold">ÁREA DO TERRENO</td> <td class="ba cod">32</td> <td colspan="3" class="ba bg-gray center">${d.f_area_terreno || ''}</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="4" class="bl br">2-NÃO</td> <td colspan="4" class="bl br">2-NÃO</td> <td colspan="6" class="bl br">2-ASFALTO</td>
-            <td colspan="5" class="bl">2-CONST. ANDAM.</td> <td colspan="5" class="br">13-ED. CHÁC. RECREIO</td>
+            <td colspan="4" class="${clsOpt(d.f_iluminacao, 2, 'bl br')}">2-NÃO</td> <td colspan="4" class="${clsOpt(d.f_coleta_lixo, 2, 'bl br')}">2-NÃO</td> <td colspan="6" class="${clsOpt(d.f_pavimentacao, 2, 'bl br')}">2-ASFALTO</td>
+            <td colspan="5" class="${clsOpt(d.f_ocupacao, 2, 'bl')}">2-CONST. ANDAM.</td> <td colspan="5" class="${clsOpt(d.f_ocupacao, 13, 'br')}">13-ED. CHÁC. RECREIO</td>
             <td colspan="8" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">3-OUTROS</td>
-            <td colspan="5" class="bl">3-CONST. PARAL.</td> <td colspan="5" class="br">14-ED. ADM. PÚBL.</td>
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="${clsOpt(d.f_pavimentacao, 3, 'bl br')}">3-OUTROS</td>
+            <td colspan="5" class="${clsOpt(d.f_ocupacao, 3, 'bl')}">3-CONST. PARAL.</td> <td colspan="5" class="${clsOpt(d.f_ocupacao, 14, 'br')}">14-ED. ADM. PÚBL.</td>
             <td colspan="4" class="bl bold">FRENTE (PRINCIPAL)</td> <td class="ba cod">33</td> <td colspan="3" class="ba bg-gray center">${d.f_frente || ''}</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">4-SEM PAV. C/ GUIA E SARJETA</td>
-            <td colspan="5" class="bl">4-CONST. ESTAC.</td> <td colspan="5" class="br">15-ED. RELIGIOSA</td>
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="${clsOpt(d.f_pavimentacao, 4, 'bl br')}">4-SEM PAV. C/ GUIA E SARJETA</td>
+            <td colspan="5" class="${clsOpt(d.f_ocupacao, 4, 'bl')}">4-CONST. ESTAC.</td> <td colspan="5" class="${clsOpt(d.f_ocupacao, 15, 'br')}">15-ED. RELIGIOSA</td>
             <td colspan="8" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br">5-SEM PAV. S/ GUIA E SARJETA</td>
-            <td colspan="5" class="bl">5-ED. RESIDENCIAL</td> <td colspan="5" class="br">16-ED. ASSOCIAÇÃO</td>
+            <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="${clsOpt(d.f_pavimentacao, 5, 'bl br')}">5-SEM PAV. S/ GUIA E SARJETA</td>
+            <td colspan="5" class="${clsOpt(d.f_ocupacao, 5, 'bl')}">5-ED. RESIDENCIAL</td> <td colspan="5" class="${clsOpt(d.f_ocupacao, 16, 'br')}">16-ED. ASSOCIAÇÃO</td>
             <td colspan="4" class="bl bold">FUNDOS</td> <td class="ba cod">34</td> <td colspan="3" class="ba bg-gray center">${d.f_fundos || ''}</td>
         </tr>
         <tr class="r-opt">
             <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
-            <td colspan="5" class="bl">6-ED. COMERCIAL</td> <td colspan="5" class="br">17-ED. CLUBE</td>
+            <td colspan="5" class="${clsOpt(d.f_ocupacao, 6, 'bl')}">6-ED. COMERCIAL</td> <td colspan="5" class="${clsOpt(d.f_ocupacao, 17, 'br')}">17-ED. CLUBE</td>
             <td colspan="8" class="bl br"></td>
         </tr>
         <tr class="r-opt">
             <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
-            <td colspan="10" class="bl br">7-ED. RES./COM.</td>
+            <td colspan="10" class="${clsOpt(d.f_ocupacao, 7, 'bl br')}">7-ED. RES./COM.</td>
             <td colspan="4" class="bl bold">DIREITA</td> <td class="ba cod">35</td> <td colspan="3" class="ba bg-gray center">${d.f_direita || ''}</td>
         </tr>
         <tr class="r-opt">
             <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
-            <td colspan="10" class="bl br">8-ED. INDUSTRIAL</td>
+            <td colspan="10" class="${clsOpt(d.f_ocupacao, 8, 'bl br')}">8-ED. INDUSTRIAL</td>
             <td colspan="8" class="bl br"></td>
         </tr>
         <tr class="r-opt">
             <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
-            <td colspan="10" class="bl br">9-ED. RES./IND.</td>
+            <td colspan="10" class="${clsOpt(d.f_ocupacao, 9, 'bl br')}">9-ED. RES./IND.</td>
             <td colspan="4" class="bl bold">ESQUERDA</td> <td class="ba cod">36</td> <td colspan="3" class="ba bg-gray center">${d.f_esquerda || ''}</td>
         </tr>
         <tr class="r-opt">
             <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="6" class="bl br"></td>
-            <td colspan="10" class="bl br">10-ED. SERVIÇO</td>
+            <td colspan="10" class="${clsOpt(d.f_ocupacao, 10, 'bl br')}">10-ED. SERVIÇO</td>
             <td class="bl bold">OBS.:</td>
             <td colspan="7" class="br bg-blue center">medidas conforme mapa ID: ${d.f_mapa_id || ''}</td>
         </tr>
@@ -2214,7 +2251,7 @@
             <td colspan="2" class="bl bb"></td> <td class="ba cod">28</td> <td class="ba center">${d.f_iluminacao || ''}</td>
             <td colspan="2" class="bl bb"></td> <td class="ba cod">29</td> <td class="ba center">${d.f_coleta_lixo || ''}</td>
             <td colspan="4" class="bl bb"></td> <td class="ba cod">30</td> <td class="ba center">${d.f_pavimentacao || ''}</td>
-            <td colspan="8" class="bl bb">11-ED. RES./SERV.</td> <td class="ba cod">31</td> <td class="ba center">${d.f_ocupacao || ''}</td>
+            <td colspan="8" class="${clsOpt(d.f_ocupacao, 11, 'bl bb')}" style="font-size:6.4px; font-weight:normal;">11-ED. RES./SERV.</td> <td class="ba cod">31</td> <td class="ba center">${d.f_ocupacao || ''}</td>
             <td colspan="8" class="bl bb br"></td>
         </tr>
 
@@ -2246,31 +2283,31 @@
             <td colspan="8" class="ba sub-title">ESQUADRIAS</td> <td colspan="5" class="ba sub-title">FORRO</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">1-MADEIRA TRATADA</td> <td colspan="4" class="bl br">1-AMIANTO</td> <td colspan="4" class="bl br">1-MADEIRA BRUTA</td>
-            <td colspan="6" class="bl br">1-TERRA</td> <td colspan="8" class="bl br">1-SEM</td> <td colspan="5" class="bl br">1-SEM</td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 1, 'bl br')}">1-MADEIRA TRATADA</td> <td colspan="4" class="${clsOpt(d.f_cobertura, 1, 'bl br')}">1-AMIANTO</td> <td colspan="4" class="${clsOpt(d.f_paredes, 1, 'bl br')}">1-MADEIRA BRUTA</td>
+            <td colspan="6" class="${clsOpt(d.f_piso, 1, 'bl br')}">1-TERRA</td> <td colspan="8" class="${clsOpt(d.f_esquadrias, 1, 'bl br')}">1-SEM</td> <td colspan="5" class="${clsOpt(d.f_forro, 1, 'bl br')}">1-SEM</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">2-ALVENARIA</td> <td colspan="4" class="bl br">2-ALUMÍNIO</td> <td colspan="4" class="bl br">2-MADEIRA TRATADA</td>
-            <td colspan="6" class="bl br">2-CIMENTO</td> <td colspan="8" class="bl br">2-MADEIRA TRATADA</td> <td colspan="5" class="bl br">2-MADEIRA</td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 2, 'bl br')}">2-ALVENARIA</td> <td colspan="4" class="${clsOpt(d.f_cobertura, 2, 'bl br')}">2-ALUMÍNIO</td> <td colspan="4" class="${clsOpt(d.f_paredes, 2, 'bl br')}">2-MADEIRA TRATADA</td>
+            <td colspan="6" class="${clsOpt(d.f_piso, 2, 'bl br')}">2-CIMENTO</td> <td colspan="8" class="${clsOpt(d.f_esquadrias, 2, 'bl br')}">2-MADEIRA TRATADA</td> <td colspan="5" class="${clsOpt(d.f_forro, 2, 'bl br')}">2-MADEIRA</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">3-CONCRETO</td> <td colspan="4" class="bl br">3-BARRO</td> <td colspan="4" class="bl br">3-ALVENARIA</td>
-            <td colspan="6" class="bl br">3-CERÂMICA</td> <td colspan="8" class="bl br">3-FERRO</td> <td colspan="5" class="bl br">3-LAJE</td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 3, 'bl br')}">3-CONCRETO</td> <td colspan="4" class="${clsOpt(d.f_cobertura, 3, 'bl br')}">3-BARRO</td> <td colspan="4" class="${clsOpt(d.f_paredes, 3, 'bl br')}">3-ALVENARIA</td>
+            <td colspan="6" class="${clsOpt(d.f_piso, 3, 'bl br')}">3-CERÂMICA</td> <td colspan="8" class="${clsOpt(d.f_esquadrias, 3, 'bl br')}">3-FERRO</td> <td colspan="5" class="${clsOpt(d.f_forro, 3, 'bl br')}">3-LAJE</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">4-METÁLICA</td> <td colspan="4" class="bl br">4-AMIANTO ESPECIAL</td> <td colspan="4" class="bl br">4-ESPECIAL</td>
-            <td colspan="6" class="bl br">4-MADEIRA TRATADA</td> <td colspan="8" class="bl br">4-ALUMÍNIO</td> <td colspan="5" class="bl br">4-GESSO</td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 4, 'bl br')}">4-METÁLICA</td> <td colspan="4" class="${clsOpt(d.f_cobertura, 4, 'bl br')}">4-AMIANTO ESPECIAL</td> <td colspan="4" class="${clsOpt(d.f_paredes, 4, 'bl br')}">4-ESPECIAL</td>
+            <td colspan="6" class="${clsOpt(d.f_piso, 4, 'bl br')}">4-MADEIRA TRATADA</td> <td colspan="8" class="${clsOpt(d.f_esquadrias, 4, 'bl br')}">4-ALUMÍNIO</td> <td colspan="5" class="${clsOpt(d.f_forro, 4, 'bl br')}">4-GESSO</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">5-MISTA MAD./ALV.</td> <td colspan="4" class="bl br">5-LAJE</td> <td colspan="4" class="bl br">5-MISTA</td>
-            <td colspan="6" class="bl br">5-ESPECIAL</td> <td colspan="8" class="bl br">5-ESPECIAL</td> <td colspan="5" class="bl br">5-ESPECIAL</td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 5, 'bl br')}">5-MISTA MAD./ALV.</td> <td colspan="4" class="${clsOpt(d.f_cobertura, 5, 'bl br')}">5-LAJE</td> <td colspan="4" class="${clsOpt(d.f_paredes, 5, 'bl br')}">5-MISTA</td>
+            <td colspan="6" class="${clsOpt(d.f_piso, 5, 'bl br')}">5-ESPECIAL</td> <td colspan="8" class="${clsOpt(d.f_esquadrias, 5, 'bl br')}">5-ESPECIAL</td> <td colspan="5" class="${clsOpt(d.f_forro, 5, 'bl br')}">5-ESPECIAL</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">6-MISTA ALV./MET.</td> <td colspan="4" class="bl br">6-OUTROS</td> <td colspan="4" class="bl br">6-SEM</td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 6, 'bl br')}">6-MISTA ALV./MET.</td> <td colspan="4" class="${clsOpt(d.f_cobertura, 6, 'bl br')}">6-OUTROS</td> <td colspan="4" class="${clsOpt(d.f_paredes, 6, 'bl br')}">6-SEM</td>
             <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">7-MISTA CONC./MET.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_estrutura, 7, 'bl br')}">7-MISTA CONC./MET.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
             <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-code">
@@ -2294,28 +2331,28 @@
             <td colspan="8" class="ba sub-title">COZINHA</td> <td colspan="5" class="ba sub-title">BANHEIROS</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td>
-            <td colspan="6" class="bl br">1-SEM</td> <td colspan="8" class="bl br">1-PIA C/ AZULEJO</td> <td colspan="5" class="bl br">1-SEM BANHEIRO</td>
+            <td colspan="5" class="${clsOpt(d.f_revest_externo, 1, 'bl br')}">1-SEM</td> <td colspan="4" class="${clsOpt(d.f_revest_interno, 1, 'bl br')}">1-SEM</td> <td colspan="4" class="${clsOpt(d.f_pintura_externa, 1, 'bl br')}">1-SEM</td>
+            <td colspan="6" class="${clsOpt(d.f_pintura_interna, 1, 'bl br')}">1-SEM</td> <td colspan="8" class="${clsOpt(d.f_cozinha, 1, 'bl br')}">1-PIA C/ AZULEJO</td> <td colspan="5" class="${clsOpt(d.f_banheiros, 1, 'bl br')}">1-SEM BANHEIRO</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">2-MADEIRA</td> <td colspan="4" class="bl br">2-MADEIRA</td> <td colspan="4" class="bl br">2-BASE D'ÁGUA</td>
-            <td colspan="6" class="bl br">2-BASE D'ÁGUA</td> <td colspan="8" class="bl br">2-PIA SIMPLES</td> <td colspan="5" class="bl br">2-BANHEIRO EXTERNO</td>
+            <td colspan="5" class="${clsOpt(d.f_revest_externo, 2, 'bl br')}">2-MADEIRA</td> <td colspan="4" class="${clsOpt(d.f_revest_interno, 2, 'bl br')}">2-MADEIRA</td> <td colspan="4" class="${clsOpt(d.f_pintura_externa, 2, 'bl br')}">2-BASE D'ÁGUA</td>
+            <td colspan="6" class="${clsOpt(d.f_pintura_interna, 2, 'bl br')}">2-BASE D'ÁGUA</td> <td colspan="8" class="${clsOpt(d.f_cozinha, 2, 'bl br')}">2-PIA SIMPLES</td> <td colspan="5" class="${clsOpt(d.f_banheiros, 2, 'bl br')}">2-BANHEIRO EXTERNO</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">3-REBOCO S/ MASSA</td> <td colspan="4" class="bl br">3-REBOCO S/ MASSA</td> <td colspan="4" class="bl br">3-CAIAÇÃO</td>
-            <td colspan="6" class="bl br">3-CAIAÇÃO</td> <td colspan="8" class="bl br">3-SEM PIA</td> <td colspan="5" class="bl br">3-UM BANH. INTERNO</td>
+            <td colspan="5" class="${clsOpt(d.f_revest_externo, 3, 'bl br')}">3-REBOCO S/ MASSA</td> <td colspan="4" class="${clsOpt(d.f_revest_interno, 3, 'bl br')}">3-REBOCO S/ MASSA</td> <td colspan="4" class="${clsOpt(d.f_pintura_externa, 3, 'bl br')}">3-CAIAÇÃO</td>
+            <td colspan="6" class="${clsOpt(d.f_pintura_interna, 3, 'bl br')}">3-CAIAÇÃO</td> <td colspan="8" class="${clsOpt(d.f_cozinha, 3, 'bl br')}">3-SEM PIA</td> <td colspan="5" class="${clsOpt(d.f_banheiros, 3, 'bl br')}">3-UM BANH. INTERNO</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">4-REBOCO C/ MASSA</td> <td colspan="4" class="bl br">4-REBOCO C/ MASSA</td> <td colspan="4" class="bl br">4-PLÁSTICA</td>
-            <td colspan="6" class="bl br">4-PLÁSTICA</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br">4-DOIS BANH. INTERNOS</td>
+            <td colspan="5" class="${clsOpt(d.f_revest_externo, 4, 'bl br')}">4-REBOCO C/ MASSA</td> <td colspan="4" class="${clsOpt(d.f_revest_interno, 4, 'bl br')}">4-REBOCO C/ MASSA</td> <td colspan="4" class="${clsOpt(d.f_pintura_externa, 4, 'bl br')}">4-PLÁSTICA</td>
+            <td colspan="6" class="${clsOpt(d.f_pintura_interna, 4, 'bl br')}">4-PLÁSTICA</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="${clsOpt(d.f_banheiros, 4, 'bl br')}">4-DOIS BANH. INTERNOS</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">5-CERÂMICA</td> <td colspan="4" class="bl br">5-CERÂMICA</td> <td colspan="4" class="bl br">5-A ÓLEO</td>
-            <td colspan="6" class="bl br">5-A ÓLEO</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br">5-MAIS DE 02 BANH. INTERNO</td>
+            <td colspan="5" class="${clsOpt(d.f_revest_externo, 5, 'bl br')}">5-CERÂMICA</td> <td colspan="4" class="${clsOpt(d.f_revest_interno, 5, 'bl br')}">5-CERÂMICA</td> <td colspan="4" class="${clsOpt(d.f_pintura_externa, 5, 'bl br')}">5-A ÓLEO</td>
+            <td colspan="6" class="${clsOpt(d.f_pintura_interna, 5, 'bl br')}">5-A ÓLEO</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="${clsOpt(d.f_banheiros, 5, 'bl br')}">5-MAIS DE 02 BANH. INTERNO</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">6-ESPECIAL</td> <td colspan="4" class="bl br">6-ESPECIAL</td> <td colspan="4" class="bl br">6-ESPECIAL</td>
-            <td colspan="6" class="bl br">6-ESPECIAL</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_revest_externo, 6, 'bl br')}">6-ESPECIAL</td> <td colspan="4" class="${clsOpt(d.f_revest_interno, 6, 'bl br')}">6-ESPECIAL</td> <td colspan="4" class="${clsOpt(d.f_pintura_externa, 6, 'bl br')}">6-ESPECIAL</td>
+            <td colspan="6" class="${clsOpt(d.f_pintura_interna, 6, 'bl br')}">6-ESPECIAL</td> <td colspan="8" class="bl br"></td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-code">
             <td colspan="3" class="bl bb"></td>
@@ -2338,37 +2375,37 @@
             <td colspan="8" class="ba sub-title">CARACTERIZAÇÃO</td> <td colspan="5" class="ba sub-title">ÁREA EDIFICADA</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-SEM</td> <td colspan="4" class="bl br">1-ISOLADA E ALINHADA</td>
-            <td colspan="6" class="bl br">1-RUIM</td> <td colspan="4" class="bl">1-BARRACO</td> <td colspan="4" class="br">9-ESCOLA</td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_inst_agua, 1, 'bl br')}">1-SEM</td> <td colspan="4" class="${clsOpt(d.f_inst_eletrica, 1, 'bl br')}">1-SEM</td> <td colspan="4" class="${clsOpt(d.f_posicao, 1, 'bl br')}">1-ISOLADA E ALINHADA</td>
+            <td colspan="6" class="${clsOpt(d.f_conservacao, 1, 'bl br')}">1-RUIM</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 1, 'bl')}">1-BARRACO</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 9, 'br')}">9-ESCOLA</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">2-POÇO</td> <td colspan="4" class="bl br">2-APARENTE</td> <td colspan="4" class="bl br">2-ISOLADA E RECUADA</td>
-            <td colspan="6" class="bl br">2-REGULAR</td> <td colspan="4" class="bl">2-TELHEIRO</td> <td colspan="4" class="br">10-C. SAÚDE</td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_inst_agua, 2, 'bl br')}">2-POÇO</td> <td colspan="4" class="${clsOpt(d.f_inst_eletrica, 2, 'bl br')}">2-APARENTE</td> <td colspan="4" class="${clsOpt(d.f_posicao, 2, 'bl br')}">2-ISOLADA E RECUADA</td>
+            <td colspan="6" class="${clsOpt(d.f_conservacao, 2, 'bl br')}">2-REGULAR</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 2, 'bl')}">2-TELHEIRO</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 10, 'br')}">10-C. SAÚDE</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">3-POÇO C/ RESERV.</td> <td colspan="4" class="bl br">3-SEMI-EMBUTIDA</td> <td colspan="4" class="bl br">3-CONJ. E ALINHADA</td>
-            <td colspan="6" class="bl br">3-BOM</td> <td colspan="4" class="bl">3-GALPÃO</td> <td colspan="4" class="br">11-ESP. E DIV.</td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_inst_agua, 3, 'bl br')}">3-POÇO C/ RESERV.</td> <td colspan="4" class="${clsOpt(d.f_inst_eletrica, 3, 'bl br')}">3-SEMI-EMBUTIDA</td> <td colspan="4" class="${clsOpt(d.f_posicao, 3, 'bl br')}">3-CONJ. E ALINHADA</td>
+            <td colspan="6" class="${clsOpt(d.f_conservacao, 3, 'bl br')}">3-BOM</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 3, 'bl')}">3-GALPÃO</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 11, 'br')}">11-ESP. E DIV.</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">4-REDE PÚBLICA</td> <td colspan="4" class="bl br">4-EMBUTIDA</td> <td colspan="4" class="bl br">4-CONJ. E RECUADA</td>
-            <td colspan="6" class="bl br">4-NOVA</td> <td colspan="4" class="bl">4-CASA</td> <td colspan="4" class="br">12-OUTROS</td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_inst_agua, 4, 'bl br')}">4-REDE PÚBLICA</td> <td colspan="4" class="${clsOpt(d.f_inst_eletrica, 4, 'bl br')}">4-EMBUTIDA</td> <td colspan="4" class="${clsOpt(d.f_posicao, 4, 'bl br')}">4-CONJ. E RECUADA</td>
+            <td colspan="6" class="${clsOpt(d.f_conservacao, 4, 'bl br')}">4-NOVA</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 4, 'bl')}">4-CASA</td> <td colspan="4" class="${clsOpt(d.f_caracterizacao, 12, 'br')}">12-OUTROS</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">5-REDE PÚB. C/ RESERV.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">5-DE FUNDOS</td>
-            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">5-SOBRADO</td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="${clsOpt(d.f_inst_agua, 5, 'bl br')}">5-REDE PÚB. C/ RESERV.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="${clsOpt(d.f_posicao, 5, 'bl br')}">5-DE FUNDOS</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="${clsOpt(d.f_caracterizacao, 5, 'bl br')}">5-SOBRADO</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br">6-POÇO C/ REDE PÚBL.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">6-APARTAMENTO</td>
-            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">6-ED. RES.</td>
+            <td colspan="5" class="${clsOpt(d.f_inst_agua, 6, 'bl br')}">6-POÇO C/ REDE PÚBL.</td> <td colspan="4" class="bl br"></td> <td colspan="4" class="${clsOpt(d.f_posicao, 6, 'bl br')}">6-APARTAMENTO</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="${clsOpt(d.f_caracterizacao, 6, 'bl br')}">6-ED. RES.</td>
             <td class="bl"></td> <td class="ba cod">55</td> <td colspan="3" class="ba center">${d.f_area_edificada || ''}</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br">7-SALA</td>
-            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">7-ED. COM.</td> <td colspan="5" class="bl br"></td>
+            <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="${clsOpt(d.f_posicao, 7, 'bl br')}">7-SALA</td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="${clsOpt(d.f_caracterizacao, 7, 'bl br')}">7-ED. COM.</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-opt">
             <td colspan="5" class="bl br"></td> <td colspan="4" class="bl br"></td> <td colspan="4" class="bl br"></td>
-            <td colspan="6" class="bl br"></td> <td colspan="8" class="bl br">8-HOTEL</td> <td colspan="5" class="bl br"></td>
+            <td colspan="6" class="bl br"></td> <td colspan="8" class="${clsOpt(d.f_caracterizacao, 8, 'bl br')}">8-HOTEL</td> <td colspan="5" class="bl br"></td>
         </tr>
         <tr class="r-code">
             <td colspan="3" class="bl bb"></td>
@@ -2393,22 +2430,22 @@
             <td colspan="19" class="ba sec-title">SITUAÇÃO DA POSSE OU PROPRIEDADE</td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl">1-SEM</td> <td colspan="4">6-TITULADO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '6' ? d.f_num_documento : ''}</td> <td class="br"></td>
-            <td colspan="8" class="bl">1-LITÍGIO</td> <td colspan="6">6-AUTO ARRESTO</td> <td colspan="3" rowspan="2" class="ba center">${d.f_sit_posse == '6' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
+            <td colspan="5" class="${clsOpt(d.f_doc_imovel, 1, 'bl')}">1-SEM</td> <td colspan="4" class="${clsOpt(d.f_doc_imovel, 6, '')}">6-TITULADO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '6' ? d.f_num_documento : ''}</td> <td class="br"></td>
+            <td colspan="8" class="${clsOpt(d.f_sit_posse, 1, 'bl')}">1-LITÍGIO</td> <td colspan="6" class="${clsOpt(d.f_sit_posse, 6, '')}">6-AUTO ARRESTO</td> <td colspan="3" rowspan="2" class="ba center">${d.f_sit_posse == '6' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl">2-CADASTRADO</td> <td colspan="4">7-PROCESSO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '7' ? d.f_num_documento : ''}</td> <td class="br"></td>
-            <td colspan="8" class="bl">2-PENHORA</td> <td colspan="6">7-POSSEIRO / DOM. ÚTIL</td> <td colspan="2" class="br"></td>
+            <td colspan="5" class="${clsOpt(d.f_doc_imovel, 2, 'bl')}">2-CADASTRADO</td> <td colspan="4" class="${clsOpt(d.f_doc_imovel, 7, '')}">7-PROCESSO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '7' ? d.f_num_documento : ''}</td> <td class="br"></td>
+            <td colspan="8" class="${clsOpt(d.f_sit_posse, 2, 'bl')}">2-PENHORA</td> <td colspan="6" class="${clsOpt(d.f_sit_posse, 7, '')}">7-POSSEIRO / DOM. ÚTIL</td> <td colspan="2" class="br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="5" class="bl">3-AUTORIZAÇÃO ESCRITURA</td> <td colspan="4">8-DOCUMENTO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '8' ? d.f_num_documento : ''}</td> <td class="br"></td>
-            <td colspan="8" class="bl">3-ESPÓLIO</td> <td colspan="6">8-PROPRIETÁRIO</td> <td colspan="3" rowspan="2" class="ba center">${d.f_sit_posse == '9' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
+            <td colspan="5" class="${clsOpt(d.f_doc_imovel, 3, 'bl')}">3-AUTORIZAÇÃO ESCRITURA</td> <td colspan="4" class="${clsOpt(d.f_doc_imovel, 8, '')}">8-DOCUMENTO Nº</td> <td colspan="3" class="ba center">${d.f_doc_imovel == '8' ? d.f_num_documento : ''}</td> <td class="br"></td>
+            <td colspan="8" class="${clsOpt(d.f_sit_posse, 3, 'bl')}">3-ESPÓLIO</td> <td colspan="6" class="${clsOpt(d.f_sit_posse, 8, '')}">8-PROPRIETÁRIO</td> <td colspan="3" rowspan="2" class="ba center">${d.f_sit_posse == '9' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="13" class="bl br">4-ESCRITURA PÚBLICA</td> <td colspan="8" class="bl">4-DUPLIC. DE POSSE</td> <td colspan="6">9-LIB. ARRESTO</td> <td colspan="2" class="br"></td>
+            <td colspan="13" class="${clsOpt(d.f_doc_imovel, 4, 'bl br')}">4-ESCRITURA PÚBLICA</td> <td colspan="8" class="${clsOpt(d.f_sit_posse, 4, 'bl')}">4-DUPLIC. DE POSSE</td> <td colspan="6" class="${clsOpt(d.f_sit_posse, 9, '')}">9-LIB. ARRESTO</td> <td colspan="2" class="br"></td>
         </tr>
         <tr class="r-opt">
-            <td colspan="13" class="bl br">5-REGISTRO NO CARTÓRIO</td> <td colspan="8" class="bl">5-DÚVIDA DA POSSE</td> <td colspan="6">10-OUTROS</td> <td colspan="3" class="ba center">${d.f_sit_posse == '10' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
+            <td colspan="13" class="${clsOpt(d.f_doc_imovel, 5, 'bl br')}">5-REGISTRO NO CARTÓRIO</td> <td colspan="8" class="${clsOpt(d.f_sit_posse, 5, 'bl')}">5-DÚVIDA DA POSSE</td> <td colspan="6" class="${clsOpt(d.f_sit_posse, 10, '')}">10-OUTROS</td> <td colspan="3" class="ba center">${d.f_sit_posse == '10' ? d.f_num_posse : ''}</td> <td colspan="2" class="br"></td>
         </tr>
         <tr class="r-code">
             <td colspan="11" class="bl bb"></td> <td class="ba cod">57</td> <td class="ba center">${d.f_doc_imovel || ''}</td>
@@ -2662,18 +2699,22 @@ ${htmlFolhas}
         iframe.contentWindow.print();
     }
 
-    // --- CONFIGURAÇÃO DE MAIÚSCULAS E SUFIXOS (m e m²) ---
+    // --- CONFIGURAÇÃO DE MAIÚSCULAS, SUFIXOS (m e m²) E COR AZUL NOS CAMPOS ---
     function configurarEventosDeFormatacao() {
         const inputsTexto = document.querySelectorAll('#formBCI input[type="text"]');
         inputsTexto.forEach(input => {
             input.addEventListener('input', function() {
-                if (this.id === 'f_cpf' || this.id === 'f_cnpj') return;
+                if (this.id === 'f_cpf' || this.id === 'f_cnpj') {
+                    atualizarCorCampo(this);
+                    return;
+                }
                 const start = this.selectionStart;
                 const end = this.selectionEnd;
                 this.value = this.value.toUpperCase();
                 if (start !== null && end !== null) {
                     this.setSelectionRange(start, end);
                 }
+                atualizarCorCampo(this);
             });
         });
 
@@ -2685,6 +2726,7 @@ ${htmlFolhas}
             });
             el.addEventListener('blur', function() {
                 this.value = formatarComSufixo(this.value, 'm');
+                atualizarCorCampo(this);
             });
         });
 
@@ -2696,6 +2738,18 @@ ${htmlFolhas}
             });
             el.addEventListener('blur', function() {
                 this.value = formatarComSufixo(this.value, 'm²');
+                atualizarCorCampo(this);
+            });
+        });
+
+        // Monitora mudanças em todos os selects e textarea para aplicar o tom de azul
+        const todosControles = document.querySelectorAll('#formBCI select.form-control, #formBCI textarea.form-control');
+        todosControles.forEach(el => {
+            el.addEventListener('change', function() {
+                atualizarCorCampo(this);
+            });
+            el.addEventListener('input', function() {
+                atualizarCorCampo(this);
             });
         });
     }
@@ -2791,6 +2845,7 @@ ${htmlFolhas}
     function atualizarStatusVisualCPFCNPJ() {
         if (inputCPF && msgCPF) {
             inputCPF.value = aplicarMascaraCPF(inputCPF.value);
+            atualizarCorCampo(inputCPF);
             const limpo = inputCPF.value.replace(/\D/g, '');
             if (limpo.length === 0) {
                 msgCPF.innerText = '';
@@ -2811,6 +2866,7 @@ ${htmlFolhas}
 
         if (inputCNPJ && msgCNPJ) {
             inputCNPJ.value = aplicarMascaraCNPJ(inputCNPJ.value);
+            atualizarCorCampo(inputCNPJ);
             const limpo = inputCNPJ.value.replace(/[^a-zA-Z0-9]/g, '');
             if (limpo.length === 0) {
                 msgCNPJ.innerText = '';
@@ -2842,6 +2898,7 @@ ${htmlFolhas}
     window.addEventListener('DOMContentLoaded', () => {
         configurarEventosDeFormatacao();
         carregarRascunho();
+        atualizarCoresTodosOsCampos();
     });
 </script>
 
