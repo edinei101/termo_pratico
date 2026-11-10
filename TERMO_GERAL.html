@@ -29,6 +29,12 @@
         input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; }
         .row-flex { display: flex; gap: 5px; }
 
+        .btn-reset {
+            background: #e67e22; color: white; border: none; padding: 3px 8px;
+            border-radius: 4px; font-size: 9px; cursor: pointer; font-weight: bold;
+        }
+        .btn-reset:hover { background: #d35400; }
+
         .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 50px; }
         .document { 
             background: white; width: 210mm; height: 297mm; 
@@ -45,6 +51,15 @@
 
         .doc-body p { margin: 6px 0; line-height: 1.4; text-align: justify; font-size: 14.5px; text-indent: 1.25cm; }
         
+        #out_intro_tecnica {
+            outline: none;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        #out_intro_tecnica:focus {
+            background-color: #fffde7;
+        }
+
         #out_texto_livre { 
             margin: 10px 0; 
             line-height: 1.6; 
@@ -112,7 +127,7 @@
         <label>Data da Vistoria e Hora</label>
         <div class="row-flex">
             <input type="date" id="rel_data" oninput="update()">
-            <input type="time" id="rel_hora" oninput="update()">
+            <input type="time" id="rel_hora" value="11:00" oninput="update()">
         </div>
         <label>Setor / Quadra / Lote</label>
         <div class="row-flex">
@@ -139,10 +154,17 @@
             <input type="text" id="osf_num" placeholder="Nº OSF" oninput="update()">
             <input type="text" id="osf_id" placeholder="ID OSF" oninput="update()">
         </div>
+        
         <hr style="margin: 15px 0; border:0; border-top:1px solid #ddd;">
         
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <label style="margin-top: 0;">Editar Texto Introdutório da Vistoria:</label>
+            <button type="button" class="btn-reset" onclick="resetarIntro()" title="Voltar ao texto automático sincronizado com os campos">🔄 Restaurar Padrão</button>
+        </div>
+        <textarea id="in_intro_tecnica" rows="5" oninput="editarIntroManual()"></textarea>
+
         <label>Texto da Constatação (Até 15 linhas):</label>
-        <textarea id="in_texto_livre" rows="15" placeholder="Digite aqui o que foi constatado..." oninput="update()"></textarea>
+        <textarea id="in_texto_livre" rows="12" placeholder="Digite aqui o que foi constatado..." oninput="update()"></textarea>
     </div>
 
     <button class="aba-retratil" style="background-color: #f0f7ff; color: #2980b9;">4. ENCAMINHAMENTO FINAL <span>▼</span></button>
@@ -175,7 +197,8 @@
             
             <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
             
-            <p id="out_intro_tecnica"></p>
+            <!-- Parágrafo introdutório também editável diretamente na folha -->
+            <p id="out_intro_tecnica" contenteditable="true" oninput="sincronizarDaFolha()" title="Você pode clicar aqui para editar diretamente ou usar o painel lateral"></p>
 
             <div id="out_texto_livre"></div>
             
@@ -186,7 +209,7 @@
 
         <div class="signature">
             <p>Assinado Eletronicamente</p>
-            <p><strong id="out_nome_fiscal">Edinei Vicente de Carvalho Sousa</strong></p>
+            <p><strong id="out_nome_fiscal">Ednei Vicente de Carvalho Sousa</strong></p>
             <p id="out_funcao_fiscal">Fiscal de Obras e Serviços Públicos</p>
             <p id="out_cad_fiscal" style="font-size: 11px;">Cad: nº 8.273</p>
         </div>
@@ -197,10 +220,10 @@
 
 <script>
     const listaFiscais = [
-         { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        { id: 1, nome: "Ednei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
         { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
         { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
-        { id: 4, nome: "Jose´Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
+        { id: 4, nome: "José Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
         { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
         { id: 6, nome: "Vanancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
         { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
@@ -217,6 +240,8 @@
         { id: 18, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025" }
     ];
 
+    let introEditadaManualmente = false;
+
     window.onload = function() {
         const d = new Date();
         document.getElementById('in_data_doc_calendario').value = d.toISOString().split('T')[0];
@@ -228,7 +253,7 @@
             opt.value = f.id; opt.text = f.nome; select.add(opt);
         });
         
-        select.value = 2; // Edinei como padrão
+        select.value = 1; // Ednei como padrão
 
         document.querySelectorAll('.aba-retratil').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -252,6 +277,34 @@
         update();
     }
 
+    function gerarTextoPadraoIntro() {
+        const dV = document.getElementById('rel_data').value ? document.getElementById('rel_data').value.split('-').reverse().join('/') : "__/__/____";
+        const hV = document.getElementById('rel_hora').value || "__:__";
+        const flsReq = document.getElementById('fls_req_num').value || "___";
+        const idReq = document.getElementById('fls_req_id').value || "___";
+        const flsMapa = document.getElementById('fls_mapa_num').value || "___";
+        const idMapa = document.getElementById('fls_mapa_id').value || "___";
+        const osfNum = document.getElementById('osf_num').value || "___";
+        const osfId = document.getElementById('osf_id').value || "___";
+
+        return `Vistoria in loco realizada em ${dV}, às ${hV}, conforme informações do requerimento (fls. ${flsReq}, ID: ${idReq}), e mapa e memorial descritivo (fls. ${flsMapa}, ID: ${idMapa}), em atendimento à Ordem de Serviço Fiscal Nº ${osfNum} (ID: ${osfId}). Onde foi possível constatar que:`;
+    }
+
+    function editarIntroManual() {
+        introEditadaManualmente = true;
+        document.getElementById('out_intro_tecnica').innerText = document.getElementById('in_intro_tecnica').value;
+    }
+
+    function sincronizarDaFolha() {
+        introEditadaManualmente = true;
+        document.getElementById('in_intro_tecnica').value = document.getElementById('out_intro_tecnica').innerText;
+    }
+
+    function resetarIntro() {
+        introEditadaManualmente = false;
+        update();
+    }
+
     function update() {
         document.getElementById('out_titulo_doc').innerText = document.getElementById('in_titulo_doc').value || "TERMO GERAL";
         document.getElementById('out_proc').innerText = document.getElementById('in_proc').value || "_________";
@@ -268,10 +321,11 @@
             document.getElementById('out_data_footer').innerText = `Ji-Paraná, ${parseInt(dtDoc[2])} de ${meses[parseInt(dtDoc[1])-1]} de ${dtDoc[0]}.`;
         }
 
-        const dV = document.getElementById('rel_data').value.split('-').reverse().join('/');
-        const hV = document.getElementById('rel_hora').value || "__:__";
-        
-        document.getElementById('out_intro_tecnica').innerText = `Vistoria in loco realizada em ${dV}, às ${hV}, conforme informações do requerimento (fls. ${document.getElementById('fls_req_num').value || "___"}, ID: ${document.getElementById('fls_req_id').value || "___"}), e mapa e memorial descritivo (fls. ${document.getElementById('fls_mapa_num').value || "___"}, ID: ${document.getElementById('fls_mapa_id').value || "___"}), em atendimento à Ordem de Serviço Fiscal Nº ${document.getElementById('osf_num').value || "___"} (ID: ${document.getElementById('osf_id').value || "___"}). Onde foi possível constatar que:`;
+        if (!introEditadaManualmente) {
+            const textoGerado = gerarTextoPadraoIntro();
+            document.getElementById('in_intro_tecnica').value = textoGerado;
+            document.getElementById('out_intro_tecnica').innerText = textoGerado;
+        }
 
         const texto = document.getElementById('in_texto_livre').value;
         document.getElementById('out_texto_livre').innerText = texto ? texto : "";
