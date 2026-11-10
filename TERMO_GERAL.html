@@ -29,12 +29,6 @@
         input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; }
         .row-flex { display: flex; gap: 5px; }
 
-        .btn-reset {
-            background: #e67e22; color: white; border: none; padding: 3px 8px;
-            border-radius: 4px; font-size: 9px; cursor: pointer; font-weight: bold;
-        }
-        .btn-reset:hover { background: #d35400; }
-
         .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 50px; }
         .document { 
             background: white; width: 210mm; height: 297mm; 
@@ -107,70 +101,67 @@
         <option value="">-- Selecione o Fiscal --</option>
     </select>
 
-    <label>Data do Documento</label>
-    <input type="date" id="in_data_doc_calendario" oninput="update()">
+    <label>Data do Documento (Rodapé)</label>
+    <input type="date" id="in_data_doc_calendario" oninput="updateCabecalhoRodape()">
 
     <button class="aba-retratil">1. PROCESSO / NOME / ASSUNTO <span>▼</span></button>
     <div class="conteudo-aba">
         <label>Título do Cabeçalho</label>
-        <input type="text" id="in_titulo_doc" value="TERMO DE VISTORIA CIRCUNSTANCIADO - TVC" oninput="update()">
+        <input type="text" id="in_titulo_doc" value="TERMO DE VISTORIA CIRCUNSTANCIADO - TVC" oninput="updateCabecalhoRodape()">
         <label>Nº do Processo</label>
-        <input type="text" id="in_proc" oninput="update()">
+        <input type="text" id="in_proc" oninput="updateCabecalhoRodape()">
         <label>Nome do Requerente</label>
-        <input type="text" id="in_nome" oninput="update()">
+        <input type="text" id="in_nome" oninput="updateCabecalhoRodape()">
         <label>Assunto</label>
-        <input type="text" id="in_assunto" value="VISTORIA E CADASTRO" oninput="update()">
+        <input type="text" id="in_assunto" value="VISTORIA E CADASTRO" oninput="updateCabecalhoRodape()">
     </div>
 
-    <button class="aba-retratil">2. DATA E LOCALIZAÇÃO <span>▼</span></button>
-    <div class="conteudo-aba">
+    <button class="aba-retratil active">2. DATA E LOCALIZAÇÃO <span>▼</span></button>
+    <div class="conteudo-aba" style="display: block;">
         <label>Data da Vistoria e Hora</label>
         <div class="row-flex">
-            <input type="date" id="rel_data" oninput="update()">
-            <input type="time" id="rel_hora" value="11:00" oninput="update()">
+            <input type="date" id="rel_data" oninput="atualizarCamposIntro()">
+            <input type="time" id="rel_hora" value="11:00" oninput="atualizarCamposIntro()">
         </div>
         <label>Setor / Quadra / Lote</label>
         <div class="row-flex">
-            <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
-            <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
-            <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+            <input type="text" id="loc_setor" placeholder="Setor" oninput="updateCabecalhoRodape()">
+            <input type="text" id="loc_quadra" placeholder="Quadra" oninput="updateCabecalhoRodape()">
+            <input type="text" id="loc_lote" placeholder="Lote" oninput="updateCabecalhoRodape()">
         </div>
     </div>
 
-    <button class="aba-retratil">3. DADOS DA CONSTATAÇÃO E TEXTO <span>▼</span></button>
-    <div class="conteudo-aba">
+    <button class="aba-retratil active">3. DADOS DA CONSTATAÇÃO E TEXTO <span>▼</span></button>
+    <div class="conteudo-aba" style="display: block;">
         <label>Fls. Requerimento / ID Requerimento</label>
         <div class="row-flex">
-            <input type="text" id="fls_req_num" placeholder="Fls. Nº" oninput="update()">
-            <input type="text" id="fls_req_id" placeholder="ID" oninput="update()">
+            <input type="text" id="fls_req_num" placeholder="Fls. Nº" oninput="atualizarCamposIntro()">
+            <input type="text" id="fls_req_id" placeholder="ID" oninput="atualizarCamposIntro()">
         </div>
         <label>Fls. Mapa e Memorial / ID Mapa</label>
         <div class="row-flex">
-            <input type="text" id="fls_mapa_num" placeholder="Fls. Nº" oninput="update()">
-            <input type="text" id="fls_mapa_id" placeholder="ID" oninput="update()">
+            <input type="text" id="fls_mapa_num" placeholder="Fls. Nº" oninput="atualizarCamposIntro()">
+            <input type="text" id="fls_mapa_id" placeholder="ID" oninput="atualizarCamposIntro()">
         </div>
         <label>Nº OSF / ID OSF</label>
         <div class="row-flex">
-            <input type="text" id="osf_num" placeholder="Nº OSF" oninput="update()">
-            <input type="text" id="osf_id" placeholder="ID OSF" oninput="update()">
+            <input type="text" id="osf_num" placeholder="Nº OSF" oninput="atualizarCamposIntro()">
+            <input type="text" id="osf_id" placeholder="ID OSF" oninput="atualizarCamposIntro()">
         </div>
         
         <hr style="margin: 15px 0; border:0; border-top:1px solid #ddd;">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-            <label style="margin-top: 0;">Editar Texto Introdutório da Vistoria:</label>
-            <button type="button" class="btn-reset" onclick="resetarIntro()" title="Voltar ao texto automático sincronizado com os campos">🔄 Restaurar Padrão</button>
-        </div>
+        <label style="color: #d35400;">Texto Introdutório da Vistoria (Editável):</label>
         <textarea id="in_intro_tecnica" rows="5" oninput="editarIntroManual()"></textarea>
 
         <label>Texto da Constatação (Até 15 linhas):</label>
-        <textarea id="in_texto_livre" rows="12" placeholder="Digite aqui o que foi constatado..." oninput="update()"></textarea>
+        <textarea id="in_texto_livre" rows="12" placeholder="Digite aqui o que foi constatado..." oninput="updateCabecalhoRodape()"></textarea>
     </div>
 
     <button class="aba-retratil" style="background-color: #f0f7ff; color: #2980b9;">4. ENCAMINHAMENTO FINAL <span>▼</span></button>
     <div class="conteudo-aba">
         <label>EDITAR ENCAMINHAMENTO:</label>
-        <textarea id="in_encaminhamento" rows="3" oninput="update()">ao setor de cadastro para o prosseguimento que o caso requer.</textarea>
+        <textarea id="in_encaminhamento" rows="3" oninput="updateCabecalhoRodape()">ao setor de cadastro para o prosseguimento que o caso requer.</textarea>
     </div>
 
     <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 20px;" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
@@ -197,8 +188,7 @@
             
             <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
             
-            <!-- Parágrafo introdutório também editável diretamente na folha -->
-            <p id="out_intro_tecnica" contenteditable="true" oninput="sincronizarDaFolha()" title="Você pode clicar aqui para editar diretamente ou usar o painel lateral"></p>
+            <p id="out_intro_tecnica" contenteditable="true" oninput="sincronizarDaFolha()" title="Clique para editar diretamente na folha ou edite no painel ao lado"></p>
 
             <div id="out_texto_livre"></div>
             
@@ -240,8 +230,6 @@
         { id: 18, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025" }
     ];
 
-    let introEditadaManualmente = false;
-
     window.onload = function() {
         const d = new Date();
         document.getElementById('in_data_doc_calendario').value = d.toISOString().split('T')[0];
@@ -264,7 +252,8 @@
         });
         
         atualizarAssinatura();
-        update();
+        atualizarCamposIntro();
+        updateCabecalhoRodape();
     };
 
     function atualizarAssinatura() {
@@ -274,10 +263,10 @@
             document.getElementById('out_funcao_fiscal').innerText = f.funcao;
             document.getElementById('out_cad_fiscal').innerText = f.cad;
         }
-        update();
     }
 
-    function gerarTextoPadraoIntro() {
+    // Atualiza o texto introdutório sempre que mexer na Data, Hora, Folhas, ID ou OSF
+    function atualizarCamposIntro() {
         const dV = document.getElementById('rel_data').value ? document.getElementById('rel_data').value.split('-').reverse().join('/') : "__/__/____";
         const hV = document.getElementById('rel_hora').value || "__:__";
         const flsReq = document.getElementById('fls_req_num').value || "___";
@@ -287,25 +276,24 @@
         const osfNum = document.getElementById('osf_num').value || "___";
         const osfId = document.getElementById('osf_id').value || "___";
 
-        return `Vistoria in loco realizada em ${dV}, às ${hV}, conforme informações do requerimento (fls. ${flsReq}, ID: ${idReq}), e mapa e memorial descritivo (fls. ${flsMapa}, ID: ${idMapa}), em atendimento à Ordem de Serviço Fiscal Nº ${osfNum} (ID: ${osfId}). Onde foi possível constatar que:`;
+        const textoGerado = `Vistoria in loco realizada em ${dV}, às ${hV}, conforme informações do requerimento (fls. ${flsReq}, ID: ${idReq}), e mapa e memorial descritivo (fls. ${flsMapa}, ID: ${idMapa}), em atendimento à Ordem de Serviço Fiscal Nº ${osfNum} (ID: ${osfId}). Onde foi possível constatar que:`;
+
+        document.getElementById('in_intro_tecnica').value = textoGerado;
+        document.getElementById('out_intro_tecnica').innerText = textoGerado;
     }
 
+    // Permite editar livremente o texto introdutório na caixa da Aba 3
     function editarIntroManual() {
-        introEditadaManualmente = true;
         document.getElementById('out_intro_tecnica').innerText = document.getElementById('in_intro_tecnica').value;
     }
 
+    // Permite editar livremente clicando direto na folha branca
     function sincronizarDaFolha() {
-        introEditadaManualmente = true;
         document.getElementById('in_intro_tecnica').value = document.getElementById('out_intro_tecnica').innerText;
     }
 
-    function resetarIntro() {
-        introEditadaManualmente = false;
-        update();
-    }
-
-    function update() {
+    // Atualiza o restante do documento sem sobrescrever a edição manual do texto introdutório
+    function updateCabecalhoRodape() {
         document.getElementById('out_titulo_doc').innerText = document.getElementById('in_titulo_doc').value || "TERMO GERAL";
         document.getElementById('out_proc').innerText = document.getElementById('in_proc').value || "_________";
         document.getElementById('out_nome').innerText = document.getElementById('in_nome').value || "_________";
@@ -319,12 +307,6 @@
         if(dtDoc.length === 3) {
             const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
             document.getElementById('out_data_footer').innerText = `Ji-Paraná, ${parseInt(dtDoc[2])} de ${meses[parseInt(dtDoc[1])-1]} de ${dtDoc[0]}.`;
-        }
-
-        if (!introEditadaManualmente) {
-            const textoGerado = gerarTextoPadraoIntro();
-            document.getElementById('in_intro_tecnica').value = textoGerado;
-            document.getElementById('out_intro_tecnica').innerText = textoGerado;
         }
 
         const texto = document.getElementById('in_texto_livre').value;
