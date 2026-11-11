@@ -53,8 +53,8 @@
             margin: 8px 0; 
             line-height: 1.4; 
             text-align: justify; 
-            font-size: 14px;
-            text-indent: 1.25cm;
+            font-size: 14px; 
+            text-indent: 1.25cm; 
         }
 
         .no-indent { text-indent: 0 !important; }
@@ -67,7 +67,15 @@
 
         @media print {
             @page { size: A4; margin: 0; }
-            body { background: none; padding: 0; margin: 0; display: block; }
+            html, body { 
+                width: 210mm;
+                height: 296mm;
+                background: none; 
+                padding: 0; 
+                margin: 0; 
+                display: block; 
+                overflow: hidden;
+            }
             .panel { display: none; }
             .preview-container { padding: 0; background: none; display: block; }
             .document { 
@@ -75,8 +83,10 @@
                 margin: 0; 
                 border: none; 
                 width: 210mm; 
-                height: 297mm; 
-                page-break-after: always;
+                height: 296mm; 
+                min-height: unset;
+                page-break-after: avoid;
+                page-break-inside: avoid;
             }
         }
     </style>
@@ -84,7 +94,6 @@
 <body>
 
 <div class="panel">
-    <!-- Atualizado para voltar para o index.html -->
     <a href="index.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:15px;">⬅ VOLTAR AO MENU</a>
     
     <button class="accordion">1. FISCAL E DATAS</button>
@@ -120,7 +129,7 @@
             <div class="row-flex">
                 <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
                 <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
-                <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+                <input type="text" id="loc_lote" placeholder="Lote" oninput="update()" onkeyup="definirNomeArquivo()">
             </div>
         </div>
     </div>
@@ -176,7 +185,7 @@
         </div>
     </div>
 
-    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 15px;" onclick="window.print()">🖨️ GERAR DOCUMENTO / PDF</button>
+    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 15px;" onclick="prepararEImprimir()">🖨️ GERAR DOCUMENTO / PDF</button>
 </div>
 
 <div class="preview-container">
@@ -294,6 +303,39 @@
         }
     }
 
+    function definirNomeArquivo() {
+        const numeroLote = document.getElementById('loc_lote').value.trim();
+        const tituloTag = document.querySelector('title');
+        const nomeFinal = numeroLote !== "" ? `LOTE ${numeroLote}` : "Vistoria de Subdivisão e Numeração - SEMURFH";
+        
+        document.title = nomeFinal;
+        if (tituloTag) tituloTag.textContent = nomeFinal;
+
+        // Truque específico para forçar o Microsoft Edge a atualizar o cache do título da aba
+        try {
+            const urlAtual = new URL(window.location.href);
+            if (numeroLote !== "") {
+                urlAtual.hash = encodeURIComponent(nomeFinal);
+            } else {
+                urlAtual.hash = "";
+            }
+            window.history.replaceState(null, nomeFinal, urlAtual.toString());
+        } catch (e) {
+            // Ignora caso rode em contexto restrito
+        }
+    }
+
+    function prepararEImprimir() {
+        definirNomeArquivo();
+        // O Edge precisa de ~250ms após o replaceState para reconhecer o novo título na janela de impressão
+        setTimeout(() => {
+            window.print();
+        }, 250);
+    }
+
+    window.addEventListener('beforeprint', definirNomeArquivo);
+    window.addEventListener('afterprint', definirNomeArquivo);
+
     function update() {
         const fiscal = listaFiscais.find(f => f.id == document.getElementById('sel_fiscal').value);
         if (fiscal) {
@@ -306,12 +348,15 @@
         const dFormat = dDoc ? new Date(dDoc + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : "";
         document.getElementById('out_data_footer').innerText = "Ji-Paraná, " + dFormat;
         
+        const loteDigitado = document.getElementById('loc_lote').value.trim();
+        definirNomeArquivo();
+
         document.getElementById('out_proc').innerText = document.getElementById('in_proc').value;
         document.getElementById('out_nome').innerText = document.getElementById('in_nome').value;
         document.getElementById('out_assunto').innerText = document.getElementById('in_assunto').value;
         document.getElementById('out_setor').innerText = document.getElementById('loc_setor').value;
         document.getElementById('out_quadra').innerText = document.getElementById('loc_quadra').value;
-        document.getElementById('out_lote').innerText = document.getElementById('loc_lote').value;
+        document.getElementById('out_lote').innerText = loteDigitado;
 
         const dtV = document.getElementById('rel_data').value ? new Date(document.getElementById('rel_data').value + 'T12:00:00').toLocaleDateString('pt-BR') : "___";
         const hrV = document.getElementById('rel_hora').value ? document.getElementById('rel_hora').value.replace(':', 'h') : "___";
