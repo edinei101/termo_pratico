@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Lavratura de Escritura - SEMURFH</title>
+    <title>TERMO DE VISTORIA</title>
     <style>
         :root { 
             --blue-semur: rgb(44, 62, 80); 
@@ -27,6 +27,19 @@
         .checkbox-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
         .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; }
         .checkbox-item input { width: auto; margin: 0; }
+
+        /* Botões de Ação na Parte Inferior */
+        .footer-buttons { margin-top: 15px; border-top: 1px solid #dcdde1; padding-top: 12px; }
+        .action-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .btn-action { flex: 1; border: none; padding: 11px 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-save { background: #2980b9; }
+        .btn-open { background: #8e44ad; }
+        .btn-clear { background: #e67e22; width: 100%; margin-bottom: 8px; }
+        .btn-print { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-print:hover { background: #219150; }
+
+        .toast-msg { display: none; background: #2ecc71; color: white; text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
 
         /* Documento Preview */
         .preview-container { flex: 1; background: #ced6e0; padding: 20px; display: flex; justify-content: center; }
@@ -75,7 +88,6 @@
         }
         .tab-medidas-doc th { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; width: 25%; }
         
-        /* Alterado para text-align: justify */
         .tab-medidas-doc td.obs-cell {
             font-style: italic;
             font-size: 13px;
@@ -116,18 +128,31 @@
         
         .footer-note { position: absolute; bottom: 0.8cm; left: 2.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
 
+        /* Ajuste para garantir impressão em 1 única folha A4 */
         @media print {
-            @page { size: A4; margin: 0; }
-            body { background: none; padding: 0; margin: 0; display: block; }
+            @page { size: A4 portrait; margin: 0; }
+            html, body { 
+                width: 210mm; 
+                height: 297mm; 
+                background: none; 
+                padding: 0; 
+                margin: 0; 
+                display: block; 
+                overflow: hidden; 
+            }
             .panel { display: none; }
-            .preview-container { padding: 0; background: none; display: block; }
+            .preview-container { padding: 0; margin: 0; background: none; display: block; }
             .document { 
                 box-shadow: none; 
                 margin: 0; 
                 border: none; 
                 width: 210mm; 
                 height: 297mm; 
-                page-break-after: always;
+                min-height: 297mm;
+                max-height: 297mm;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                overflow: hidden;
             }
         }
     </style>
@@ -135,13 +160,24 @@
 <body>
 
 <div class="panel">
-    <a href="MENU.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:15px;">⬅ VOLTAR AO MENU</a>
-    
+    <a href="MENU.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:12px;">⬅ VOLTAR AO MENU</a>
+
     <button class="accordion">1. FISCAL E DATAS</button>
     <div class="panel-content">
         <div class="group-box">
             <label>Fiscal Responsável</label>
-            <select id="sel_fiscal" onchange="update()"></select>
+            <select id="sel_fiscal" onchange="toggleFiscalOutro()"></select>
+
+            <div id="box_fiscal_outro" style="display: none; border-top: 1px dashed #dcdde1; border-bottom: 1px dashed #dcdde1; padding: 8px 0; margin-bottom: 8px;">
+                <label style="color: var(--blue-semur);">Dados para Assinatura:</label>
+                <label>Nome Completo</label>
+                <input type="text" id="in_fiscal_nome" placeholder="Digite seu nome completo" oninput="update()">
+                <label>Cargo / Função</label>
+                <input type="text" id="in_fiscal_funcao" placeholder="Ex: Fiscal de Obras e Serviços Públicos" oninput="update()">
+                <label>Cadastro / Matrícula</label>
+                <input type="text" id="in_fiscal_cad" placeholder="Ex: nº 12.345" oninput="update()">
+            </div>
+
             <label>Data do Documento</label>
             <input type="date" id="in_data_doc" oninput="update()">
             <label>Data/Hora da Vistoria</label>
@@ -292,7 +328,19 @@
         </div>
     </div>
 
-    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 15px;" onclick="window.print()">🖨️ GERAR DOCUMENTO / PDF</button>
+    <!-- Todos os Botões na Parte Inferior -->
+    <div class="footer-buttons">
+        <div id="toast_msg" class="toast-msg"></div>
+        
+        <div class="action-row">
+            <button class="btn-action btn-save" onclick="salvarRascunhoArquivo()">💾 SALVAR RASCUNHO</button>
+            <button class="btn-action btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 ABRIR RASCUNHO</button>
+            <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
+        </div>
+        
+        <button class="btn-action btn-clear" onclick="limparFormulario(true)">🧹 LIMPAR TUDO</button>
+        <button class="btn-print" onclick="imprimirDocumento()">🖨️ GERAR DOCUMENTO / PDF</button>
+    </div>
 </div>
 
 <div class="preview-container">
@@ -381,6 +429,22 @@
 </div>
 
 <script>
+    const camposFormulario = [
+        'sel_fiscal', 'in_fiscal_nome', 'in_fiscal_funcao', 'in_fiscal_cad',
+        'in_data_doc', 'rel_data', 'rel_hora',
+        'in_proc', 'in_nome', 'in_assunto',
+        'loc_setor', 'loc_quadra', 'loc_lote',
+        'sel_status_predial', 'sel_predial_val', 'sel_reside', 'sel_mapa', 'sel_medidas',
+        'med_frente', 'med_fundos', 'med_direito', 'med_esquerdo', 'sel_comercio',
+        'req_fls', 'req_id', 'cert_fls', 'cert_id', 'mapa_fls', 'mapa_id', 'osf_num', 'osf_id',
+        'sel_metodo', 'sel_edificacao_tipo', 'in_edificacao_outra', 'sel_divisas_val',
+        'in_obs'
+    ];
+
+    const checkboxesDivisas = [
+        'chk_divisa_todas', 'chk_divisa_frente', 'chk_divisa_fundos', 'chk_divisa_direito', 'chk_divisa_esquerdo'
+    ];
+
     function limitLines(obj) {
         const maxLines = 4;
         let lines = obj.value.split("\n");
@@ -398,61 +462,204 @@
         });
     }
 
-   const listaFiscais = [
+    const listaFiscais = [
+        { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        // Agente de Vigilância sanitária
+        { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
 
-    { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
-  // Agente de Vigilância sanitária
+        // Fiscal Fazendario
+        { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" }, 
+        { id: 23, nome: "Amauri Benedito", funcao: "Fiscal Fazendario", cad: "nº 2.212" },
+        { id: 21, nome: "Éder Nardoni, Fiscal fazendário", funcao: "Fiscal Fazendario", cad: "nº 1.497" }, 
+        { id: 19, nome: "Leandro Ualan Rodrigues Galdino", funcao: "Fiscal Fazendario", cad: "nº 15.052" },
+        { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
+        { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
 
+        // Fiscal Fundiário
+        { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
+        { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
 
-  { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
+        // Fiscal de Obras e Serviços Públicos
+        { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
+        { id: 4, nome: "Jose Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
 
-  // Fiscal Fazendario
-  { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" }, 
-{ id: 23, nome: "Amauri Benedito", funcao: "Fiscal Fazendario", cad: "nº 2.212" },
-  { id: 21, nome: "Éder Nardoni, Fiscal fazendário", funcao: "Fiscal Fazendario", cad: "nº 1.497" }, 
-  { id: 19, nome: "Leandro Ualan Rodrigues Galdino", funcao: "Fiscal Fazendario", cad: "nº 15.052" },
-  { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
-  { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
+        // Fiscal Obras e Posturas
+        { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
 
-  // Fiscal Fundiário
-  { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
-  { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
+        // Fiscal Sanitário
+        { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
+        { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário", cad: "nº 12.388" },
+        { id: 13, nome: "Edeilton Henrique Maciel", funcao: "Fiscal Sanitário", cad: "nº 13.572" },
+        { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário", cad: "nº 10.977" },
+        { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
+        { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário", cad: "nº 12.393" },
+        { id: 12, nome: "Jose Renato Maynardes", funcao: "Fiscal Sanitário", cad: "nº 92.049" },
 
-  // Fiscal de Obras e Serviços Públicos
-  
-  { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
-  { id: 4, nome: "Jose Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
+        // Secretário Municipal de SEMURFH
+        { id: 22, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025" },
 
-  // Fiscal Obras e Posturas
-  { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
-
-  // Fiscal Sanitário
-  { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
-  { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário", cad: "nº 12.388" },
-  { id: 13, nome: "Edeilton Henrique Maciel", funcao: "Fiscal Sanitário", cad: "nº 13.572" },
-  { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário", cad: "nº 10.977" },
-  { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
-  { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário", cad: "nº 12.393" },
-  { id: 12, nome: "Jose Renato Maynardes", funcao: "Fiscal Sanitário", cad: "nº 92.049" },
-
-  // Secretário Municipal de SEMURFH
-  { id: 22, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025" }
-];
+        // Opção para preenchimento manual em campo
+        { id: "OUTRO", nome: "SEU NOME", funcao: "", cad: "" }
+    ];
 
     window.onload = function() {
-        const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('rel_data').value = hoje;
-        document.getElementById('in_data_doc').value = hoje;
         const select = document.getElementById('sel_fiscal');
         listaFiscais.forEach(f => {
             let opt = document.createElement('option'); opt.value = f.id; opt.text = f.nome; select.add(opt);
         });
-        acc[0].click(); 
-        toggleCamposMedidas();
-        toggleCamposDivisas();
-        toggleEdificacaoOutra();
-        update();
+        acc[0].click();
+        limparFormulario(false);
     };
+
+    function exibirMensagem(texto, cor = "#2ecc71") {
+        const toast = document.getElementById('toast_msg');
+        toast.style.backgroundColor = cor;
+        toast.innerText = texto;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    function obterNomeBaseArquivo() {
+        const numProc = document.getElementById('in_proc').value.trim();
+        if (numProc) {
+            const procLimpo = numProc.replace(/[\/\\:*?"<>|]/g, '-');
+            return `TERMO DE VISTORIA ${procLimpo}`;
+        }
+        return "TERMO DE VISTORIA";
+    }
+
+    // --- SALVAR E ABRIR RASCUNHO (.JSON) ---
+    async function salvarRascunhoArquivo() {
+        const estadoAtual = {};
+        camposFormulario.forEach(id => {
+            estadoAtual[id] = document.getElementById(id).value;
+        });
+        checkboxesDivisas.forEach(id => {
+            estadoAtual[id] = document.getElementById(id).checked;
+        });
+
+        const conteudoJson = JSON.stringify(estadoAtual, null, 2);
+        const nomeArquivo = `${obterNomeBaseArquivo()}.json`;
+
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: nomeArquivo,
+                    types: [{
+                        description: 'Arquivo de Rascunho JSON',
+                        accept: { 'application/json': ['.json'] }
+                    }]
+                });
+                const writable = await handle.createWritable();
+                await writable.write(conteudoJson);
+                await writable.close();
+                exibirMensagem("✔ Rascunho salvo com sucesso!");
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+            }
+        }
+
+        const blob = new Blob([conteudoJson], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = nomeArquivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        exibirMensagem("✔ Rascunho salvo!");
+    }
+
+    function abrirRascunhoArquivo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+
+                camposFormulario.forEach(id => {
+                    if (dados[id] !== undefined) {
+                        document.getElementById(id).value = dados[id];
+                    }
+                });
+
+                checkboxesDivisas.forEach(id => {
+                    if (dados[id] !== undefined) {
+                        document.getElementById(id).checked = dados[id];
+                    }
+                });
+
+                toggleFiscalOutro();
+                toggleCamposMedidas();
+                toggleEdificacaoOutra();
+                toggleCamposDivisas();
+                update();
+                exibirMensagem("📂 Rascunho carregado com sucesso!", "#8e44ad");
+            } catch (err) {
+                alert("Erro ao ler o arquivo de rascunho. Verifique se é um arquivo .json válido.");
+            }
+            event.target.value = "";
+        };
+        reader.readAsText(file);
+    }
+
+    function limparFormulario(confirmar = true) {
+        if (confirmar && !confirm("Deseja limpar todos os campos preenchidos para iniciar um novo documento?")) {
+            return;
+        }
+
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        document.getElementById('in_data_doc').value = hoje;
+        document.getElementById('rel_data').value = hoje;
+        document.getElementById('rel_hora').value = "";
+
+        const camposTexto = [
+            'in_fiscal_nome', 'in_fiscal_funcao', 'in_fiscal_cad',
+            'in_proc', 'in_nome', 'loc_setor', 'loc_quadra', 'loc_lote',
+            'med_frente', 'med_fundos', 'med_direito', 'med_esquerdo',
+            'req_fls', 'req_id', 'cert_fls', 'cert_id', 'mapa_fls', 'mapa_id', 'osf_num', 'osf_id',
+            'in_edificacao_outra', 'in_obs'
+        ];
+        camposTexto.forEach(id => document.getElementById(id).value = "");
+
+        document.getElementById('in_assunto').value = "AUTORIZAÇÃO DE LAVRATURA DE ESCRITURA PÚBLICA";
+        document.getElementById('sel_status_predial').value = "NORMAL";
+        document.getElementById('sel_predial_val').value = "Sim";
+        document.getElementById('sel_reside').value = "Não";
+        document.getElementById('sel_mapa').value = "Sim";
+        document.getElementById('sel_medidas').value = "Sim";
+        document.getElementById('sel_comercio').value = "Não";
+        document.getElementById('sel_metodo').value = "manual com o uso de trena de fibra";
+        document.getElementById('sel_edificacao_tipo').value = "alvenaria";
+        document.getElementById('sel_divisas_val').value = "Sim";
+
+        document.getElementById('chk_divisa_todas').checked = true;
+        document.querySelectorAll('.chk-divisa').forEach(chk => chk.checked = true);
+
+        toggleFiscalOutro();
+        toggleCamposMedidas();
+        toggleEdificacaoOutra();
+        toggleCamposDivisas();
+        update();
+
+        if (confirmar) {
+            exibirMensagem("🧹 Campos limpos!", "#e67e22");
+        }
+    }
+
+    // --- CONTROLES DE INTERFACE DO FORMULÁRIO ---
+    function toggleFiscalOutro() {
+        const val = document.getElementById('sel_fiscal').value;
+        const box = document.getElementById('box_fiscal_outro');
+        box.style.display = (val === "OUTRO") ? "block" : "none";
+        recalcularAlturaAccordion(box);
+        update();
+    }
 
     function toggleCamposMedidas() {
         const medOk = document.getElementById('sel_medidas').value;
@@ -473,14 +680,6 @@
         const divisasOk = document.getElementById('sel_divisas_val').value;
         const box = document.getElementById('box_divisas_opcoes');
         box.style.display = (divisasOk === "Sim") ? "block" : "none";
-        if (divisasOk === "Sim" && !document.getElementById('chk_divisa_todas').checked) {
-            const individuais = document.querySelectorAll('.chk-divisa');
-            const algumMarcado = Array.from(individuais).some(c => c.checked);
-            if (!algumMarcado) {
-                document.getElementById('chk_divisa_todas').checked = true;
-                toggleTodasDivisas();
-            }
-        }
         recalcularAlturaAccordion(box);
     }
 
@@ -507,12 +706,34 @@
         }
     }
 
+    function atualizarTituloPDF() {
+        document.title = obterNomeBaseArquivo();
+    }
+
+    function imprimirDocumento() {
+        atualizarTituloPDF();
+        window.print();
+    }
+
     function update() {
-        const fiscal = listaFiscais.find(f => f.id == document.getElementById('sel_fiscal').value);
-        if (fiscal) {
-            document.getElementById('out_nome_fiscal').innerText = fiscal.nome;
-            document.getElementById('out_funcao_fiscal').innerText = fiscal.funcao;
-            document.getElementById('out_cad_fiscal').innerText = "Cad.: " + fiscal.cad;
+        atualizarTituloPDF();
+
+        const selFiscalVal = document.getElementById('sel_fiscal').value;
+        if (selFiscalVal === "OUTRO") {
+            const nomeManual = document.getElementById('in_fiscal_nome').value.trim();
+            const funcaoManual = document.getElementById('in_fiscal_funcao').value.trim();
+            const cadManual = document.getElementById('in_fiscal_cad').value.trim();
+
+            document.getElementById('out_nome_fiscal').innerText = nomeManual || "______________________________";
+            document.getElementById('out_funcao_fiscal').innerText = funcaoManual;
+            document.getElementById('out_cad_fiscal').innerText = cadManual ? (cadManual.toLowerCase().startsWith("cad") ? cadManual : "Cad.: " + cadManual) : "";
+        } else {
+            const fiscal = listaFiscais.find(f => f.id == selFiscalVal);
+            if (fiscal) {
+                document.getElementById('out_nome_fiscal').innerText = fiscal.nome;
+                document.getElementById('out_funcao_fiscal').innerText = fiscal.funcao;
+                document.getElementById('out_cad_fiscal').innerText = "Cad.: " + fiscal.cad;
+            }
         }
 
         const dDoc = document.getElementById('in_data_doc').value;
@@ -544,30 +765,25 @@
         if (divVal === "Não") {
             liDivisas.innerText = "O imóvel não possui divisas materializadas;";
         } else {
-            const chkTodas = document.getElementById('chk_divisa_todas').checked;
-            if (chkTodas) {
+            let selecionadas = [];
+            if (document.getElementById('chk_divisa_frente').checked) selecionadas.push("frente");
+            if (document.getElementById('chk_divisa_fundos').checked) selecionadas.push("fundos");
+            if (document.getElementById('chk_divisa_direito').checked) selecionadas.push("lado direito");
+            if (document.getElementById('chk_divisa_esquerdo').checked) selecionadas.push("lado esquerdo");
+
+            if (selecionadas.length === 0) {
+                liDivisas.innerText = "O imóvel não possui divisas materializadas;";
+            } else if (selecionadas.length === 4) {
                 liDivisas.innerText = "O imóvel tem todas as divisas materializadas;";
             } else {
-                let selecionadas = [];
-                if (document.getElementById('chk_divisa_frente').checked) selecionadas.push("frente");
-                if (document.getElementById('chk_divisa_fundos').checked) selecionadas.push("fundos");
-                if (document.getElementById('chk_divisa_direito').checked) selecionadas.push("lado direito");
-                if (document.getElementById('chk_divisa_esquerdo').checked) selecionadas.push("lado esquerdo");
-
-                if (selecionadas.length === 0) {
-                    liDivisas.innerText = "O imóvel possui divisas materializadas;";
-                } else if (selecionadas.length === 4) {
-                    liDivisas.innerText = "O imóvel tem todas as divisas materializadas;";
+                let textoDivisas = "";
+                if (selecionadas.length === 1) {
+                    textoDivisas = selecionadas[0];
                 } else {
-                    let textoDivisas = "";
-                    if (selecionadas.length === 1) {
-                        textoDivisas = selecionadas[0];
-                    } else {
-                        const ult = selecionadas.pop();
-                        textoDivisas = selecionadas.join(", ") + " e " + ult;
-                    }
-                    liDivisas.innerText = `O imóvel possui divisas materializadas em: ${textoDivisas};`;
+                    const ult = selecionadas.pop();
+                    textoDivisas = selecionadas.join(", ") + " e " + ult;
                 }
+                liDivisas.innerText = `O imóvel possui divisas materializadas em: ${textoDivisas};`;
             }
         }
 
