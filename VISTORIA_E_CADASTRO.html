@@ -30,6 +30,11 @@
         input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; font-size: 13px; }
         .row-flex { display: flex; gap: 5px; }
 
+        /* Estilo das Checkboxes de Divisas */
+        .checkbox-group { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; margin-top: 0; }
+        .checkbox-item input { width: auto; margin: 0; cursor: pointer; }
+
         .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 45px; }
         .document { 
             background: white; width: 210mm; height: 297mm; 
@@ -156,16 +161,40 @@
                 <input type="text" id="in_outro_material" placeholder="Digite o tipo de construção..." oninput="update()">
             </div>
         </div>
+
         <label>Divisas</label>
-        <select id="sel_divisas" onchange="update()">
-            <option value="O lote possui divisas materializadas.">Com divisas materializadas</option>
-            <option value="O lote não possui divisas materializadas.">Sem divisas materializadas</option>
+        <select id="sel_divisas" onchange="toggleCamposDivisas()">
+            <option value="SIM">Com divisas materializadas</option>
+            <option value="NAO">Sem divisas materializadas</option>
         </select>
-        <label>Conferência</label>
-        <select id="sel_conferencia" onchange="update()">
-            <option value="As medidas e a localização do lote conferem com o Memorial Descritivo e o Mapa.">As medidas conferem</option>
-            <option value="As medidas e a localização do lote não conferem com o Memorial Descritivo e o Mapa.">As medidas NÃO conferem</option>
+
+        <!-- Opções de quais divisas estão materializadas -->
+        <div id="div_opcoes_divisas" style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 8px; border-left: 4px solid var(--accent);">
+            <label style="margin-top: 0;">Quais divisas estão materializadas?</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" checked onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
+                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Frente</label>
+                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Fundos</label>
+                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Lado Direito</label>
+                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+            </div>
+        </div>
+
+        <!-- 1ª Seleção: Localização -->
+        <label>Conferência da Localização (Planta de Situação)</label>
+        <select id="sel_conf_localizacao" onchange="toggleConferenciaMedidas()">
+            <option value="SIM">Sim - A localização confere com a planta de situação</option>
+            <option value="NAO">Não - A localização NÃO confere com a planta de situação</option>
         </select>
+
+        <!-- 2ª Seleção: Medidas (Só aparece se a 1ª for SIM) -->
+        <div id="div_conf_medidas">
+            <label>Conferência das Medidas (Planta do Lote)</label>
+            <select id="sel_conf_medidas" onchange="update()">
+                <option value="As medidas do lote conferem com as medidas constantes na planta do lote.">Sim - As medidas conferem com a planta do lote</option>
+                <option value="As medidas do lote não conferem com as medidas constantes na planta do lote.">Não - As medidas NÃO conferem com a planta do lote</option>
+            </select>
+        </div>
     </div>
 
     <button class="aba-retratil">4. OBSERVAÇÕES (OPCIONAL) <span>▼</span></button>
@@ -207,7 +236,8 @@
             <ul class="constatacao-list">
                 <li id="out_edificacao"></li>
                 <li id="out_divisas"></li>
-                <li id="out_conferencia"></li>
+                <li id="out_conf_localizacao"></li>
+                <li id="out_conf_medidas"></li>
             </ul>
             
             <div id="out_obs_container"></div>
@@ -230,44 +260,40 @@
 
 <script>
     const listaFiscais = [
-        
-    { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
-  // Agente de Vigilância sanitária
+        { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        // Agente de Vigilância sanitária
+        { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
 
+        // Fiscal Fazendario
+        { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" }, 
+        { id: 23, nome: "Amauri Benedito", funcao: "Fiscal Fazendario", cad: "nº 2.212" },
+        { id: 21, nome: "Éder Nardoni, Fiscal fazendário", funcao: "Fiscal Fazendario", cad: "nº 1.497" }, 
+        { id: 19, nome: "Leandro Ualan Rodrigues Galdino", funcao: "Fiscal Fazendario", cad: "nº 15.052" },
+        { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
+        { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
 
-  { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
+        // Fiscal Fundiário
+        { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
+        { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
 
-  // Fiscal Fazendario
-  { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" }, 
-  { id: 23, nome: "Amauri Benedito", funcao: "Fiscal Fazendario", cad: "nº 2.212" },
-  { id: 21, nome: "Éder Nardoni, Fiscal fazendário", funcao: "Fiscal Fazendario", cad: "nº 1.497" }, 
-  { id: 19, nome: "Leandro Ualan Rodrigues Galdino", funcao: "Fiscal Fazendario", cad: "nº 15.052" },
-  { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
-  { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
+        // Fiscal de Obras e Serviços Públicos
+        { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
+        { id: 4, nome: "Jose Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
 
-  // Fiscal Fundiário
-  { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
-  { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
+        // Fiscal Obras e Posturas
+        { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
 
-  // Fiscal de Obras e Serviços Públicos
-  
-  { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
-  { id: 4, nome: "Jose Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
+        // Fiscal Sanitário
+        { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
+        { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário", cad: "nº 12.388" },
+        { id: 13, nome: "Edeilton Henrique Maciel", funcao: "Fiscal Sanitário", cad: "nº 13.572" },
+        { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário", cad: "nº 10.977" },
+        { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
+        { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário", cad: "nº 12.393" },
+        { id: 12, nome: "Jose Renato Maynardes", funcao: "Fiscal Sanitário", cad: "nº 92.049" },
 
-  // Fiscal Obras e Posturas
-  { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
-
-  // Fiscal Sanitário
-  { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
-  { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário", cad: "nº 12.388" },
-  { id: 13, nome: "Edeilton Henrique Maciel", funcao: "Fiscal Sanitário", cad: "nº 13.572" },
-  { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário", cad: "nº 10.977" },
-  { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
-  { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário", cad: "nº 12.393" },
-  { id: 12, nome: "Jose Renato Maynardes", funcao: "Fiscal Sanitário", cad: "nº 92.049" },
-
-  // Secretário Municipal de SEMURFH
-  { id: 22, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025"}
+        // Secretário Municipal de SEMURFH
+        { id: 22, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025"}
     ];
 
     window.onload = function() {
@@ -289,7 +315,8 @@
                 panel.style.display = (panel.style.display === "block") ? "none" : "block";
             });
         });
-        update();
+        toggleCamposDivisas();
+        toggleConferenciaMedidas();
     };
 
     function toggleEdificacao() {
@@ -299,6 +326,43 @@
 
     function toggleOutroMaterial() {
         document.getElementById('div_outro_material').style.display = (document.getElementById('sel_material').value === 'outro') ? 'block' : 'none';
+        update();
+    }
+
+    function toggleCamposDivisas() {
+        const comDivisas = document.getElementById('sel_divisas').value === 'SIM';
+        document.getElementById('div_opcoes_divisas').style.display = comDivisas ? 'block' : 'none';
+        if (comDivisas) {
+            const individuais = document.querySelectorAll('.chk-divisa');
+            const algumMarcado = Array.from(individuais).some(c => c.checked);
+            if (!algumMarcado) {
+                document.getElementById('chk_divisa_todas').checked = true;
+                toggleTodasDivisas();
+                return;
+            }
+        }
+        update();
+    }
+
+    function toggleTodasDivisas() {
+        const chkTodas = document.getElementById('chk_divisa_todas');
+        const individuais = document.querySelectorAll('.chk-divisa');
+        individuais.forEach(chk => {
+            chk.checked = chkTodas.checked;
+        });
+        update();
+    }
+
+    function updateDivisasIndividuais() {
+        const individuais = document.querySelectorAll('.chk-divisa');
+        const todosMarcados = Array.from(individuais).every(c => c.checked);
+        document.getElementById('chk_divisa_todas').checked = todosMarcados;
+        update();
+    }
+
+    function toggleConferenciaMedidas() {
+        const locOk = document.getElementById('sel_conf_localizacao').value === 'SIM';
+        document.getElementById('div_conf_medidas').style.display = locOk ? 'block' : 'none';
         update();
     }
 
@@ -338,8 +402,48 @@
         if(mat === 'outro') mat = document.getElementById('in_outro_material').value || "_______";
         document.getElementById('out_edificacao').innerText = (status === 'vago') ? "O lote encontra-se vago." : `O lote encontra-se edificado com uma construção ${mat}.`;
         
-        document.getElementById('out_divisas').innerText = document.getElementById('sel_divisas').value;
-        document.getElementById('out_conferencia').innerText = document.getElementById('sel_conferencia').value;
+        // Lógica das Divisas Materializadas
+        const divVal = document.getElementById('sel_divisas').value;
+        const outDivisas = document.getElementById('out_divisas');
+
+        if (divVal === 'NAO') {
+            outDivisas.innerText = "O lote não possui divisas materializadas.";
+        } else {
+            let selecionadas = [];
+            if (document.getElementById('chk_divisa_frente').checked) selecionadas.push("frente");
+            if (document.getElementById('chk_divisa_fundos').checked) selecionadas.push("fundos");
+            if (document.getElementById('chk_divisa_direito').checked) selecionadas.push("lado direito");
+            if (document.getElementById('chk_divisa_esquerdo').checked) selecionadas.push("lado esquerdo");
+
+            if (selecionadas.length === 0) {
+                outDivisas.innerText = "O lote não possui divisas materializadas.";
+            } else if (selecionadas.length === 4) {
+                outDivisas.innerText = "O lote possui todas as divisas materializadas.";
+            } else {
+                let textoDivisas = "";
+                if (selecionadas.length === 1) {
+                    textoDivisas = selecionadas[0];
+                } else {
+                    const ult = selecionadas.pop();
+                    textoDivisas = selecionadas.join(", ") + " e " + ult;
+                }
+                outDivisas.innerText = `O lote possui divisas materializadas em: ${textoDivisas}.`;
+            }
+        }
+
+        const locVal = document.getElementById('sel_conf_localizacao').value;
+        const liLoc = document.getElementById('out_conf_localizacao');
+        const liMed = document.getElementById('out_conf_medidas');
+
+        if (locVal === 'SIM') {
+            liLoc.innerText = "A localização do lote confere com a planta de situação.";
+            liMed.style.display = "list-item";
+            liMed.innerText = document.getElementById('sel_conf_medidas').value;
+        } else {
+            liLoc.innerText = "A localização do lote não confere com a planta de situação.";
+            liMed.style.display = "none";
+            liMed.innerText = "";
+        }
         
         const obs = document.getElementById('in_obs').value;
         document.getElementById('out_obs_container').innerText = obs ? obs : "";
