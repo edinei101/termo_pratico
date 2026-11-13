@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Termo de Vistoria - SEMURFH</title>
+    <title>TERMO DE VISTORIA</title>
     <style>
         :root { --blue-semur: #2c3e50; --accent: #2980b9; }
         @page { size: A4; margin: 0; }
@@ -35,12 +35,26 @@
         .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; margin-top: 0; }
         .checkbox-item input { width: auto; margin: 0; cursor: pointer; }
 
+        /* Botões de Ação na Parte Inferior */
+        .footer-buttons { margin-top: 20px; border-top: 1px solid #dcdde1; padding-top: 15px; }
+        .action-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .btn-action { flex: 1; border: none; padding: 12px 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-save { background: #2980b9; }
+        .btn-open { background: #8e44ad; }
+        .btn-clear { background: #e67e22; width: 100%; margin-bottom: 8px; }
+        .btn-print { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-print:hover { background: #219150; }
+
+        .toast-msg { display: none; background: #2ecc71; color: white; text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+
         .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 45px; }
         .document { 
             background: white; width: 210mm; height: 297mm; 
             padding: 1.0cm 2.0cm 0.8cm 3.0cm; /* Margens padrão ABNT/Oficial */
             box-shadow: 0 0 20px rgba(0,0,0,0.3); box-sizing: border-box; position: relative; 
             display: flex; flex-direction: column;
+            overflow: hidden;
         }
 
         .header-table { width: 100%; border-collapse: collapse; border-bottom: 1px solid #000; margin-bottom: 5px; }
@@ -76,15 +90,36 @@
         .footer-note { position: absolute; bottom: 0.8cm; left: 1.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
         
         @media print { 
+            @page { size: A4 portrait; margin: 0; }
+            html, body { 
+                width: 210mm; 
+                height: 297mm; 
+                background: none; 
+                padding: 0; 
+                margin: 0; 
+                display: block; 
+                overflow: hidden; 
+            }
             .panel, #btn_home { display: none !important; } 
-            .preview-container { background: white; padding: 0; display: block; margin-top: 0; } 
-            .document { box-shadow: none; margin: 0 auto; border: none; height: 297mm; } 
+            .preview-container { background: white; padding: 0; margin: 0; display: block; } 
+            .document { 
+                box-shadow: none; 
+                margin: 0; 
+                border: none; 
+                width: 210mm;
+                height: 297mm; 
+                min-height: 297mm;
+                max-height: 297mm;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                overflow: hidden;
+            } 
         }
     </style>
 </head>
 <body>
 
-<a href="index.html" id="btn_home" title="Voltar ao Menu Principal">
+<a href="https://edinei101.github.io/termo_pratico/index.html" id="btn_home" title="Voltar ao Menu Principal">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -208,7 +243,19 @@
         <textarea id="in_encaminhamento" rows="3" oninput="update()">ao setor de cadastro para o prosseguimento que o caso requer.</textarea>
     </div>
 
-    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 20px;" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
+    <!-- Botões na Parte Inferior -->
+    <div class="footer-buttons">
+        <div id="toast_msg" class="toast-msg"></div>
+        
+        <div class="action-row">
+            <button class="btn-action btn-save" onclick="salvarRascunhoArquivo()">💾 SALVAR RASCUNHO</button>
+            <button class="btn-action btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 ABRIR RASCUNHO</button>
+            <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
+        </div>
+        
+        <button class="btn-action btn-clear" onclick="limparFormulario(true)">🧹 LIMPAR TUDO</button>
+        <button class="btn-print" onclick="imprimirDocumento()">🖨️ IMPRIMIR / PDF</button>
+    </div>
 </div>
 
 <div class="preview-container">
@@ -259,6 +306,20 @@
 </div>
 
 <script>
+    const camposFormulario = [
+        'sel_fiscal', 'in_data_doc_calendario',
+        'in_proc', 'in_nome', 'in_assunto',
+        'rel_data', 'rel_hora', 'loc_setor', 'loc_quadra', 'loc_lote',
+        'fls_req_num', 'fls_req_id', 'fls_mapa_num', 'fls_mapa_id', 'osf_num', 'osf_id',
+        'sel_status', 'sel_material', 'in_outro_material',
+        'sel_divisas', 'sel_conf_localizacao', 'sel_conf_medidas',
+        'in_obs', 'in_encaminhamento'
+    ];
+
+    const checkboxesDivisas = [
+        'chk_divisa_todas', 'chk_divisa_frente', 'chk_divisa_fundos', 'chk_divisa_direito', 'chk_divisa_esquerdo'
+    ];
+
     const listaFiscais = [
         { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
         // Agente de Vigilância sanitária
@@ -297,11 +358,6 @@
     ];
 
     window.onload = function() {
-        const d = new Date();
-        const hoje = d.toISOString().split('T')[0];
-        document.getElementById('rel_data').value = hoje;
-        document.getElementById('in_data_doc_calendario').value = hoje;
-
         const select = document.getElementById('sel_fiscal');
         listaFiscais.forEach(f => {
             let opt = document.createElement('option');
@@ -315,10 +371,155 @@
                 panel.style.display = (panel.style.display === "block") ? "none" : "block";
             });
         });
-        toggleCamposDivisas();
-        toggleConferenciaMedidas();
+
+        limparFormulario(false);
     };
 
+    function exibirMensagem(texto, cor = "#2ecc71") {
+        const toast = document.getElementById('toast_msg');
+        toast.style.backgroundColor = cor;
+        toast.innerText = texto;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    function obterNomeBaseArquivo() {
+        const numProc = document.getElementById('in_proc').value.trim();
+        if (numProc) {
+            const procLimpo = numProc.replace(/[\/\\:*?"<>|]/g, '-');
+            return `TERMO DE VISTORIA ${procLimpo}`;
+        }
+        return "TERMO DE VISTORIA";
+    }
+
+    function atualizarTituloPDF() {
+        document.title = obterNomeBaseArquivo();
+    }
+
+    function imprimirDocumento() {
+        atualizarTituloPDF();
+        window.print();
+    }
+
+    // --- SALVAR, ABRIR RASCUNHO (.JSON) E LIMPAR ---
+    async function salvarRascunhoArquivo() {
+        const estadoAtual = {};
+        camposFormulario.forEach(id => {
+            estadoAtual[id] = document.getElementById(id).value;
+        });
+        checkboxesDivisas.forEach(id => {
+            estadoAtual[id] = document.getElementById(id).checked;
+        });
+
+        const conteudoJson = JSON.stringify(estadoAtual, null, 2);
+        const nomeArquivo = `${obterNomeBaseArquivo()}.json`;
+
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: nomeArquivo,
+                    types: [{
+                        description: 'Arquivo de Rascunho JSON',
+                        accept: { 'application/json': ['.json'] }
+                    }]
+                });
+                const writable = await handle.createWritable();
+                await writable.write(conteudoJson);
+                await writable.close();
+                exibirMensagem("✔ Rascunho salvo com sucesso!");
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+            }
+        }
+
+        const blob = new Blob([conteudoJson], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = nomeArquivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        exibirMensagem("✔ Rascunho salvo!");
+    }
+
+    function abrirRascunhoArquivo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+
+                camposFormulario.forEach(id => {
+                    if (dados[id] !== undefined) {
+                        document.getElementById(id).value = dados[id];
+                    }
+                });
+
+                checkboxesDivisas.forEach(id => {
+                    if (dados[id] !== undefined) {
+                        document.getElementById(id).checked = dados[id];
+                    }
+                });
+
+                toggleEdificacao();
+                toggleOutroMaterial();
+                toggleCamposDivisas();
+                toggleConferenciaMedidas();
+                atualizarAssinatura();
+                exibirMensagem("📂 Rascunho carregado com sucesso!", "#8e44ad");
+            } catch (err) {
+                alert("Erro ao ler o arquivo de rascunho. Verifique se é um arquivo .json válido.");
+            }
+            event.target.value = "";
+        };
+        reader.readAsText(file);
+    }
+
+    function limparFormulario(confirmar = true) {
+        if (confirmar && !confirm("Deseja limpar todos os campos preenchidos para iniciar um novo documento?")) {
+            return;
+        }
+
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('rel_data').value = hoje;
+        document.getElementById('in_data_doc_calendario').value = hoje;
+        document.getElementById('rel_hora').value = "";
+
+        const camposTexto = [
+            'in_proc', 'in_nome', 'loc_setor', 'loc_quadra', 'loc_lote',
+            'fls_req_num', 'fls_req_id', 'fls_mapa_num', 'fls_mapa_id', 'osf_num', 'osf_id',
+            'in_outro_material', 'in_obs'
+        ];
+        camposTexto.forEach(id => document.getElementById(id).value = "");
+
+        document.getElementById('in_assunto').value = "VISTORIA E CADASTRO";
+        document.getElementById('in_encaminhamento').value = "ao setor de cadastro para o prosseguimento que o caso requer.";
+        document.getElementById('sel_status').value = "vago";
+        document.getElementById('sel_material').value = "em alvenaria";
+        document.getElementById('sel_divisas').value = "SIM";
+        document.getElementById('sel_conf_localizacao').value = "SIM";
+        document.getElementById('sel_conf_medidas').value = "As medidas do lote conferem com as medidas constantes na planta do lote.";
+
+        document.getElementById('chk_divisa_todas').checked = true;
+        document.querySelectorAll('.chk-divisa').forEach(chk => chk.checked = true);
+
+        toggleEdificacao();
+        toggleOutroMaterial();
+        toggleCamposDivisas();
+        toggleConferenciaMedidas();
+        atualizarAssinatura();
+
+        if (confirmar) {
+            exibirMensagem("🧹 Campos limpos!", "#e67e22");
+        }
+    }
+
+    // --- CONTROLES DE INTERFACE ---
     function toggleEdificacao() {
         document.getElementById('div_edificacao').style.display = (document.getElementById('sel_status').value === 'edificado') ? 'block' : 'none';
         update();
@@ -372,11 +573,17 @@
             document.getElementById('out_nome_fiscal').innerText = f.nome;
             document.getElementById('out_funcao_fiscal').innerText = f.funcao;
             document.getElementById('out_cad_fiscal').innerText = f.cad;
+        } else {
+            document.getElementById('out_nome_fiscal').innerText = "________________________________";
+            document.getElementById('out_funcao_fiscal').innerText = "Fiscal de Obras e Serviços Públicos";
+            document.getElementById('out_cad_fiscal').innerText = "";
         }
         update();
     }
 
     function update() {
+        atualizarTituloPDF();
+
         document.getElementById('out_proc').innerText = document.getElementById('in_proc').value || "_________";
         document.getElementById('out_nome').innerText = document.getElementById('in_nome').value || "_________";
         document.getElementById('out_assunto').innerText = document.getElementById('in_assunto').value;
