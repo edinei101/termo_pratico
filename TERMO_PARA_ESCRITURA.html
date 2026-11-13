@@ -212,49 +212,58 @@
     </div>
 
     <button class="accordion">4. QUADRO TÉCNICO</button>
-    <div class="panel-content">
+    <div class="panel-content" id="panel_quadro_tecnico">
         <div class="group-box">
             <label>Status Predial</label>
-            <select id="sel_status_predial" onchange="update()">
+            <select id="sel_status_predial" onchange="toggleStatusPredial()">
                 <option value="NORMAL">Normal (Sim/Não)</option>
                 <option value="LOTE VAGO">Lote Vago</option>
                 <option value="NÚMERO NÃO INFORMADO">Número não informado</option>
             </select>
-            <label> Número predial corresponde ao lote?</label>
-            <select id="sel_predial_val" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
-            <label>O requerente reside no local?</label>
-            <select id="sel_reside" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-            <label>A localização no mapa corresponde com o campo?</label>
-            <select id="sel_mapa" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
-            <label>As medidas do lote estão corretas?</label>
-            <select id="sel_medidas" onchange="update(); toggleCamposMedidas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
-
-            <div id="box_medidas_campo" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
-                <label style="color: var(--blue-semur);">Medidas Coletadas em Campo:</label>
-                <div class="row-flex">
-                    <div>
-                        <label>Frente</label>
-                        <input type="text" id="med_frente" placeholder="Ex: 10m" oninput="update()">
-                    </div>
-                    <div>
-                        <label>Fundos</label>
-                        <input type="text" id="med_fundos" placeholder="Ex: 10m" oninput="update()">
-                    </div>
-                </div>
-                <div class="row-flex">
-                    <div>
-                        <label>Lado Direito</label>
-                        <input type="text" id="med_direito" placeholder="Ex: 25m" oninput="update()">
-                    </div>
-                    <div>
-                        <label>Lado Esquerdo</label>
-                        <input type="text" id="med_esquerdo" placeholder="Ex: 25m" oninput="update()">
-                    </div>
-                </div>
+            
+            <div id="box_predial_corresponde">
+                <label>Número predial corresponde ao lote?</label>
+                <select id="sel_predial_val" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
             </div>
 
-            <label>Existe comércio no local?</label>
-            <select id="sel_comercio" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            <label>O requerente reside no local?</label>
+            <select id="sel_reside" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            
+            <label>A localização no mapa corresponde com o campo?</label>
+            <select id="sel_mapa" onchange="handleMapaChange()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+            
+            <!-- Bloco que só aparece se a localização no mapa for "Sim" -->
+            <div id="box_pos_mapa">
+                <label>As medidas do lote estão corretas?</label>
+                <select id="sel_medidas" onchange="update(); toggleCamposMedidas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+
+                <div id="box_medidas_campo" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
+                    <label style="color: var(--blue-semur);">Medidas Coletadas em Campo:</label>
+                    <div class="row-flex">
+                        <div>
+                            <label>Frente</label>
+                            <input type="text" id="med_frente" placeholder="Ex: 10m" oninput="update()">
+                        </div>
+                        <div>
+                            <label>Fundos</label>
+                            <input type="text" id="med_fundos" placeholder="Ex: 10m" oninput="update()">
+                        </div>
+                    </div>
+                    <div class="row-flex">
+                        <div>
+                            <label>Lado Direito</label>
+                            <input type="text" id="med_direito" placeholder="Ex: 25m" oninput="update()">
+                        </div>
+                        <div>
+                            <label>Lado Esquerdo</label>
+                            <input type="text" id="med_esquerdo" placeholder="Ex: 25m" oninput="update()">
+                        </div>
+                    </div>
+                </div>
+
+                <label>Existe comércio no local?</label>
+                <select id="sel_comercio" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            </div>
         </div>
     </div>
 
@@ -280,8 +289,8 @@
         </div>
     </div>
 
-    <button class="accordion">6. MÉTODO E DIVISAS</button>
-    <div class="panel-content">
+    <button class="accordion" id="acc_btn_metodo">6. MÉTODO E DIVISAS</button>
+    <div class="panel-content" id="acc_panel_metodo">
         <div class="group-box">
             <label>Método utilizado</label>
             <select id="sel_metodo" onchange="update()">
@@ -291,38 +300,41 @@
                 <option value="por imagem">Por Imagem</option>
             </select>
             
-            <label>Edificação</label>
-            <select id="sel_edificacao_tipo" onchange="toggleEdificacaoOutra()">
-                <option value="alvenaria">Alvenaria</option>
-                <option value="concreto armado">Concreto Armado</option>
-                <option value="mista madeira/alvenaria">Mista (madeira/alvenaria)</option>
-                <option value="metálica">Metálica</option>
-                <option value="OUTRO">Outra</option>
-            </select>
+            <!-- Bloco de Edificação e Divisas (oculto quando mapa = Não) -->
+            <div id="box_edif_divisas_panel">
+                <label>Edificação</label>
+                <select id="sel_edificacao_tipo" onchange="toggleEdificacaoOutra()">
+                    <option value="alvenaria">Alvenaria</option>
+                    <option value="concreto armado">Concreto Armado</option>
+                    <option value="mista madeira/alvenaria">Mista (madeira/alvenaria)</option>
+                    <option value="metálica">Metálica</option>
+                    <option value="OUTRO">Outra</option>
+                </select>
 
-            <div id="box_edificacao_outra" style="display: none; margin-bottom: 8px;">
-                <label>Especifique o tipo de edificação</label>
-                <input type="text" id="in_edificacao_outra" placeholder="Ex: madeira, taipa, etc." oninput="update()">
-            </div>
+                <div id="box_edificacao_outra" style="display: none; margin-bottom: 8px;">
+                    <label>Especifique o tipo de edificação</label>
+                    <input type="text" id="in_edificacao_outra" placeholder="Ex: madeira, taipa, etc." oninput="update()">
+                </div>
 
-            <label>Divisas Materializadas?</label>
-            <select id="sel_divisas_val" onchange="update(); toggleCamposDivisas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+                <label>Divisas Materializadas?</label>
+                <select id="sel_divisas_val" onchange="update(); toggleCamposDivisas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
 
-            <div id="box_divisas_opcoes" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
-                <label style="color: var(--blue-semur);">Quais divisas estão materializadas?</label>
-                <div class="checkbox-group">
-                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
-                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" onchange="updateDivisasIndividuais()"> Frente</label>
-                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" onchange="updateDivisasIndividuais()"> Fundos</label>
-                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Direito</label>
-                    <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+                <div id="box_divisas_opcoes" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
+                    <label style="color: var(--blue-semur);">Quais divisas estão materializadas?</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" onchange="updateDivisasIndividuais()"> Frente</label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" onchange="updateDivisasIndividuais()"> Fundos</label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Direito</label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <button class="accordion">7. OBSERVAÇÕES (LIMITE 4 LINHAS)</button>
-    <div class="panel-content">
+    <button class="accordion" id="acc_btn_obs">7. OBSERVAÇÕES (LIMITE 4 LINHAS)</button>
+    <div class="panel-content" id="acc_panel_obs">
         <div class="group-box">
             <textarea id="in_obs" placeholder="Máximo 4 linhas..." oninput="limitLines(this); update()"></textarea>
         </div>
@@ -372,8 +384,9 @@
             
             <p id="p_metodo">Para a conferência das medidas foi usado método <span id="out_metodo"></span>.</p>
             
+            <p id="p_intro_constatado">Durante a vistoria, foi constatado que:</p>
+            
             <div id="block_constatacoes">
-                <p>Durante a vistoria, foi constatado que:</p>
                 <p id="li_edificacao" class="item-constatado"></p>
                 <p id="li_divisas" class="item-constatado"></p>
             </div>
@@ -594,9 +607,11 @@
                 });
 
                 toggleFiscalOutro();
+                toggleStatusPredial();
                 toggleCamposMedidas();
                 toggleEdificacaoOutra();
                 toggleCamposDivisas();
+                handleMapaChange(false);
                 update();
                 exibirMensagem("📂 Rascunho carregado com sucesso!", "#8e44ad");
             } catch (err) {
@@ -642,9 +657,11 @@
         document.querySelectorAll('.chk-divisa').forEach(chk => chk.checked = true);
 
         toggleFiscalOutro();
+        toggleStatusPredial();
         toggleCamposMedidas();
         toggleEdificacaoOutra();
         toggleCamposDivisas();
+        handleMapaChange(false);
         update();
 
         if (confirmar) {
@@ -658,6 +675,48 @@
         const box = document.getElementById('box_fiscal_outro');
         box.style.display = (val === "OUTRO") ? "block" : "none";
         recalcularAlturaAccordion(box);
+        update();
+    }
+
+    function toggleStatusPredial() {
+        const statusP = document.getElementById('sel_status_predial').value;
+        const boxPredial = document.getElementById('box_predial_corresponde');
+        boxPredial.style.display = (statusP === "NORMAL") ? "block" : "none";
+        recalcularAlturaAccordion(boxPredial);
+        update();
+    }
+
+    function handleMapaChange(abrirObsAuto = true) {
+        const mapaOk = document.getElementById('sel_mapa').value;
+        const boxPosMapa = document.getElementById('box_pos_mapa');
+        const boxEdifDivisasPanel = document.getElementById('box_edif_divisas_panel');
+        const btnObs = document.getElementById('acc_btn_obs');
+        const panelObs = document.getElementById('acc_panel_obs');
+
+        if (mapaOk === "Não") {
+            // Oculta os campos seguintes do Quadro Técnico (medidas e comércio) e Edificação/Divisas na Aba 6
+            boxPosMapa.style.display = "none";
+            boxEdifDivisasPanel.style.display = "none";
+
+            // Abre automaticamente a Aba 7 (Observações) para o usuário preencher se quiser
+            if (abrirObsAuto) {
+                if (!btnObs.classList.contains("active")) {
+                    btnObs.classList.add("active");
+                }
+                panelObs.style.maxHeight = panelObs.scrollHeight + "px";
+                setTimeout(() => {
+                    document.getElementById('in_obs').focus();
+                }, 150);
+            }
+        } else {
+            // Mostra novamente os campos seguintes do Quadro Técnico e Edificação/Divisas na Aba 6
+            boxPosMapa.style.display = "block";
+            boxEdifDivisasPanel.style.display = "block";
+            toggleCamposMedidas();
+        }
+
+        recalcularAlturaAccordion(boxPosMapa);
+        recalcularAlturaAccordion(boxEdifDivisasPanel);
         update();
     }
 
@@ -789,30 +848,37 @@
 
         const medOk = document.getElementById('sel_medidas').value;
         const mapaOk = document.getElementById('sel_mapa').value;
+        const pMetodo = document.getElementById('p_metodo');
+        const pIntroConstatado = document.getElementById('p_intro_constatado');
         const liBci = document.getElementById('li_bci');
-        if (medOk === "Sim" && mapaOk === "Sim") liBci.innerText = "O BCI foi preenchido com as informações de campo.";
-        else liBci.innerText = "O BCI foi preenchido para a atualização cadastral com efeito fiscal, não sendo referência para quaisquer correções do Lote junto ao registro de imóveis.";
-
         const liConf = document.getElementById('li_conferencia');
         const quadroMedidasDoc = document.getElementById('quadro_medidas_doc');
         const blockConstatacoes = document.getElementById('block_constatacoes');
 
-        if (medOk === "Sim" && mapaOk === "Sim") {
-            liConf.innerText = "As medidas perimetrais e a localização do imóvel conferem com a planta e memorial descritivo do lote;";
-            quadroMedidasDoc.style.display = "none";
-            blockConstatacoes.style.display = "block";
-        } else if (medOk === "Não" && mapaOk === "Sim") {
-            liConf.innerText = "As medidas perimetrais não correspondem com a planta e memorial descritivo do lote, conforme quadro abaixo, contudo a localização do imóvel confere com a planta de situação;";
-            quadroMedidasDoc.style.display = "block";
+        // Método e a frase "Durante a vistoria, foi constatado que:" aparecem sempre
+        pMetodo.style.display = "block";
+        pIntroConstatado.style.display = "block";
+
+        if (mapaOk === "Não") {
+            // Quando Mapa = Não, oculta edificação/divisas, quadro de medidas e BCI
             blockConstatacoes.style.display = "none";
-        } else if (medOk === "Sim" && mapaOk === "Não") {
-            liConf.innerText = "As medidas perimetrais correspondem com a planta e memorial descritivo apresentado, contudo a localização do imóvel não confere com a planta de situação;";
             quadroMedidasDoc.style.display = "none";
-            blockConstatacoes.style.display = "block";
+            liBci.style.display = "none";
+            liConf.innerText = "A localização não condiz com planta de situação.";
         } else {
-            liConf.innerText = "As medidas perimetrais e a localização do imóvel não correspondem com a planta e memorial descritivo do lote, conforme medidas apuradas abaixo:";
-            quadroMedidasDoc.style.display = "block";
-            blockConstatacoes.style.display = "none";
+            liBci.style.display = "block";
+
+            if (medOk === "Sim") {
+                liBci.innerText = "O BCI foi preenchido com as informações de campo.";
+                liConf.innerText = "As medidas perimetrais e a localização do imóvel conferem com a planta e memorial descritivo do lote;";
+                quadroMedidasDoc.style.display = "none";
+                blockConstatacoes.style.display = "block";
+            } else {
+                liBci.innerText = "O BCI foi preenchido para a atualização cadastral com efeito fiscal, não sendo referência para quaisquer correções do Lote junto ao registro de imóveis.";
+                liConf.innerText = "As medidas perimetrais não correspondem com a planta e memorial descritivo do lote, conforme quadro abaixo, contudo a localização do imóvel confere com a planta de situação;";
+                quadroMedidasDoc.style.display = "block";
+                blockConstatacoes.style.display = "none";
+            }
         }
 
         document.getElementById('td_out_frente').innerText = document.getElementById('med_frente').value || "___";
@@ -830,12 +896,25 @@
         
         document.getElementById('out_texto_relatorio').innerText = `Vistoria in loco realizada em ${dtV}, às ${hrV}, conforme informações do requerimento (fls. ${document.getElementById('req_fls').value || "___"}, ID: ${document.getElementById('req_id').value || "___"}), certidão de inteiro teor (fls. ${document.getElementById('cert_fls').value || "___"}, ID: ${document.getElementById('cert_id').value || "___"}) e mapa e memorial descritivo (fls. ${document.getElementById('mapa_fls').value || "___"}, ID: ${document.getElementById('mapa_id').value || "___"}), em atendimento à Ordem de Serviço Fiscal Nº ${document.getElementById('osf_num').value || "___"} (ID: ${document.getElementById('osf_id').value || "___"}).`;
 
-        let h1 = (statusP === "NORMAL") ? `<tr><td class="col-pergunta">Número predial corresponde ao lote:</td><td class="col-x">${document.getElementById('sel_predial_val').value === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${document.getElementById('sel_predial_val').value === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>` : `<tr><td class="col-pergunta">Número predial corresponde ao lote:</td><td colspan="4" class="merged-cell">${statusP}</td></tr>`;
-        const rows = [ { l: "O requerente reside no local:", v: document.getElementById('sel_reside').value }, { l: "A localização no mapa corresponde com o campo:", v: mapaOk }, { l: "As medidas do lote estão corretas:", v: medOk }, { l: "Existe comércio no local:", v: document.getElementById('sel_comercio').value } ];
-        let hr = ""; 
-        rows.forEach(r => { 
-            hr += `<tr><td class="col-pergunta">${r.l}</td><td class="col-x">${r.v === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${r.v === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>`; 
-        });
+        // Montagem da Tabela do Quadro Técnico
+        let h1 = (statusP === "NORMAL") 
+            ? `<tr><td class="col-pergunta">Número predial corresponde ao lote:</td><td class="col-x">${document.getElementById('sel_predial_val').value === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${document.getElementById('sel_predial_val').value === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>` 
+            : `<tr><td class="col-pergunta">Número predial corresponde ao lote:</td><td colspan="4" class="merged-cell">${statusP}</td></tr>`;
+        
+        const valReside = document.getElementById('sel_reside').value;
+        let hr = "";
+        hr += `<tr><td class="col-pergunta">O requerente reside no local:</td><td class="col-x">${valReside === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${valReside === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>`;
+        hr += `<tr><td class="col-pergunta">A localização no mapa corresponde com o campo:</td><td class="col-x">${mapaOk === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${mapaOk === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>`;
+
+        if (mapaOk === "Não") {
+            hr += `<tr><td class="col-pergunta">As medidas do lote estão corretas:</td><td colspan="4" class="merged-cell">NÃO VERIFICADO</td></tr>`;
+            hr += `<tr><td class="col-pergunta">Existe comércio no local:</td><td colspan="4" class="merged-cell">NÃO VERIFICADO</td></tr>`;
+        } else {
+            const valComercio = document.getElementById('sel_comercio').value;
+            hr += `<tr><td class="col-pergunta">As medidas do lote estão corretas:</td><td class="col-x">${medOk === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${medOk === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>`;
+            hr += `<tr><td class="col-pergunta">Existe comércio no local:</td><td class="col-x">${valComercio === "Sim" ? "X" : ""}</td><td class="col-label">Sim</td><td class="col-x">${valComercio === "Não" ? "X" : ""}</td><td class="col-label">Não</td></tr>`;
+        }
+
         document.getElementById('corpoTabela').innerHTML = h1 + hr;
         document.getElementById('out_metodo').innerText = document.getElementById('sel_metodo').value;
     }
