@@ -494,7 +494,7 @@
             <p>Prefeitura Municipal de Ji-Paraná • SEMURFH</p>
         </div>
         <div class="header-actions">
-            <a href=index.html" class="btn btn-secondary" style="text-decoration: none; color: white;" onclick="if(!confirm('Deseja voltar ao menu principal? Certifique-se de ter salvo o rascunho.')) return false;">⬅️ Menu Principal</a>
+            <a href="index.html" class="btn btn-secondary" style="text-decoration: none; color: white;" onclick="if(!confirm('Deseja voltar ao menu principal? Certifique-se de ter salvo o rascunho.')) return false;">⬅️ Menu Principal</a>
             <button type="button" class="btn btn-secondary" onclick="salvarRascunho()">💾 Salvar Rascunho</button>
             <button type="button" class="btn btn-secondary" onclick="document.getElementById('input_abrir_arquivo').click()">📂 Abrir Rascunho</button>
             <input type="file" id="input_abrir_arquivo" accept=".json" style="display: none;" onchange="carregarRascunhoArquivo(event)">
@@ -1847,10 +1847,12 @@
         const conteudo = JSON.stringify(pacote, null, 2);
         
         const setor = (dadosUnidades['A'] && dadosUnidades['A']['f_setor']) ? dadosUnidades['A']['f_setor'] : '';
+        const quadra = (dadosUnidades['A'] && dadosUnidades['A']['f_quadra']) ? dadosUnidades['A']['f_quadra'] : '';
         const lote = (dadosUnidades['A'] && dadosUnidades['A']['f_lote']) ? dadosUnidades['A']['f_lote'] : '';
-        const nomeSugerido = (setor || lote) 
-            ? `rascunho_BCI_Setor_${setor}_Lote_${lote}.json` 
-            : `rascunho_BCI_${new Date().toISOString().slice(0,10)}.json`;
+        
+        const nomeSugerido = (setor || quadra || lote) 
+            ? `RASCUNHO DO BCI SETOR ${setor || 'X'} QUADRA ${quadra || 'X'} LOTE ${lote || 'X'}.json` 
+            : `RASCUNHO DO BCI_${new Date().toISOString().slice(0,10)}.json`;
 
         if ('showSaveFilePicker' in window) {
             try {
@@ -1982,12 +1984,11 @@
         return d;
     }
 
-    // Mantém a folha A4 do BCI sem destaque em azul nas opções
     function clsOpt(valorAtual, codigoEsperado, classesBase = '') {
         return classesBase.trim();
     }
 
-    // --- GERADOR MODULAR DE FOLHAS BCI (1 FOLHA A4 INDIVIDUAL POR UNIDADE) ---
+    // --- GERADOR MODULAR DE FOLHAS BCI ---
     function gerarFolhaIndividualBCI(d) {
         return `<div class="folha-a4">
     <div class="quadro-topo">
@@ -2742,7 +2743,6 @@ ${htmlFolhas}
             });
         });
 
-        // Monitora mudanças em todos os selects e textarea para aplicar o tom de azul
         const todosControles = document.querySelectorAll('#formBCI select.form-control, #formBCI textarea.form-control');
         todosControles.forEach(el => {
             el.addEventListener('change', function() {
