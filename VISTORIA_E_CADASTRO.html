@@ -30,6 +30,9 @@
         input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; font-size: 13px; }
         .row-flex { display: flex; gap: 5px; }
 
+        .btn-reset-texto { background: #95a5a6; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-reset-texto:hover { background: #7f8c8d; }
+
         /* Estilo das Checkboxes de Divisas */
         .checkbox-group { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
         .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; margin-top: 0; }
@@ -65,6 +68,21 @@
 
         .doc-body p { margin: 6px 0; line-height: 1.4; text-align: justify; font-size: 14.5px; text-indent: 1.25cm; }
         
+        /* Destaque sutil na tela indicando que o parágrafo é editável diretamente */
+        #out_texto_relatorio {
+            border-radius: 4px;
+            transition: background-color 0.2s, outline 0.2s;
+            cursor: text;
+        }
+        #out_texto_relatorio:hover {
+            background-color: #f8fbff;
+            outline: 1px dashed #2980b9;
+        }
+        #out_texto_relatorio:focus {
+            background-color: #f0f7ff;
+            outline: 1.5px solid #2980b9;
+        }
+
         #out_obs_container { 
             margin: 10px 0; 
             line-height: 1.4; 
@@ -102,6 +120,7 @@
             }
             .panel, #btn_home { display: none !important; } 
             .preview-container { background: white; padding: 0; margin: 0; display: block; } 
+            #out_texto_relatorio { background: none !important; outline: none !important; }
             .document { 
                 box-shadow: none; 
                 margin: 0; 
@@ -150,9 +169,9 @@
     <button class="aba-retratil">2. DATA E LOCALIZAÇÃO <span>▼</span></button>
     <div class="conteudo-aba">
         <label>Data da Vistoria</label>
-        <input type="date" id="rel_data" oninput="update()">
+        <input type="date" id="rel_data" oninput="onCampoBaseRelatorioChange()">
         <label>Hora</label>
-        <input type="time" id="rel_hora" oninput="update()">
+        <input type="time" id="rel_hora" oninput="onCampoBaseRelatorioChange()">
         <label>Setor / Quadra / Lote</label>
         <div class="row-flex">
             <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
@@ -165,19 +184,25 @@
     <div class="conteudo-aba">
         <label>Fls. Requerimento / ID Requerimento</label>
         <div class="row-flex">
-            <input type="text" id="fls_req_num" placeholder="Fls. Nº" oninput="update()">
-            <input type="text" id="fls_req_id" placeholder="ID Requerimento" oninput="update()">
+            <input type="text" id="fls_req_num" placeholder="Fls. Nº" oninput="onCampoBaseRelatorioChange()">
+            <input type="text" id="fls_req_id" placeholder="ID Requerimento" oninput="onCampoBaseRelatorioChange()">
         </div>
         <label>Fls. Mapa e Memorial / ID Mapa</label>
         <div class="row-flex">
-            <input type="text" id="fls_mapa_num" placeholder="Fls. Nº" oninput="update()">
-            <input type="text" id="fls_mapa_id" placeholder="ID Mapa" oninput="update()">
+            <input type="text" id="fls_mapa_num" placeholder="Fls. Nº" oninput="onCampoBaseRelatorioChange()">
+            <input type="text" id="fls_mapa_id" placeholder="ID Mapa" oninput="onCampoBaseRelatorioChange()">
         </div>
         <label>Nº OSF / ID OSF</label>
         <div class="row-flex">
-            <input type="text" id="osf_num" placeholder="Nº OSF" oninput="update()">
-            <input type="text" id="osf_id" placeholder="ID OSF" oninput="update()">
+            <input type="text" id="osf_num" placeholder="Nº OSF" oninput="onCampoBaseRelatorioChange()">
+            <input type="text" id="osf_id" placeholder="ID OSF" oninput="onCampoBaseRelatorioChange()">
         </div>
+
+        <!-- Campo Editável do Texto do Relatório -->
+        <label>Texto do Relatório (Editável)</label>
+        <textarea id="in_texto_relatorio" rows="4" oninput="onTextoRelatorioManualInput()"></textarea>
+        <button type="button" class="btn-reset-texto" onclick="restaurarTextoRelatorioPadrao()">🔄 Restaurar Texto Padrão</button>
+
         <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ddd;">
         <label>Estado do Lote</label>
         <select id="sel_status" onchange="toggleEdificacao()">
@@ -279,7 +304,7 @@
             
             <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
             
-            <p id="out_texto_relatorio"></p>
+            <p id="out_texto_relatorio" contenteditable="true" title="Clique aqui para editar este texto diretamente na folha" oninput="onDocumentoRelatorioInput()"></p>
             <ul class="constatacao-list">
                 <li id="out_edificacao"></li>
                 <li id="out_divisas"></li>
@@ -306,11 +331,14 @@
 </div>
 
 <script>
+    let textoRelatorioEditadoManualmente = false;
+
     const camposFormulario = [
         'sel_fiscal', 'in_data_doc_calendario',
         'in_proc', 'in_nome', 'in_assunto',
         'rel_data', 'rel_hora', 'loc_setor', 'loc_quadra', 'loc_lote',
         'fls_req_num', 'fls_req_id', 'fls_mapa_num', 'fls_mapa_id', 'osf_num', 'osf_id',
+        'in_texto_relatorio',
         'sel_status', 'sel_material', 'in_outro_material',
         'sel_divisas', 'sel_conf_localizacao', 'sel_conf_medidas',
         'in_obs', 'in_encaminhamento'
@@ -401,9 +429,45 @@
         window.print();
     }
 
+    // --- CONTROLE DO TEXTO EDITÁVEL DO RELATÓRIO ---
+    function gerarTextoRelatorioPadrao() {
+        const dV = document.getElementById('rel_data').value.split('-').reverse().join('/');
+        const hV = document.getElementById('rel_hora').value || "__:__";
+        return `Vistoria in loco realizada em ${dV}, às ${hV}, conforme informações do requerimento (fls. ${document.getElementById('fls_req_num').value || "___"}, ID: ${document.getElementById('fls_req_id').value || "___"}), e mapa e memorial descritivo (fls. ${document.getElementById('fls_mapa_num').value || "___"}, ID: ${document.getElementById('fls_mapa_id').value || "___"}), em atendimento à Ordem de Serviço Fiscal Nº ${document.getElementById('osf_num').value || "___"} (ID: ${document.getElementById('osf_id').value || "___"}). Onde foi possível constatar que:`;
+    }
+
+    function onCampoBaseRelatorioChange() {
+        if (!textoRelatorioEditadoManualmente) {
+            const textoGerado = gerarTextoRelatorioPadrao();
+            document.getElementById('in_texto_relatorio').value = textoGerado;
+            document.getElementById('out_texto_relatorio').innerText = textoGerado;
+        }
+        update();
+    }
+
+    function onTextoRelatorioManualInput() {
+        textoRelatorioEditadoManualmente = true;
+        document.getElementById('out_texto_relatorio').innerText = document.getElementById('in_texto_relatorio').value;
+    }
+
+    function onDocumentoRelatorioInput() {
+        textoRelatorioEditadoManualmente = true;
+        document.getElementById('in_texto_relatorio').value = document.getElementById('out_texto_relatorio').innerText;
+    }
+
+    function restaurarTextoRelatorioPadrao() {
+        textoRelatorioEditadoManualmente = false;
+        const textoGerado = gerarTextoRelatorioPadrao();
+        document.getElementById('in_texto_relatorio').value = textoGerado;
+        document.getElementById('out_texto_relatorio').innerText = textoGerado;
+        exibirMensagem("🔄 Texto padrão restaurado!", "#2980b9");
+    }
+
     // --- SALVAR, ABRIR RASCUNHO (.JSON) E LIMPAR ---
     async function salvarRascunhoArquivo() {
-        const estadoAtual = {};
+        const estadoAtual = {
+            _textoRelatorioEditadoManualmente: textoRelatorioEditadoManualmente
+        };
         camposFormulario.forEach(id => {
             estadoAtual[id] = document.getElementById(id).value;
         });
@@ -466,6 +530,15 @@
                     }
                 });
 
+                textoRelatorioEditadoManualmente = Boolean(dados._textoRelatorioEditadoManualmente);
+                if (dados.in_texto_relatorio !== undefined) {
+                    document.getElementById('out_texto_relatorio').innerText = dados.in_texto_relatorio;
+                } else {
+                    const padrao = gerarTextoRelatorioPadrao();
+                    document.getElementById('in_texto_relatorio').value = padrao;
+                    document.getElementById('out_texto_relatorio').innerText = padrao;
+                }
+
                 toggleEdificacao();
                 toggleOutroMaterial();
                 toggleCamposDivisas();
@@ -507,6 +580,11 @@
 
         document.getElementById('chk_divisa_todas').checked = true;
         document.querySelectorAll('.chk-divisa').forEach(chk => chk.checked = true);
+
+        textoRelatorioEditadoManualmente = false;
+        const padrao = gerarTextoRelatorioPadrao();
+        document.getElementById('in_texto_relatorio').value = padrao;
+        document.getElementById('out_texto_relatorio').innerText = padrao;
 
         toggleEdificacao();
         toggleOutroMaterial();
@@ -599,10 +677,11 @@
             document.getElementById('out_data_footer').innerText = `Ji-Paraná, ${parseInt(dt[2])} de ${meses[parseInt(dt[1])-1]} de ${dt[0]}.`;
         }
 
-        const dV = document.getElementById('rel_data').value.split('-').reverse().join('/');
-        const hV = document.getElementById('rel_hora').value || "__:__";
-        
-        document.getElementById('out_texto_relatorio').innerText = `Vistoria in loco realizada em ${dV}, às ${hV}, conforme informações do requerimento (fls. ${document.getElementById('fls_req_num').value || "___"}, ID: ${document.getElementById('fls_req_id').value || "___"}), e mapa e memorial descritivo (fls. ${document.getElementById('fls_mapa_num').value || "___"}, ID: ${document.getElementById('fls_mapa_id').value || "___"}), em atendimento à Ordem de Serviço Fiscal Nº ${document.getElementById('osf_num').value || "___"} (ID: ${document.getElementById('osf_id').value || "___"}). Onde foi possível constatar que:`;
+        if (!textoRelatorioEditadoManualmente) {
+            const padrao = gerarTextoRelatorioPadrao();
+            document.getElementById('in_texto_relatorio').value = padrao;
+            document.getElementById('out_texto_relatorio').innerText = padrao;
+        }
         
         const status = document.getElementById('sel_status').value;
         let mat = document.getElementById('sel_material').value;
