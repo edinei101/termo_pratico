@@ -2,9 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Termo Geral - SEMURFH</title>
+    <title>TERMO DE VISTORIA</title>
     <style>
         :root { --blue-semur: #2c3e50; --accent: #2980b9; }
+        @page { size: A4 portrait; margin: 0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f2f6; display: flex; gap: 20px; padding: 20px; margin: 0; min-height: 100vh; }
         
         /* BOTÃO COM ÍCONE PARA VOLTAR */
@@ -21,66 +22,118 @@
 
         .panel { flex: 0.8; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; height: 92vh; margin-top: 50px; }
         
-        .aba-retratil { background-color: #eee; color: #444; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; font-size: 13px; font-weight: bold; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between; }
-        .active, .aba-retratil:hover { background-color: var(--accent); color: white; }
+        .aba-retratil { background-color: #eee; color: #444; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; font-size: 13px; font-weight: bold; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between; transition: 0.2s; }
+        .active, .aba-retratil:hover { background-color: var(--blue-semur); color: white; }
         .conteudo-aba { padding: 10px 15px; display: none; background-color: white; border: 1px solid #ddd; border-top: none; overflow: hidden; border-radius: 0 0 5px 5px; }
 
         label { display: block; font-size: 10px; font-weight: bold; margin-top: 8px; color: var(--blue-semur); text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; font-size: 13px; }
         .row-flex { display: flex; gap: 5px; }
+
+        /* Botões de Ação na Parte Inferior */
+        .footer-buttons { margin-top: 20px; border-top: 1px solid #dcdde1; padding-top: 15px; }
+        .action-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .btn-action { flex: 1; border: none; padding: 12px 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-save { background: #2980b9; }
+        .btn-open { background: #8e44ad; }
+        .btn-clear { background: #e67e22; width: 100%; margin-bottom: 8px; }
+        .btn-print { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn-print:hover { background: #219150; }
+
+        .toast-msg { display: none; background: #2ecc71; color: white; text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
 
         .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 50px; }
         .document { 
             background: white; width: 210mm; height: 297mm; 
-            padding: 1.0cm 1.5cm 0.8cm 1.5cm; 
+            padding: 1.0cm 1.5cm 0.8cm 2.5cm; 
             box-shadow: 0 0 20px rgba(0,0,0,0.3); box-sizing: border-box; position: relative; 
             overflow: hidden; 
+            color: #000;
         }
 
-        .header-table { width: 100%; border-collapse: collapse; border-bottom: 1px solid #000; margin-bottom: 5px; }
-        .logo-img { width: 60px; height: 85px; object-fit: contain; }
-        .td-text { text-align: center; line-height: 1.1; padding-right: 60px; }
-        .td-text h2 { font-size: 14px; margin: 0; text-transform: uppercase; }
-        .td-text h3 { font-size: 13px; margin: 0; font-weight: normal; }
+        /* Cabeçalho com os 2 Logos */
+        .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #000; margin-bottom: 8px; }
+        .logo-img { width: 75px; height: auto; object-fit: contain; }
+        .logo-img-large { width: 150px; height: auto; object-fit: contain; }
+        .logo-right { text-align: right; }
+        .td-text { text-align: center; vertical-align: middle; line-height: 1.15; }
+        .td-text h2 { font-size: 15px; margin: 0; text-transform: uppercase; }
+        .td-text h3 { font-size: 13px; margin: 2px 0 0 0; font-weight: normal; }
 
-        .doc-body p { margin: 6px 0; line-height: 1.4; text-align: justify; font-size: 14.5px; text-indent: 1.25cm; }
+        .doc-body p { 
+            margin: 6px 0; 
+            line-height: 1.45; 
+            text-align: justify; 
+            font-size: 14.5px; 
+            text-indent: 1.25cm; 
+        }
         
         #out_intro_tecnica {
             outline: none;
             border-radius: 3px;
             transition: background 0.2s;
+            cursor: text;
+        }
+        #out_intro_tecnica:hover {
+            background-color: #f8fbff;
+            outline: 1px dashed #2980b9;
         }
         #out_intro_tecnica:focus {
             background-color: #fffde7;
+            outline: 1.5px solid #2980b9;
         }
 
+        /* Contêiner de múltiplos parágrafos alinhados e justificados */
         #out_texto_livre { 
-            margin: 10px 0; 
-            line-height: 1.6; 
-            text-align: justify; 
-            font-size: 14.5px; 
-            text-indent: 1.25cm; 
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            margin: 8px 0; 
             display: block;
             width: 100%;
         }
+        #out_texto_livre p {
+            margin: 6px 0;
+            line-height: 1.45;
+            text-align: justify;
+            font-size: 14.5px;
+            text-indent: 1.25cm;
+            word-wrap: break-word;
+        }
 
-        .loc-center { text-align: center !important; font-weight: bold; margin: 12px 0 !important; font-size: 15px; border: 1px solid #eee; padding: 4px; text-indent: 0 !important; }
-        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 16px; text-indent: 0 !important; }
+        .loc-center { text-align: center !important; font-weight: bold; margin: 12px 0 !important; font-size: 15px; border: 1px solid #000; background: #f2f2f2; padding: 5px; text-indent: 0 !important; }
+        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 17px; text-indent: 0 !important; }
         
         #out_data_footer { text-align: right; margin-top: 15px; margin-bottom: 5px; font-size: 14.5px; display: block; width: 100%; }
-        .signature { margin-top: 30px; text-align: center; font-size: 13.5px; color: black; }
-        .signature p { margin: 0; line-height: 1.1; text-indent: 0 !important; }
+        .signature { margin-top: 30px; text-align: center; font-size: 13.5px; color: black; page-break-inside: avoid; }
+        .signature p { margin: 1px 0; line-height: 1.15; text-indent: 0 !important; }
         
-        .footer-note { position: absolute; bottom: 0.8cm; left: 1.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
+        .footer-note { position: absolute; bottom: 0.8cm; left: 2.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
         
         @media print { 
-            @page { size: A4; margin: 0; }
-            body { background: white; padding: 0; } 
+            @page { size: A4 portrait; margin: 0; }
+            html, body { 
+                width: 210mm; 
+                height: 297mm; 
+                background: white; 
+                padding: 0; 
+                margin: 0; 
+                display: block; 
+                overflow: hidden; 
+            } 
             .panel, #btn_home { display: none !important; } 
             .preview-container { background: white; padding: 0; display: block; margin-top: 0; } 
-            .document { box-shadow: none; margin: 0 auto; border: none; height: 297mm; } 
+            #out_intro_tecnica { background: none !important; outline: none !important; }
+            .document { 
+                box-shadow: none; 
+                margin: 0; 
+                border: none; 
+                width: 210mm; 
+                height: 297mm; 
+                min-height: 297mm;
+                max-height: 297mm;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+                overflow: hidden;
+            } 
         }
     </style>
 </head>
@@ -121,7 +174,7 @@
         <label>Data da Vistoria e Hora</label>
         <div class="row-flex">
             <input type="date" id="rel_data" oninput="atualizarCamposIntro()">
-            <input type="time" id="rel_hora" value="--:--" oninput="atualizarCamposIntro()">
+            <input type="time" id="rel_hora" value="" oninput="atualizarCamposIntro()">
         </div>
         <label>Setor / Quadra / Lote</label>
         <div class="row-flex">
@@ -154,7 +207,7 @@
         <label style="color: #d35400;">Texto Introdutório da Vistoria (Editável):</label>
         <textarea id="in_intro_tecnica" rows="5" oninput="editarIntroManual()"></textarea>
 
-        <label>Texto da Constatação (Até 15 linhas):</label>
+        <label>Texto da Constatação (Pressione Enter para novo parágrafo alinhado):</label>
         <textarea id="in_texto_livre" rows="12" placeholder="Digite aqui o que foi constatado..." oninput="updateCabecalhoRodape()"></textarea>
     </div>
 
@@ -164,23 +217,36 @@
         <textarea id="in_encaminhamento" rows="3" oninput="updateCabecalhoRodape()">ao setor de cadastro para o prosseguimento que o caso requer.</textarea>
     </div>
 
-    <button style="background:#27ae60; color:white; border:none; padding:15px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 20px;" onclick="window.print()">🖨️ IMPRIMIR / PDF</button>
+    <!-- Botões na Parte Inferior -->
+    <div class="footer-buttons">
+        <div id="toast_msg" class="toast-msg"></div>
+        
+        <div class="action-row">
+            <button class="btn-action btn-save" onclick="salvarRascunhoArquivo()">💾 SALVAR RASCUNHO</button>
+            <button class="btn-action btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 ABRIR RASCUNHO</button>
+            <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
+        </div>
+        
+        <button class="btn-action btn-clear" onclick="limparFormulario(true)">🧹 LIMPAR TUDO</button>
+        <button class="btn-print" onclick="imprimirDocumento()">🖨️ IMPRIMIR / PDF</button>
+    </div>
 </div>
 
 <div class="preview-container">
     <div class="document">
         <table class="header-table">
             <tr>
-                <td style="width: 60px;"><img src="logo.jpg" class="logo-img"></td>
+                <td style="width: 75px;"><img src="logo.jpg" class="logo-img"></td>
                 <td class="td-text">
                     <h2>Estado de Rondônia</h2>
                     <h2>Prefeitura Municipal de Ji-Paraná</h2>
                     <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
                 </td>
+                <td style="width: 150px;" class="logo-right"><img src="logo2.png" class="logo-img-large"></td>
             </tr>
         </table>
         
-        <div class="doc-title" id="out_titulo_doc">TERMO GERAL</div>
+        <div class="doc-title" id="out_titulo_doc">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
         <div class="doc-body">
             <p style="text-indent: 0;"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
             <p style="text-indent: 0;"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
@@ -199,9 +265,9 @@
 
         <div class="signature">
             <p>Assinado Eletronicamente</p>
-            <p><strong id="out_nome_fiscal">Ednei Vicente de Carvalho Sousa</strong></p>
+            <p><strong id="out_nome_fiscal">Edinei Vicente de Carvalho Sousa</strong></p>
             <p id="out_funcao_fiscal">Fiscal de Obras e Serviços Públicos</p>
-            <p id="out_cad_fiscal" style="font-size: 11px;">Cad: nº 8.273</p>
+            <p id="out_cad_fiscal" style="font-size: 11px;">Cad.: nº 8.273</p>
         </div>
         
         <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – 02 de Abril - Ji-Paraná – Rondônia.</div>
@@ -209,59 +275,57 @@
 </div>
 
 <script>
+    const camposFormulario = [
+        'sel_fiscal', 'in_data_doc_calendario',
+        'in_titulo_doc', 'in_proc', 'in_nome', 'in_assunto',
+        'rel_data', 'rel_hora', 'loc_setor', 'loc_quadra', 'loc_lote',
+        'fls_req_num', 'fls_req_id', 'fls_mapa_num', 'fls_mapa_id', 'osf_num', 'osf_id',
+        'in_intro_tecnica', 'in_texto_livre', 'in_encaminhamento'
+    ];
+
     const listaFiscais = [
-        
-    { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
-  // Agente de Vigilância sanitária
+        { id: 1, nome: "Edinei Vicente de Carvalho Sousa", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 8.273" },
+        // Agente de Vigilância sanitária
+        { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
 
+        // Fiscal Fazendario
+        { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" }, 
+        { id: 23, nome: "Amauri Benedito", funcao: "Fiscal Fazendario", cad: "nº 2.212" },
+        { id: 21, nome: "Éder Nardoni, Fiscal fazendário", funcao: "Fiscal Fazendario", cad: "nº 1.497" }, 
+        { id: 19, nome: "Leandro Ualan Rodrigues Galdino", funcao: "Fiscal Fazendario", cad: "nº 15.052" },
+        { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
+        { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
 
-  { id: 14, nome: "Rosilda Valério da Silva Souza", funcao: "Agente de Vigilância sanitária", cad: "nº 96.647" },
+        // Fiscal Fundiário
+        { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
+        { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
 
-  // Fiscal Fazendario
-  { id: 16, nome: "Adivaldo Souza Lima", funcao: "Fiscal Fazendario", cad: "nº 10.346" }, 
-{ id: 23, nome: "Amauri Benedito", funcao: "Fiscal Fazendario", cad: "nº 2.212" },
-  { id: 21, nome: "Éder Nardoni, Fiscal fazendário", funcao: "Fiscal Fazendario", cad: "nº 1.497" }, 
-  { id: 19, nome: "Leandro Ualan Rodrigues Galdino", funcao: "Fiscal Fazendario", cad: "nº 15.052" },
-  { id: 17, nome: "Patrícia Fernanda de Lima", funcao: "Fiscal Fazendario", cad: "nº 14.680" },
-  { id: 15, nome: "Vera Lucia Lucena Ribeiro", funcao: "Fiscal Fazendario", cad: "nº 2.002" },
+        // Fiscal de Obras e Serviços Públicos
+        { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
+        { id: 4, nome: "Jose Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
 
-  // Fiscal Fundiário
-  { id: 6, nome: "Venancio Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.192" },
-  { id: 5, nome: "Vanessa Ferreira de Oliveira", funcao: "Fiscal Fundiário", cad: "nº 14.193" },
+        // Fiscal Obras e Posturas
+        { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
 
-  // Fiscal de Obras e Serviços Públicos
-  
-  { id: 2, nome: "Emanoel Miranda Cavalcante", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 12.194" },
-  { id: 4, nome: "Jose Flavio Rabelo", funcao: "Fiscal de Obras e Serviços Públicos", cad: "nº 10.153" },
+        // Fiscal Sanitário
+        { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
+        { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário", cad: "nº 12.388" },
+        { id: 13, nome: "Edeilton Henrique Maciel", funcao: "Fiscal Sanitário", cad: "nº 13.572" },
+        { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário", cad: "nº 10.977" },
+        { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
+        { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário", cad: "nº 12.393" },
+        { id: 12, nome: "Jose Renato Maynardes", funcao: "Fiscal Sanitário", cad: "nº 92.049" },
 
-  // Fiscal Obras e Posturas
-  { id: 3, nome: "Antônio Alves da Rocha Filho", funcao: "Fiscal Obras e Posturas", cad: "nº 94.946" },
-
-  // Fiscal Sanitário
-  { id: 11, nome: "Carlos Ferreira da Silva", funcao: "Fiscal Sanitário", cad: "nº 12.009" },
-  { id: 9, nome: "Dheime Sandra de Matos", funcao: "Fiscal Sanitário", cad: "nº 12.388" },
-  { id: 13, nome: "Edeilton Henrique Maciel", funcao: "Fiscal Sanitário", cad: "nº 13.572" },
-  { id: 8, nome: "Eliane Miranda Cavalcante Oliveira", funcao: "Fiscal Sanitário", cad: "nº 10.977" },
-  { id: 7, nome: "Fabiani Santiago Menezes", funcao: "Fiscal Sanitário", cad: "nº 11.343" },
-  { id: 10, nome: "Gilza Mara de Andrade Alves", funcao: "Fiscal Sanitário", cad: "nº 12.393" },
-  { id: 12, nome: "Jose Renato Maynardes", funcao: "Fiscal Sanitário", cad: "nº 92.049" },
-
-  // Secretário Municipal de SEMURFH
-  { id: 22, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025"}
+        // Secretário Municipal de SEMURFH
+        { id: 22, nome: "Antonio Marcos dos Santos", funcao: "Secretário Municipal de SEMURFH", cad: "Decreto nº 033/GAB/PMJP/2025"}
     ];
 
     window.onload = function() {
-        const d = new Date();
-        document.getElementById('in_data_doc_calendario').value = d.toISOString().split('T')[0];
-        document.getElementById('rel_data').value = d.toISOString().split('T')[0];
-
         const select = document.getElementById('sel_fiscal');
         listaFiscais.forEach(f => {
             let opt = document.createElement('option');
             opt.value = f.id; opt.text = f.nome; select.add(opt);
         });
-        
-        select.value = 1; // Ednei como padrão
 
         document.querySelectorAll('.aba-retratil').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -270,18 +334,145 @@
                 panel.style.display = (panel.style.display === "block") ? "none" : "block";
             });
         });
-        
+
+        limparFormulario(false);
+    };
+
+    function exibirMensagem(texto, cor = "#2ecc71") {
+        const toast = document.getElementById('toast_msg');
+        toast.style.backgroundColor = cor;
+        toast.innerText = texto;
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    function obterNomeBaseArquivo() {
+        const numProc = document.getElementById('in_proc').value.trim();
+        if (numProc) {
+            const procLimpo = numProc.replace(/[\/\\:*?"<>|]/g, '-');
+            return `TERMO DE VISTORIA ${procLimpo}`;
+        }
+        return "TERMO DE VISTORIA";
+    }
+
+    function atualizarTituloPDF() {
+        document.title = obterNomeBaseArquivo();
+    }
+
+    function imprimirDocumento() {
+        atualizarTituloPDF();
+        window.print();
+    }
+
+    // --- SALVAR, ABRIR RASCUNHO (.JSON) E LIMPAR ---
+    async function salvarRascunhoArquivo() {
+        const estadoAtual = {};
+        camposFormulario.forEach(id => {
+            estadoAtual[id] = document.getElementById(id).value;
+        });
+
+        const conteudoJson = JSON.stringify(estadoAtual, null, 2);
+        const nomeArquivo = `${obterNomeBaseArquivo()}.json`;
+
+        if (window.showSaveFilePicker) {
+            try {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: nomeArquivo,
+                    types: [{
+                        description: 'Arquivo de Rascunho JSON',
+                        accept: { 'application/json': ['.json'] }
+                    }]
+                });
+                const writable = await handle.createWritable();
+                await writable.write(conteudoJson);
+                await writable.close();
+                exibirMensagem("✔ Rascunho salvo com sucesso!");
+                return;
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+            }
+        }
+
+        const blob = new Blob([conteudoJson], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = nomeArquivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        exibirMensagem("✔ Rascunho salvo!");
+    }
+
+    function abrirRascunhoArquivo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+
+                camposFormulario.forEach(id => {
+                    if (dados[id] !== undefined) {
+                        document.getElementById(id).value = dados[id];
+                    }
+                });
+
+                document.getElementById('out_intro_tecnica').innerText = document.getElementById('in_intro_tecnica').value;
+                atualizarAssinatura();
+                updateCabecalhoRodape();
+                exibirMensagem("📂 Rascunho carregado com sucesso!", "#8e44ad");
+            } catch (err) {
+                alert("Erro ao ler o arquivo de rascunho. Verifique se é um arquivo .json válido.");
+            }
+            event.target.value = "";
+        };
+        reader.readAsText(file);
+    }
+
+    function limparFormulario(confirmar = true) {
+        if (confirmar && !confirm("Deseja limpar todos os campos preenchidos para iniciar um novo documento?")) {
+            return;
+        }
+
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('in_data_doc_calendario').value = hoje;
+        document.getElementById('rel_data').value = hoje;
+        document.getElementById('rel_hora').value = "";
+
+        const camposTexto = [
+            'in_proc', 'in_nome', 'loc_setor', 'loc_quadra', 'loc_lote',
+            'fls_req_num', 'fls_req_id', 'fls_mapa_num', 'fls_mapa_id', 'osf_num', 'osf_id',
+            'in_texto_livre'
+        ];
+        camposTexto.forEach(id => document.getElementById(id).value = "");
+
+        document.getElementById('sel_fiscal').value = 1;
+        document.getElementById('in_titulo_doc').value = "TERMO DE VISTORIA CIRCUNSTANCIADO - TVC";
+        document.getElementById('in_assunto').value = "VISTORIA E CADASTRO";
+        document.getElementById('in_encaminhamento').value = "ao setor de cadastro para o prosseguimento que o caso requer.";
+
         atualizarAssinatura();
         atualizarCamposIntro();
         updateCabecalhoRodape();
-    };
+
+        if (confirmar) {
+            exibirMensagem("🧹 Campos limpos!", "#e67e22");
+        }
+    }
 
     function atualizarAssinatura() {
         const f = listaFiscais.find(x => x.id == document.getElementById('sel_fiscal').value);
         if (f) {
             document.getElementById('out_nome_fiscal').innerText = f.nome;
             document.getElementById('out_funcao_fiscal').innerText = f.funcao;
-            document.getElementById('out_cad_fiscal').innerText = f.cad;
+            document.getElementById('out_cad_fiscal').innerText = "Cad.: " + f.cad;
+        } else {
+            document.getElementById('out_nome_fiscal').innerText = "________________________________";
+            document.getElementById('out_funcao_fiscal').innerText = "Fiscal de Obras e Serviços Públicos";
+            document.getElementById('out_cad_fiscal').innerText = "";
         }
     }
 
@@ -312,9 +503,11 @@
         document.getElementById('in_intro_tecnica').value = document.getElementById('out_intro_tecnica').innerText;
     }
 
-    // Atualiza o restante do documento sem sobrescrever a edição manual do texto introdutório
+    // Atualiza o restante do documento e renderiza cada parágrafo com recuo e justificação
     function updateCabecalhoRodape() {
-        document.getElementById('out_titulo_doc').innerText = document.getElementById('in_titulo_doc').value || "TERMO GERAL";
+        atualizarTituloPDF();
+
+        document.getElementById('out_titulo_doc').innerText = document.getElementById('in_titulo_doc').value || "TERMO DE VISTORIA CIRCUNSTANCIADO - TVC";
         document.getElementById('out_proc').innerText = document.getElementById('in_proc').value || "_________";
         document.getElementById('out_nome').innerText = document.getElementById('in_nome').value || "_________";
         document.getElementById('out_assunto').innerText = document.getElementById('in_assunto').value;
@@ -323,14 +516,30 @@
         document.getElementById('out_lote').innerText = document.getElementById('loc_lote').value || "__";
         document.getElementById('out_encaminhamento').innerText = document.getElementById('in_encaminhamento').value;
 
-        const dtDoc = document.getElementById('in_data_doc_calendario').value.split('-');
-        if(dtDoc.length === 3) {
-            const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-            document.getElementById('out_data_footer').innerText = `Ji-Paraná, ${parseInt(dtDoc[2])} de ${meses[parseInt(dtDoc[1])-1]} de ${dtDoc[0]}.`;
+        const dtInput = document.getElementById('in_data_doc_calendario').value;
+        if (dtInput) {
+            const dt = dtInput.split('-');
+            if (dt.length === 3) {
+                const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+                document.getElementById('out_data_footer').innerText = `Ji-Paraná, ${parseInt(dt[2])} de ${meses[parseInt(dt[1])-1]} de ${dt[0]}.`;
+            }
         }
 
+        // Renderiza cada linha/parágrafo como <p> independente, mantendo recuo (1.25cm) e texto justificado
         const texto = document.getElementById('in_texto_livre').value;
-        document.getElementById('out_texto_livre').innerText = texto ? texto : "";
+        const containerTexto = document.getElementById('out_texto_livre');
+        containerTexto.innerHTML = "";
+
+        if (texto.trim()) {
+            const paragrafos = texto.split(/\r?\n/);
+            paragrafos.forEach(linha => {
+                if (linha.trim() !== "") {
+                    const p = document.createElement('p');
+                    p.innerText = linha.trim();
+                    containerTexto.appendChild(p);
+                }
+            });
+        }
     }
 </script>
 </body>
