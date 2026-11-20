@@ -230,6 +230,31 @@
             border-left: 5px solid #f59e0b;
         }
 
+        .toggle-edicao-livre {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1.5px solid #f59e0b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            color: #78350f;
+            cursor: pointer;
+            margin-top: 8px;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .toggle-edicao-livre:hover {
+            background: #fffbeb;
+        }
+        .toggle-edicao-livre input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0056b3;
+            cursor: pointer;
+        }
+
         /* Abas de Navegação das Seções do Formulário */
         .tabs-nav {
             display: flex;
@@ -521,7 +546,7 @@
                 <input type="radio" name="modo_lote" id="radio_multiplo" value="multiplo">
                 <div class="mode-option-text">
                     <h4>Múltiplas Edificações / Unidades</h4>
-                    <p>Mais de um imóvel no mesmo lote (prédio com apartamentos, conjunto de lojas, casas aos fundos). <strong>Apenas a Aba 6 (Edificação) fica disponível</strong> para os novos BCIs (B, C, D...), herdando os dados cadastrais da Unidade A e preenchendo o terreno com 'X'.</p>
+                    <p>Mais de um imóvel no mesmo lote (prédio com apartamentos, conjunto de lojas, casas aos fundos). Por padrão herda os dados cadastrais da Unidade A, mas permite <strong>habilitar a edição individual</strong> para cada nova unidade (B, C, D...).</p>
                 </div>
             </label>
         </div>
@@ -547,7 +572,7 @@
 
     <!-- BANNER DE STATUS DA UNIDADE ATIVA -->
     <div class="banner-unidade-status" id="banner_status_unidade">
-        <!-- Preenchido via JS com instruções claras -->
+        <!-- Preenchido via JS com instruções claras e seletor de desbloqueio -->
     </div>
 
     <!-- NAVEGAÇÃO POR ABAS -->
@@ -568,8 +593,11 @@
         <div class="tab-content active" id="aba-0">
             <div id="box_bloqueio_aba_0" class="card-aba-bloqueada" style="display: none;">
                 <h3>🔒 Inscrição Cadastral Herdada da Unidade A</h3>
-                <p>Os dados do Lote (Setor, Loteamento, Quadra, Lote e Dígito) são compartilhados com a Unidade A. O campo <strong>UNIDADE</strong> foi configurado automaticamente em segundo plano para esta unidade.</p>
-                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                <p>Os dados do Lote (Setor, Loteamento, Quadra, Lote e Dígito) são compartilhados com a Unidade A. Caso precise editar esta aba para esta unidade, ative o seletor no painel acima ou clique no botão abaixo.</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-outline" onclick="alternarEdicaoLivreUnidade(true)">🔓 Habilitar Edição Nesta Unidade</button>
+                    <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                </div>
             </div>
 
             <div id="campos_aba_0">
@@ -577,7 +605,7 @@
                 <div class="grid-row grid-6">
                     <div class="form-group">
                         <label><span class="badge">06</span>Setor</label>
-                        <input type="text" class="form-control" id="f_setor" maxlength="4" placeholder="Ex: 001 ou 0001">
+                        <input type="text" class="form-control" id="f_setor" maxlength="15" placeholder="Até 15 caracteres">
                     </div>
                     <div class="form-group">
                         <label>Loteamento</label>
@@ -617,7 +645,7 @@
                 <div class="grid-row grid-6">
                     <div class="form-group">
                         <label>Setor Ant.</label>
-                        <input type="text" class="form-control" id="f_ant_setor" maxlength="4" placeholder="Ex: 001 ou 0001">
+                        <input type="text" class="form-control" id="f_ant_setor" maxlength="15" placeholder="Até 15 caracteres">
                     </div>
                     <div class="form-group">
                         <label>Loteamento Ant.</label>
@@ -652,8 +680,11 @@
         <div class="tab-content" id="aba-1">
             <div id="box_bloqueio_aba_1" class="card-aba-bloqueada" style="display: none;">
                 <h3>🔒 Endereço do Imóvel Herdado da Unidade A</h3>
-                <p>O endereço do lote é idêntico ao cadastrado na Unidade A. O campo Complemento pode ser ajustado especificamente para esta unidade na Aba de Edificação se necessário.</p>
-                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                <p>O endereço do lote está herdado da Unidade A. Caso queira editar o complemento ou outro campo de endereço exclusivamente para esta unidade, habilite a edição abaixo.</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-outline" onclick="alternarEdicaoLivreUnidade(true)">🔓 Habilitar Edição Nesta Unidade</button>
+                    <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                </div>
             </div>
 
             <div id="campos_aba_1">
@@ -743,8 +774,11 @@
         <div class="tab-content" id="aba-2">
             <div id="box_bloqueio_aba_2" class="card-aba-bloqueada" style="display: none;">
                 <h3>🔒 Dados do Proprietário / Posseiro Herdados da Unidade A</h3>
-                <p>Os dados do proprietário (Nome, CPF/CNPJ, RG, Endereço de Correspondência) foram replicados automaticamente da Unidade A para este BCI.</p>
-                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                <p>Os dados do proprietário (Nome, CPF/CNPJ, RG, Endereço de Correspondência) foram replicados automaticamente da Unidade A. Caso esta unidade possua outro proprietário/posseiro, habilite a edição abaixo.</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-outline" onclick="alternarEdicaoLivreUnidade(true)">🔓 Habilitar Edição Nesta Unidade</button>
+                    <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                </div>
             </div>
 
             <div id="campos_aba_2">
@@ -793,8 +827,11 @@
         <div class="tab-content" id="aba-3">
             <div id="box_bloqueio_aba_3" class="card-aba-bloqueada" style="display: none;">
                 <h3>🔒 Características do Terreno Dispensadas (Preenchidas com 'X')</h3>
-                <p>Para unidades subsequentes (B, C, D...), as características físicas do terreno (Topografia, Nível, Pedologia, Benfeitorias e Medidas) <strong>não são preenchidas novamente</strong>. No documento oficial BCI, todos esses campos sairão marcados com <strong>'X'</strong> automaticamente.</p>
-                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                <p>Para unidades subsequentes (B, C, D...), as características físicas do terreno saem marcadas com <strong>'X'</strong> por padrão. Caso precise preencher manualmente para esta unidade, habilite a edição abaixo.</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-outline" onclick="alternarEdicaoLivreUnidade(true)">🔓 Habilitar Edição Nesta Unidade</button>
+                    <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                </div>
             </div>
 
             <div id="campos_aba_3">
@@ -958,8 +995,11 @@
         <div class="tab-content" id="aba-4">
             <div id="box_bloqueio_aba_4" class="card-aba-bloqueada" style="display: none;">
                 <h3>🔒 Melhorias Públicas Herdadas da Unidade A</h3>
-                <p>As informações de infraestrutura pública urbana (Água, Luz, Esgoto, Asfalto) pertencem ao logradouro do lote e foram herdadas da Unidade A.</p>
-                <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                <p>As informações de infraestrutura pública urbana (Água, Luz, Esgoto, Asfalto) pertencem ao logradouro do lote e foram herdadas da Unidade A. Caso precise editar para esta unidade, habilite a edição abaixo.</p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-outline" onclick="alternarEdicaoLivreUnidade(true)">🔓 Habilitar Edição Nesta Unidade</button>
+                    <button type="button" class="btn btn-primary" onclick="trocarAba(5)">Ir para o preenchimento da Edificação ➡️</button>
+                </div>
             </div>
 
             <div id="campos_aba_4">
@@ -1279,7 +1319,10 @@
         <div class="tab-content" id="aba-6">
             <div id="box_bloqueio_aba_6" class="card-aba-bloqueada" style="display: none;">
                 <h3>🔒 Documentação do Imóvel Herdada da Unidade A</h3>
-                <p>Os dados de registro, cartório e posse foram herdados da Unidade A. Caso queira colocar observações específicas desta unidade, utilize o campo abaixo.</p>
+                <p>Os dados de registro, cartório e posse foram herdados da Unidade A. Caso queira colocar observações específicas desta unidade, utilize o campo abaixo, ou habilite a edição completa da unidade.</p>
+                <div style="margin-bottom: 10px;">
+                    <button type="button" class="btn btn-outline" onclick="alternarEdicaoLivreUnidade(true)">🔓 Habilitar Edição Nesta Unidade</button>
+                </div>
             </div>
 
             <div id="campos_aba_6">
@@ -1370,6 +1413,7 @@
     let dadosUnidades = {
         'A': {}
     };
+    let edicaoLivreUnidades = {}; // Controla quais unidades subsequentes estão com edição livre habilitada
 
     // Campos exclusivos da Caracterização da Edificação (38 a 55)
     const camposApenasEdificacao = [
@@ -1379,12 +1423,43 @@
         'f_conservacao', 'f_caracterizacao', 'f_area_edificada'
     ];
 
-    // Campos exclusivos da Edificação (Aba 6) + Observações (para unidades B, C, D...)
+    // Campos exclusivos da Edificação (Aba 6) + Observações (para unidades B, C, D... quando bloqueadas)
     const camposEdificacao = [...camposApenasEdificacao, 'f_observacoes'];
 
     // Campos de Metragem Linear (m) e Área (m²)
     const camposMetros = ['f_frente', 'f_fundos', 'f_direita', 'f_esquerda'];
     const camposArea = ['f_area_terreno', 'f_area_edificada'];
+
+    // --- AJUSTE DINÂMICO DE FONTE PARA O CAMPO SETOR (4 A 15 CARACTERES) ---
+    function ajustarFonteSetorInput(el) {
+        if (!el) return;
+        const len = (el.value || '').trim().length;
+        if (len <= 4) {
+            el.style.fontSize = '13px';
+            el.style.letterSpacing = 'normal';
+        } else if (len <= 7) {
+            el.style.fontSize = '11.5px';
+            el.style.letterSpacing = '-0.2px';
+        } else if (len <= 10) {
+            el.style.fontSize = '10px';
+            el.style.letterSpacing = '-0.3px';
+        } else if (len <= 13) {
+            el.style.fontSize = '9px';
+            el.style.letterSpacing = '-0.4px';
+        } else {
+            el.style.fontSize = '8.2px';
+            el.style.letterSpacing = '-0.5px';
+        }
+    }
+
+    function gerarEstiloFonteSetorImpressao(valor) {
+        const len = String(valor || '').trim().length;
+        if (len <= 4) return 'font-size: 8.2px;';
+        if (len <= 6) return 'font-size: 6.8px; letter-spacing: -0.2px;';
+        if (len <= 8) return 'font-size: 5.8px; letter-spacing: -0.3px; white-space: normal; word-break: break-all; line-height: 1.0;';
+        if (len <= 11) return 'font-size: 5.0px; letter-spacing: -0.3px; white-space: normal; word-break: break-all; line-height: 0.98;';
+        return 'font-size: 4.4px; letter-spacing: -0.3px; white-space: normal; word-break: break-all; line-height: 0.95;';
+    }
 
     // --- FUNÇÃO PARA APLICAR COR AZUL APENAS NOS CAMPOS DO FORMULÁRIO ---
     function atualizarCorCampo(el) {
@@ -1404,16 +1479,16 @@
 
     // Verifica se a unidade atual está marcada como Terreno Vago (Campo 31 = '1')
     function isTerrenoVagoAtivo() {
-        const ehSub = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A');
-        if (ehSub) return false;
+        const ehSubBloqueada = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A' && !edicaoLivreUnidades[unidadeAtiva]);
+        if (ehSubBloqueada) return false;
         const elOcupacao = document.getElementById('f_ocupacao');
         return elOcupacao && elOcupacao.value === '1';
     }
 
     // Regra do Campo 31 (Ocupação = 1 -> Terreno Vago): Preenche Edificação com 'X' e bloqueia Aba 6
     function verificarRegraOcupacaoTerrenoVago() {
-        const ehSub = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A');
-        if (ehSub) return;
+        const ehSubBloqueada = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A' && !edicaoLivreUnidades[unidadeAtiva]);
+        if (ehSubBloqueada) return;
 
         const vago = isTerrenoVagoAtivo();
         const btnNavEdif = document.getElementById('btn_nav_aba_5');
@@ -1423,11 +1498,11 @@
         const btnProximoAba4 = document.getElementById('btn_proximo_aba_4');
         const btnVoltarAba6 = document.getElementById('btn_voltar_aba_6');
 
-        if (!dadosUnidades['A']) dadosUnidades['A'] = {};
+        if (!dadosUnidades[unidadeAtiva]) dadosUnidades[unidadeAtiva] = {};
 
         if (vago) {
             camposApenasEdificacao.forEach(id => {
-                dadosUnidades['A'][id] = 'X';
+                dadosUnidades[unidadeAtiva][id] = 'X';
                 const el = document.getElementById(id);
                 if (el) {
                     if (el.tagName === 'SELECT') {
@@ -1466,8 +1541,8 @@
                         el.value = '';
                     }
                 }
-                if (dadosUnidades['A'][id] === 'X') {
-                    dadosUnidades['A'][id] = '';
+                if (dadosUnidades[unidadeAtiva][id] === 'X') {
+                    dadosUnidades[unidadeAtiva][id] = '';
                 }
             });
 
@@ -1476,9 +1551,9 @@
             if (camposEdifDOM) camposEdifDOM.style.display = 'block';
 
             if (badgeEdif) {
-                badgeEdif.innerText = 'Ativa';
-                badgeEdif.style.background = '#e2e8f0';
-                badgeEdif.style.color = '#475569';
+                badgeEdif.innerText = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A') ? 'Preenchimento Ativo' : 'Ativa';
+                badgeEdif.style.background = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A') ? '#28a745' : '#e2e8f0';
+                badgeEdif.style.color = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A') ? '#fff' : '#475569';
             }
 
             if (btnProximoAba4) btnProximoAba4.innerText = 'Próximo: Edificação ➡️';
@@ -1600,7 +1675,8 @@
         listaUnidades.forEach(letra => {
             const pill = document.createElement('div');
             pill.className = `unidade-pill ${letra === unidadeAtiva ? 'active' : ''}`;
-            const tipoLabel = letra === 'A' ? 'Matriz' : 'Sub';
+            const isLivre = Boolean(edicaoLivreUnidades[letra]);
+            const tipoLabel = letra === 'A' ? 'Matriz' : (isLivre ? 'Editável' : 'Sub');
             pill.innerHTML = `<span>Unidade ${letra}</span> <span class="tag-tipo">${tipoLabel}</span>`;
             pill.onclick = () => {
                 salvarCamposFormularioNaMemoria();
@@ -1611,6 +1687,36 @@
 
         const btnRemover = document.getElementById('btn_remover_unidade');
         btnRemover.style.display = (unidadeAtiva !== 'A' && listaUnidades.length > 1) ? 'inline-flex' : 'none';
+    }
+
+    // Alterna o seletor de edição livre para uma unidade subsequente (B, C, D...)
+    function alternarEdicaoLivreUnidade(habilitar) {
+        if (unidadeAtiva === 'A') return;
+
+        // Salva o estado atual antes de alternar
+        salvarCamposFormularioNaMemoria();
+
+        edicaoLivreUnidades[unidadeAtiva] = habilitar;
+
+        // Se acabou de habilitar a edição livre e a unidade ainda não tinha cópia dos dados da Matriz A, copia os dados base dela
+        if (habilitar) {
+            const matriz = dadosUnidades['A'] || {};
+            const atual = dadosUnidades[unidadeAtiva] || {};
+            Object.keys(matriz).forEach(k => {
+                if (!camposEdificacao.includes(k) && atual[k] === undefined) {
+                    atual[k] = matriz[k];
+                }
+            });
+            atual['f_unidade'] = unidadeAtiva;
+            dadosUnidades[unidadeAtiva] = atual;
+        }
+
+        const chk = document.getElementById('chk_edicao_livre_unidade');
+        if (chk) chk.checked = habilitar;
+
+        atualizarBarraPills();
+        aplicarRestricoesAba(!habilitar);
+        carregarDadosMemoriaNoFormulario(unidadeAtiva);
     }
 
     function selecionarUnidade(letra) {
@@ -1633,16 +1739,25 @@
             carregarDadosMemoriaNoFormulario('A');
             trocarAba(0);
         } else {
+            const isLivre = Boolean(edicaoLivreUnidades[letra]);
             banner.className = 'banner-unidade-status subsequente';
-            banner.innerHTML = `🏢 <strong>UNIDADE ${letra} (SUBSEQUENTE):</strong> Inscrição Cadastral, Endereço e Proprietário herdados da Unidade A. Dados do Terreno marcados com 'X'. <strong>Preencha apenas a Aba 6 (Edificação)</strong>.`;
+            banner.innerHTML = `
+                <div>🏢 <strong>UNIDADE ${letra} (SUBSEQUENTE):</strong> Por padrão herda Inscrição, Endereço e Proprietário da Unidade A e marca o Terreno com 'X'.</div>
+                <label class="toggle-edicao-livre">
+                    <input type="checkbox" id="chk_edicao_livre_unidade" ${isLivre ? 'checked' : ''} onchange="alternarEdicaoLivreUnidade(this.checked)">
+                    <span>🔓 Habilitar edição livre dos demais campos desta unidade (Inscrição, Endereço, Proprietário, Terreno, etc.)</span>
+                </label>
+            `;
             titEdif.innerText = `Unidade ${letra}`;
 
             document.getElementById('f_unidade').value = letra;
             document.getElementById('lbl_status_unidade').innerText = `(Unidade ${letra})`;
 
-            aplicarRestricoesAba(true);
+            aplicarRestricoesAba(!isLivre);
             carregarDadosMemoriaNoFormulario(letra);
-            trocarAba(5);
+            if (!isLivre) {
+                trocarAba(5);
+            }
         }
     }
 
@@ -1663,6 +1778,7 @@
 
         listaUnidades.push(proxima);
         dadosUnidades[proxima] = {};
+        edicaoLivreUnidades[proxima] = false;
         selecionarUnidade(proxima);
     }
 
@@ -1673,20 +1789,21 @@
         }
         if (confirm(`Tem certeza de que deseja remover a Unidade ${unidadeAtiva}?`)) {
             delete dadosUnidades[unidadeAtiva];
+            delete edicaoLivreUnidades[unidadeAtiva];
             listaUnidades = listaUnidades.filter(l => l !== unidadeAtiva);
             selecionarUnidade('A');
         }
     }
 
     // Bloqueia ou libera abas conforme a regra da Unidade
-    function aplicarRestricoesAba(isSubsequente) {
+    function aplicarRestricoesAba(isSubsequenteBloqueada) {
         const abasBloqueaveis = [0, 1, 2, 3, 4, 6];
         const badgeEdif = document.getElementById('badge_aba_edificacao');
         const btnNavEdif = document.getElementById('btn_nav_aba_5');
         const boxBloqueioEdif = document.getElementById('box_bloqueio_aba_5');
         const camposEdifDOM = document.getElementById('campos_aba_5');
 
-        if (isSubsequente) {
+        if (isSubsequenteBloqueada) {
             if (btnNavEdif) btnNavEdif.classList.remove('tab-disabled');
             if (boxBloqueioEdif) boxBloqueioEdif.style.display = 'none';
             if (camposEdifDOM) camposEdifDOM.style.display = 'block';
@@ -1713,9 +1830,9 @@
                 if (campos) campos.style.display = 'none';
             });
         } else {
-            badgeEdif.innerText = 'Ativa';
-            badgeEdif.style.background = '#e2e8f0';
-            badgeEdif.style.color = '#475569';
+            badgeEdif.innerText = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A') ? 'Edição Livre' : 'Ativa';
+            badgeEdif.style.background = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A') ? '#0284c7' : '#e2e8f0';
+            badgeEdif.style.color = (modoLoteAtual === 'multiplo' && unidadeAtiva !== 'A') ? '#fff' : '#475569';
 
             abasBloqueaveis.forEach(idx => {
                 const btnNav = document.getElementById(`btn_nav_aba_${idx}`);
@@ -1739,6 +1856,7 @@
         }
 
         const vago = isTerrenoVagoAtivo();
+        const isUnidadeTotalmenteEditavel = (unidadeAtiva === 'A' || modoLoteAtual === 'unico' || Boolean(edicaoLivreUnidades[unidadeAtiva]));
 
         inputs.forEach(el => {
             let val = el.value || '';
@@ -1753,7 +1871,7 @@
                 el.value = val;
             }
 
-            if (unidadeAtiva === 'A' || modoLoteAtual === 'unico') {
+            if (isUnidadeTotalmenteEditavel) {
                 if (vago && camposApenasEdificacao.includes(el.id)) {
                     dadosUnidades[unidadeAtiva][el.id] = 'X';
                 } else {
@@ -1771,6 +1889,7 @@
     function carregarDadosMemoriaNoFormulario(letra) {
         const dadosMatriz = dadosUnidades['A'] || {};
         const dadosDesta = dadosUnidades[letra] || {};
+        const isUnidadeTotalmenteEditavel = (letra === 'A' || modoLoteAtual === 'unico' || Boolean(edicaoLivreUnidades[letra]));
 
         const inputs = document.querySelectorAll('#formBCI input, #formBCI select, #formBCI textarea');
 
@@ -1778,7 +1897,11 @@
             let valorSalvo = '';
             if (letra === 'A' || modoLoteAtual === 'unico') {
                 valorSalvo = dadosMatriz[el.id] !== undefined ? dadosMatriz[el.id] : '';
+            } else if (isUnidadeTotalmenteEditavel) {
+                // Unidade subsequente com edição livre habilitada: usa seus próprios dados ou herda da Matriz A se ainda não alterado
+                valorSalvo = dadosDesta[el.id] !== undefined ? dadosDesta[el.id] : (dadosMatriz[el.id] !== undefined ? dadosMatriz[el.id] : '');
             } else {
+                // Unidade subsequente bloqueada: Edificação vem dela, o resto vem da Matriz A
                 if (camposEdificacao.includes(el.id)) {
                     valorSalvo = dadosDesta[el.id] !== undefined ? dadosDesta[el.id] : '';
                 } else {
@@ -1793,7 +1916,7 @@
             }
         });
 
-        if (letra === 'A' || modoLoteAtual === 'unico') {
+        if (isUnidadeTotalmenteEditavel) {
             verificarRegraOcupacaoTerrenoVago();
         }
 
@@ -1801,9 +1924,12 @@
 
         if (modoLoteAtual === 'unico') {
             document.getElementById('f_unidade').value = '';
-        } else {
+        } else if (!isUnidadeTotalmenteEditavel || !document.getElementById('f_unidade').value) {
             document.getElementById('f_unidade').value = letra;
         }
+
+        ajustarFonteSetorInput(document.getElementById('f_setor'));
+        ajustarFonteSetorInput(document.getElementById('f_ant_setor'));
 
         if (typeof atualizarStatusVisualCPFCNPJ === 'function') {
             atualizarStatusVisualCPFCNPJ();
@@ -1825,6 +1951,7 @@
             unidadeAtiva = p.unidadeAtiva || 'A';
             listaUnidades = p.listaUnidades || ['A'];
             dadosUnidades = p.dadosUnidades || { 'A': {} };
+            edicaoLivreUnidades = p.edicaoLivreUnidades || {};
             definirModoLote(modoLoteAtual, true);
         } catch (err) {
             console.warn('Erro ao restaurar rascunho do LocalStorage:', err);
@@ -1839,7 +1966,8 @@
             modoLoteAtual,
             unidadeAtiva,
             listaUnidades,
-            dadosUnidades
+            dadosUnidades,
+            edicaoLivreUnidades
         };
 
         localStorage.setItem('rascunho_bci_semurfh_v2', JSON.stringify(pacote));
@@ -1899,6 +2027,7 @@
                 unidadeAtiva = p.unidadeAtiva || 'A';
                 listaUnidades = p.listaUnidades || ['A'];
                 dadosUnidades = p.dadosUnidades || { 'A': {} };
+                edicaoLivreUnidades = p.edicaoLivreUnidades || {};
 
                 definirModoLote(modoLoteAtual, true);
                 localStorage.setItem('rascunho_bci_semurfh_v2', JSON.stringify(p));
@@ -1919,10 +2048,13 @@
             unidadeAtiva = 'A';
             listaUnidades = ['A'];
             dadosUnidades = { 'A': {} };
+            edicaoLivreUnidades = {};
             document.getElementById('msg_cpf').innerText = '';
             document.getElementById('msg_cnpj').innerText = '';
             document.getElementById('f_cpf').style.borderColor = '';
             document.getElementById('f_cnpj').style.borderColor = '';
+            ajustarFonteSetorInput(document.getElementById('f_setor'));
+            ajustarFonteSetorInput(document.getElementById('f_ant_setor'));
             verificarRegraOcupacaoTerrenoVago();
             definirModoLote('unico', true);
             atualizarCoresTodosOsCampos();
@@ -1933,17 +2065,18 @@
     function montarDadosConsolidadosUnidade(letra) {
         const matriz = dadosUnidades['A'] || {};
         const propria = dadosUnidades[letra] || {};
-        const ehSub = (modoLoteAtual === 'multiplo' && letra !== 'A');
+        const isLivre = Boolean(edicaoLivreUnidades[letra]);
+        const ehSubBloqueada = (modoLoteAtual === 'multiplo' && letra !== 'A' && !isLivre);
 
         const d = Object.assign({}, matriz);
 
         if (modoLoteAtual === 'unico') {
             d.f_unidade = '';
         } else {
-            d.f_unidade = letra;
+            d.f_unidade = (isLivre && propria.f_unidade !== undefined && propria.f_unidade !== '') ? propria.f_unidade : letra;
         }
 
-        if (ehSub) {
+        if (ehSubBloqueada) {
             camposEdificacao.forEach(cp => {
                 d[cp] = propria[cp] !== undefined ? propria[cp] : '';
             });
@@ -1964,6 +2097,24 @@
             d.f_direita = 'X';
             d.f_esquerda = 'X';
             d.f_mapa_id = 'X';
+        } else if (modoLoteAtual === 'multiplo' && letra !== 'A' && isLivre) {
+            // Mescla os campos editados livremente da unidade sobre a base da Matriz A
+            Object.keys(propria).forEach(cp => {
+                if (propria[cp] !== undefined) {
+                    d[cp] = propria[cp];
+                }
+            });
+
+            camposMetros.forEach(cp => {
+                if (d[cp]) d[cp] = formatarComSufixo(d[cp], 'm');
+            });
+            if (d.f_area_terreno) d.f_area_terreno = formatarComSufixo(d.f_area_terreno, 'm²');
+
+            if (d.f_ocupacao === '1') {
+                camposApenasEdificacao.forEach(cp => {
+                    d[cp] = 'X';
+                });
+            }
         } else {
             camposMetros.forEach(cp => {
                 if (d[cp]) d[cp] = formatarComSufixo(d[cp], 'm');
@@ -1990,6 +2141,9 @@
 
     // --- GERADOR MODULAR DE FOLHAS BCI ---
     function gerarFolhaIndividualBCI(d) {
+        const styleSetor = gerarEstiloFonteSetorImpressao(d.f_setor);
+        const styleSetorAnt = gerarEstiloFonteSetorImpressao(d.f_ant_setor);
+
         return `<div class="folha-a4">
     <div class="quadro-topo">
         <div class="col-1">
@@ -2060,7 +2214,7 @@
         </tr>
         <tr class="r-input">
             <td class="ba center"></td>
-            <td class="ba center">${d.f_setor || ''}</td>
+            <td class="ba center" style="${styleSetor}">${d.f_setor || ''}</td>
             <td colspan="3" class="ba center">${d.f_loteamento || ''}</td>
             <td colspan="2" class="ba center">${d.f_quadra || ''}</td>
             <td colspan="2" class="ba center">${d.f_lote || ''}</td>
@@ -2068,7 +2222,7 @@
             <td class="ba center">${d.f_digito || ''}</td>
             <td class="ba center">${d.f_tipo_manutencao || ''}</td>
             <td></td>
-            <td colspan="2" class="ba center">${d.f_ant_setor || ''}</td>
+            <td colspan="2" class="ba center" style="${styleSetorAnt}">${d.f_ant_setor || ''}</td>
             <td colspan="5" class="ba center">${d.f_ant_loteamento || ''}</td>
             <td colspan="2" class="ba center">${d.f_ant_quadra || ''}</td>
             <td colspan="3" class="ba center">${d.f_ant_lote || ''}</td>
@@ -2657,7 +2811,8 @@ ${htmlFolhas}
             listaUnidades.forEach(letra => {
                 const opt = document.createElement('option');
                 opt.value = letra;
-                opt.innerText = `Unidade ${letra} ${letra === 'A' ? '(Matriz Completa)' : '(Edificação Subsequente)'}`;
+                const isLivre = Boolean(edicaoLivreUnidades[letra]);
+                opt.innerText = `Unidade ${letra} ${letra === 'A' ? '(Matriz Completa)' : (isLivre ? '(Editada Individualmente)' : '(Edificação Subsequente)')}`;
                 if (letra === unidadeAtiva) opt.selected = true;
                 selPrevia.appendChild(opt);
             });
@@ -2714,6 +2869,9 @@ ${htmlFolhas}
                 this.value = this.value.toUpperCase();
                 if (start !== null && end !== null) {
                     this.setSelectionRange(start, end);
+                }
+                if (this.id === 'f_setor' || this.id === 'f_ant_setor') {
+                    ajustarFonteSetorInput(this);
                 }
                 atualizarCorCampo(this);
             });
