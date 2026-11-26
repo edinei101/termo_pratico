@@ -2,69 +2,445 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMO DE VISTORIA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --blue-semur: #2c3e50; --accent: #2980b9; }
-        @page { size: A4; margin: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f2f6; display: flex; gap: 20px; padding: 20px; margin: 0; min-height: 100vh; }
-        
-        /* BOTÃO HOME PADRONIZADO */
-        #btn_home { 
-            position: fixed; top: 10px; left: 20px; 
-            padding: 10px; background: var(--blue-semur); 
-            color: white; border: none; border-radius: 50%; 
-            cursor: pointer; z-index: 1000; text-decoration: none; 
-            display: flex; align-items: center; justify-content: center;
-            width: 40px; height: 40px; transition: 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        :root { 
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --bg-app: #e2e8f0;
+            --bg-sidebar: #f8fafc;
+            --surface: #ffffff;
+            --border: #cbd5e1;
+            --border-light: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --purple: #7c3aed;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-doc: 0 20px 45px rgba(15, 23, 42, 0.22);
         }
-        #btn_home:hover { background: var(--accent); transform: scale(1.1); }
 
-        .panel { flex: 0.8; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; height: 92vh; margin-top: 45px; }
-        
-        .aba-retratil { background-color: #eee; color: #444; cursor: pointer; padding: 12px; width: 100%; border: none; text-align: left; font-size: 13px; font-weight: bold; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between; transition: 0.2s; }
-        .active, .aba-retratil:hover { background-color: var(--blue-semur); color: white; }
-        .conteudo-aba { padding: 10px 15px; display: none; background-color: white; border: 1px solid #ddd; border-top: none; overflow: hidden; border-radius: 0 0 5px 5px; }
+        * { box-sizing: border-box; }
 
-        label { display: block; font-size: 10px; font-weight: bold; margin-top: 8px; color: var(--blue-semur); text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 8px; border: 2px solid #dcdde1; border-radius: 5px; margin-top: 5px; box-sizing: border-box; font-family: inherit; font-size: 13px; }
-        .row-flex { display: flex; gap: 5px; }
-
-        .btn-reset-texto { background: #95a5a6; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .btn-reset-texto:hover { background: #7f8c8d; }
-
-        /* Estilo das Checkboxes de Divisas */
-        .checkbox-group { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
-        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; margin-top: 0; }
-        .checkbox-item input { width: auto; margin: 0; cursor: pointer; }
-
-        /* Botões de Ação na Parte Inferior */
-        .footer-buttons { margin-top: 20px; border-top: 1px solid #dcdde1; padding-top: 15px; }
-        .action-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .btn-action { flex: 1; border: none; padding: 12px 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; transition: opacity 0.2s; }
-        .btn-action:hover { opacity: 0.9; }
-        .btn-save { background: #2980b9; }
-        .btn-open { background: #8e44ad; }
-        .btn-clear { background: #e67e22; width: 100%; margin-bottom: 8px; }
-        .btn-print { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .btn-print:hover { background: #219150; }
-
-        .toast-msg { display: none; background: #2ecc71; color: white; text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
-
-        .preview-container { flex: 1.5; background: #ced6e0; padding: 20px; display: flex; justify-content: center; overflow-x: auto; margin-top: 45px; }
-        .document { 
-            background: white; width: 210mm; height: 297mm; 
-            padding: 1.0cm 2.0cm 0.8cm 3.0cm; /* Margens padrão ABNT/Oficial */
-            box-shadow: 0 0 20px rgba(0,0,0,0.3); box-sizing: border-box; position: relative; 
-            display: flex; flex-direction: column;
+        /* Layout Geral (Tela) */
+        body { 
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--bg-app); 
+            color: var(--text-main);
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column;
+            height: 100vh;
             overflow: hidden;
         }
 
-        .header-table { width: 100%; border-collapse: collapse; border-bottom: 1px solid #000; margin-bottom: 5px; }
-        .logo-img { width: 60px; height: 85px; object-fit: contain; }
-        .td-text { text-align: center; line-height: 1.1; padding-right: 60px; }
-        .td-text h2 { font-size: 14px; margin: 0; text-transform: uppercase; }
-        .td-text h3 { font-size: 13px; margin: 0; font-weight: normal; }
+        /* Topbar Moderna */
+        .app-topbar {
+            height: 62px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #ffffff;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+            z-index: 100;
+            flex-shrink: 0;
+            gap: 16px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 7px 13px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-2px);
+        }
+
+        .app-brand {
+            display: flex;
+            flex-direction: column;
+        }
+        .app-brand-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-org {
+            background: var(--accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            letter-spacing: 0.04em;
+        }
+        .app-brand-sub {
+            font-size: 11.5px;
+            color: #94a3b8;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 12.5px;
+            color: #ffffff;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-top:hover { transform: translateY(-1px); filter: brightness(1.06); }
+        .btn-top:active { transform: translateY(0); }
+
+        .btn-save { background: var(--accent); }
+        .btn-open { background: var(--purple); }
+        .btn-clear { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f1f5f9; }
+        .btn-clear:hover { background: var(--warning); border-color: var(--warning); color: #fff; }
+        .btn-print { background: var(--success); padding: 9px 18px; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35); }
+
+        /* Workspace Split */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            height: calc(100vh - 62px);
+        }
+
+        /* Painel Lateral (Formulário) */
+        .panel { 
+            flex: 0 0 420px; 
+            background: var(--bg-sidebar); 
+            border-right: 1px solid var(--border);
+            padding: 16px 18px 28px 18px; 
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .panel::-webkit-scrollbar { width: 6px; }
+        .panel::-webkit-scrollbar-track { background: transparent; }
+        .panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+        .panel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .panel-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 2px 4px 2px;
+        }
+        .panel-intro span {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        /* Card Fixo de Identificação do Fiscal */
+        .fiscal-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 12px 14px 4px 14px;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        /* Cards de Seção (Acordeão Moderno) */
+        .acc-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+        .acc-card:hover { border-color: #cbd5e1; }
+        
+        .aba-retratil { 
+            background-color: var(--surface); 
+            color: var(--text-main); 
+            cursor: pointer; 
+            padding: 12px 14px; 
+            width: 100%; 
+            border: none; 
+            text-align: left; 
+            font-size: 12.5px; 
+            font-weight: 700; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            transition: background-color 0.2s, color 0.2s;
+            font-family: inherit;
+        }
+        .aba-retratil:hover { background-color: #f1f5f9; }
+        .aba-retratil.active { 
+            background-color: #f0f9ff; 
+            color: var(--accent-hover);
+            border-bottom: 1px solid #bae6fd;
+        }
+
+        .acc-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .acc-step-badge {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .aba-retratil.active .acc-step-badge {
+            background: var(--accent);
+            color: #ffffff;
+        }
+        .acc-chevron {
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: transform 0.25s ease;
+        }
+        .aba-retratil.active .acc-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-hover);
+        }
+
+        .conteudo-aba { 
+            padding: 12px 14px 10px 14px; 
+            display: none; 
+            background-color: var(--surface); 
+        }
+
+        label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+            color: #334155; 
+            letter-spacing: 0.01em;
+        }
+        
+        input[type="text"], input[type="date"], input[type="time"], select, textarea { 
+            width: 100%; 
+            padding: 8px 11px; 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius-sm); 
+            font-size: 13px; 
+            color: var(--text-main);
+            background-color: #ffffff;
+            margin-bottom: 10px; 
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        /* Destaque visual sutil para campos preenchidos */
+        input.has-value, textarea.has-value {
+            background-color: #f0f9ff;
+            border-color: #7dd3fc;
+        }
+
+        .row-flex { display: flex; gap: 8px; }
+        .row-flex > div, .row-flex > input { flex: 1; }
+
+        .sub-card {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .sub-card-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-hover);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .btn-reset-texto { 
+            background: #f1f5f9; 
+            color: #475569; 
+            border: 1px solid #cbd5e1; 
+            padding: 6px 11px; 
+            border-radius: var(--radius-sm); 
+            font-size: 11.5px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: -2px;
+            margin-bottom: 8px;
+            transition: all 0.15s;
+        }
+        .btn-reset-texto:hover { 
+            background: #e2e8f0; 
+            color: #0f172a; 
+        }
+
+        .divider-line {
+            border: 0;
+            border-top: 1px dashed #cbd5e1;
+            margin: 10px 0 12px 0;
+        }
+
+        /* Estilo das Checkboxes de Divisas */
+        .checkbox-group { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+        .checkbox-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 12.5px; 
+            font-weight: 500; 
+            color: #334155; 
+            cursor: pointer; 
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .checkbox-item:hover { background: #e2e8f0; }
+        .checkbox-item input { width: 15px; height: 15px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+
+        /* Toast Flutuante Moderno */
+        .toast-msg { 
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: none; 
+            background: #0f172a; 
+            color: white; 
+            padding: 12px 18px; 
+            border-radius: var(--radius-md); 
+            font-size: 13px; 
+            font-weight: 600; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            z-index: 9999;
+            animation: slideUp 0.25s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Área de Visualização do Documento (Mesa de Trabalho) */
+        .preview-container { 
+            flex: 1; 
+            background-color: #cbd5e1;
+            background-image: radial-gradient(#94a3b8 0.85px, transparent 0.85px);
+            background-size: 18px 18px;
+            padding: 24px 32px 48px 32px; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            overflow-y: auto;
+        }
+
+        .preview-toolbar {
+            width: 210mm;
+            max-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            color: #475569;
+            font-weight: 600;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 6px;
+        }
+
+        /* Folha Oficial A4 (Mantida fiel ao padrão institucional) */
+        .document { 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: white; 
+            width: 210mm; 
+            height: 297mm; 
+            padding: 1.0cm 1.5cm 0.8cm 2.5cm; 
+            box-shadow: var(--shadow-doc); 
+            box-sizing: border-box; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden;
+            color: #000;
+            flex-shrink: 0;
+        }
+
+        /* Cabeçalho com os 2 Logos */
+        .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #000; margin-bottom: 8px; }
+        .logo-img { width: 75px; height: auto; object-fit: contain; }
+        .logo-img-large { width: 150px; height: auto; object-fit: contain; }
+        .logo-right { text-align: right; }
+        .td-text { text-align: center; vertical-align: middle; line-height: 1.15; }
+        .td-text h2 { font-size: 15px; margin: 0; text-transform: uppercase; }
+        .td-text h3 { font-size: 13px; margin: 2px 0 0 0; font-weight: normal; }
 
         .doc-body p { margin: 6px 0; line-height: 1.4; text-align: justify; font-size: 14.5px; text-indent: 1.25cm; }
         
@@ -98,28 +474,29 @@
         .constatacao-list { margin-left: 45px; margin-top: 0; margin-bottom: 5px; list-style-type: disc; }
         .constatacao-list li { margin-bottom: 3px; font-size: 14.5px; text-align: justify; }
 
-        .loc-center { text-align: center !important; font-weight: bold; margin: 12px 0 !important; font-size: 15px; border: 1px solid #eee; padding: 4px; text-indent: 0 !important; }
-        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 16px; text-indent: 0 !important; }
+        .loc-center { text-align: center !important; font-weight: bold; margin: 12px 0 !important; font-size: 15px; border: 1px solid #000; background: #f2f2f2; padding: 5px; text-indent: 0 !important; }
+        .doc-title { text-align: center; font-weight: bold; text-decoration: underline; margin: 10px 0; font-size: 17px; text-indent: 0 !important; }
         
         #out_data_footer { text-align: right; margin-top: 15px; margin-bottom: 5px; font-size: 14.5px; display: block; width: 100%; }
-        .signature { margin-top: 30px; text-align: center; font-size: 13.5px; color: black; }
-        .signature p { margin: 0; line-height: 1.1; text-indent: 0 !important; }
+        .signature { margin-top: 30px; text-align: center; font-size: 13.5px; color: black; page-break-inside: avoid; }
+        .signature p { margin: 1px 0; line-height: 1.15; text-indent: 0 !important; }
         
-        .footer-note { position: absolute; bottom: 0.8cm; left: 1.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
+        .footer-note { position: absolute; bottom: 0.8cm; left: 2.5cm; right: 1.5cm; text-align: center; font-size: 10px; border-top: 1px solid #000; padding-top: 5px; }
         
         @media print { 
             @page { size: A4 portrait; margin: 0; }
             html, body { 
                 width: 210mm; 
                 height: 297mm; 
-                background: none; 
+                background: none !important; 
                 padding: 0; 
                 margin: 0; 
                 display: block; 
                 overflow: hidden; 
             }
-            .panel, #btn_home { display: none !important; } 
-            .preview-container { background: white; padding: 0; margin: 0; display: block; } 
+            .app-topbar, .panel, .preview-toolbar, .toast-msg { display: none !important; } 
+            .workspace { display: block; height: auto; overflow: visible; }
+            .preview-container { background: none !important; padding: 0; margin: 0; display: block; overflow: visible; } 
             #out_texto_relatorio { background: none !important; outline: none !important; }
             .document { 
                 box-shadow: none; 
@@ -138,196 +515,249 @@
 </head>
 <body>
 
-<a href="https://edinei101.github.io/termo_pratico/index.html" id="btn_home" title="Voltar ao Menu Principal">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-    </svg>
-</a>
-
-<div class="panel" id="main_panel">
-    <h2 style="color: var(--accent); margin-bottom:15px; text-align: center;">📋 VISTORIA E CADASTRO</h2>
-    
-    <label>Fiscal Responsável</label>
-    <select id="sel_fiscal" onchange="atualizarAssinatura()">
-        <option value="">-- Selecione o Fiscal --</option>
-    </select>
-
-    <label>Data do Documento</label>
-    <input type="date" id="in_data_doc_calendario" oninput="update()">
-
-    <button class="aba-retratil">1. PROCESSO / NOME / ASSUNTO <span>▼</span></button>
-    <div class="conteudo-aba">
-        <label>Nº do Processo</label>
-        <input type="text" id="in_proc" oninput="update()" placeholder="Ex: 000/2026">
-        <label>Nome do Requerente</label>
-        <input type="text" id="in_nome" oninput="update()" placeholder="Nome Completo">
-        <label>Assunto</label>
-        <input type="text" id="in_assunto" value="VISTORIA E CADASTRO" oninput="update()">
-    </div>
-
-    <button class="aba-retratil">2. DATA E LOCALIZAÇÃO <span>▼</span></button>
-    <div class="conteudo-aba">
-        <label>Data da Vistoria</label>
-        <input type="date" id="rel_data" oninput="onCampoBaseRelatorioChange()">
-        <label>Hora</label>
-        <input type="time" id="rel_hora" oninput="onCampoBaseRelatorioChange()">
-        <label>Setor / Quadra / Lote</label>
-        <div class="row-flex">
-            <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
-            <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
-            <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+<!-- BARRA SUPERIOR FIXA -->
+<header class="app-topbar">
+    <div class="topbar-left">
+        <a href="https://edinei101.github.io/termo_pratico/index.html" class="btn-back" title="Voltar ao Menu Principal">
+            <span>←</span> Menu
+        </a>
+        <div class="app-brand">
+            <div class="app-brand-title">
+                Termo de Vistoria Circunstanciado
+                <span class="badge-org">SEMURFH</span>
+            </div>
+            <span class="app-brand-sub">Prefeitura Municipal de Ji-Paraná • Vistoria e Cadastro</span>
         </div>
     </div>
 
-    <button class="aba-retratil">3. DADOS DA CONSTATAÇÃO <span>▼</span></button>
-    <div class="conteudo-aba">
-        <label>Fls. Requerimento / ID Requerimento</label>
-        <div class="row-flex">
-            <input type="text" id="fls_req_num" placeholder="Fls. Nº" oninput="onCampoBaseRelatorioChange()">
-            <input type="text" id="fls_req_id" placeholder="ID Requerimento" oninput="onCampoBaseRelatorioChange()">
-        </div>
-        <label>Fls. Mapa e Memorial / ID Mapa</label>
-        <div class="row-flex">
-            <input type="text" id="fls_mapa_num" placeholder="Fls. Nº" oninput="onCampoBaseRelatorioChange()">
-            <input type="text" id="fls_mapa_id" placeholder="ID Mapa" oninput="onCampoBaseRelatorioChange()">
-        </div>
-        <label>Nº OSF / ID OSF</label>
-        <div class="row-flex">
-            <input type="text" id="osf_num" placeholder="Nº OSF" oninput="onCampoBaseRelatorioChange()">
-            <input type="text" id="osf_id" placeholder="ID OSF" oninput="onCampoBaseRelatorioChange()">
+    <div class="topbar-actions">
+        <button type="button" class="btn-top btn-save" onclick="salvarRascunhoArquivo()">💾 Salvar Rascunho</button>
+        <button type="button" class="btn-top btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 Abrir Rascunho</button>
+        <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
+        <button type="button" class="btn-top btn-clear" onclick="limparFormulario(true)">🧹 Limpar Tudo</button>
+        <button type="button" class="btn-top btn-print" onclick="imprimirDocumento()">🖨️ Gerar Documento / PDF</button>
+    </div>
+</header>
+
+<div id="toast_msg" class="toast-msg"></div>
+
+<div class="workspace">
+    <!-- PAINEL LATERAL DE PREENCHIMENTO -->
+    <aside class="panel" id="main_panel">
+        <div class="panel-intro">
+            <span>Identificação e Etapas</span>
+            <span>5 Seções</span>
         </div>
 
-        <!-- Campo Editável do Texto do Relatório -->
-        <label>Texto do Relatório (Editável)</label>
-        <textarea id="in_texto_relatorio" rows="4" oninput="onTextoRelatorioManualInput()"></textarea>
-        <button type="button" class="btn-reset-texto" onclick="restaurarTextoRelatorioPadrao()">🔄 Restaurar Texto Padrão</button>
-
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ddd;">
-        <label>Estado do Lote</label>
-        <select id="sel_status" onchange="toggleEdificacao()">
-            <option value="vago">O lote encontra-se vago.</option>
-            <option value="edificado">O lote encontra-se edificado.</option>
-        </select>
-        <div id="div_edificacao" style="display:none; background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid var(--accent);">
-            <label>Tipo de Construção</label>
-            <select id="sel_material" onchange="toggleOutroMaterial()">
-                <option value="em alvenaria">Alvenaria</option>
-                <option value="em madeira">Madeira</option>
-                <option value="em concreto armado">Concreto Armado</option>
-                <option value="outro">Outro (Especificar)</option>
+        <!-- Card Fixo: Fiscal e Data do Documento -->
+        <div class="fiscal-card">
+            <label>Fiscal Responsável</label>
+            <select id="sel_fiscal" onchange="atualizarAssinatura()">
+                <option value="">-- Selecione o Fiscal --</option>
             </select>
-            <div id="div_outro_material" style="display:none;">
-                <input type="text" id="in_outro_material" placeholder="Digite o tipo de construção..." oninput="update()">
+
+            <label>Data do Documento</label>
+            <input type="date" id="in_data_doc_calendario" oninput="update()">
+        </div>
+
+        <!-- 1. PROCESSO / NOME / ASSUNTO -->
+        <div class="acc-card">
+            <button type="button" class="aba-retratil">
+                <span class="acc-title-wrap"><span class="acc-step-badge">1</span> Processo / Nome / Assunto</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="conteudo-aba">
+                <label>Nº do Processo</label>
+                <input type="text" id="in_proc" oninput="update()" placeholder="Ex: 000/2026">
+                <label>Nome do Requerente</label>
+                <input type="text" id="in_nome" oninput="update()" placeholder="Nome Completo">
+                <label>Assunto</label>
+                <input type="text" id="in_assunto" value="VISTORIA E CADASTRO" oninput="update()">
             </div>
         </div>
 
-        <label>Divisas</label>
-        <select id="sel_divisas" onchange="toggleCamposDivisas()">
-            <option value="SIM">Com divisas materializadas</option>
-            <option value="NAO">Sem divisas materializadas</option>
-        </select>
-
-        <!-- Opções de quais divisas estão materializadas -->
-        <div id="div_opcoes_divisas" style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 8px; border-left: 4px solid var(--accent);">
-            <label style="margin-top: 0;">Quais divisas estão materializadas?</label>
-            <div class="checkbox-group">
-                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" checked onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
-                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Frente</label>
-                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Fundos</label>
-                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Lado Direito</label>
-                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+        <!-- 2. DATA E LOCALIZAÇÃO -->
+        <div class="acc-card">
+            <button type="button" class="aba-retratil">
+                <span class="acc-title-wrap"><span class="acc-step-badge">2</span> Data e Localização</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="conteudo-aba">
+                <label>Data e Hora da Vistoria</label>
+                <div class="row-flex">
+                    <input type="date" id="rel_data" oninput="onCampoBaseRelatorioChange()">
+                    <input type="time" id="rel_hora" oninput="onCampoBaseRelatorioChange()">
+                </div>
+                <label>Setor / Quadra / Lote</label>
+                <div class="row-flex">
+                    <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
+                    <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
+                    <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+                </div>
             </div>
         </div>
 
-        <!-- 1ª Seleção: Localização -->
-        <label>Conferência da Localização (Planta de Situação)</label>
-        <select id="sel_conf_localizacao" onchange="toggleConferenciaMedidas()">
-            <option value="SIM">Sim - A localização confere com a planta de situação</option>
-            <option value="NAO">Não - A localização NÃO confere com a planta de situação</option>
-        </select>
+        <!-- 3. DADOS DA CONSTATAÇÃO -->
+        <div class="acc-card">
+            <button type="button" class="aba-retratil">
+                <span class="acc-title-wrap"><span class="acc-step-badge">3</span> Dados da Constatação</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="conteudo-aba">
+                <label>Fls. Requerimento / ID Requerimento</label>
+                <div class="row-flex">
+                    <input type="text" id="fls_req_num" placeholder="Fls. Nº" oninput="onCampoBaseRelatorioChange()">
+                    <input type="text" id="fls_req_id" placeholder="ID Requerimento" oninput="onCampoBaseRelatorioChange()">
+                </div>
+                <label>Fls. Mapa e Memorial / ID Mapa</label>
+                <div class="row-flex">
+                    <input type="text" id="fls_mapa_num" placeholder="Fls. Nº" oninput="onCampoBaseRelatorioChange()">
+                    <input type="text" id="fls_mapa_id" placeholder="ID Mapa" oninput="onCampoBaseRelatorioChange()">
+                </div>
+                <label>Nº OSF / ID OSF</label>
+                <div class="row-flex">
+                    <input type="text" id="osf_num" placeholder="Nº OSF" oninput="onCampoBaseRelatorioChange()">
+                    <input type="text" id="osf_id" placeholder="ID OSF" oninput="onCampoBaseRelatorioChange()">
+                </div>
 
-        <!-- 2ª Seleção: Medidas (Só aparece se a 1ª for SIM) -->
-        <div id="div_conf_medidas">
-            <label>Conferência das Medidas (Planta do Lote)</label>
-            <select id="sel_conf_medidas" onchange="update()">
-                <option value="As medidas do lote conferem com as medidas constantes na planta do lote.">Sim - As medidas conferem com a planta do lote</option>
-                <option value="As medidas do lote não conferem com as medidas constantes na planta do lote.">Não - As medidas NÃO conferem com a planta do lote</option>
-            </select>
+                <!-- Campo Editável do Texto do Relatório -->
+                <label style="color: #b45309;">Texto do Relatório (Editável)</label>
+                <textarea id="in_texto_relatorio" rows="4" oninput="onTextoRelatorioManualInput()"></textarea>
+                <button type="button" class="btn-reset-texto" onclick="restaurarTextoRelatorioPadrao()">🔄 Restaurar Texto Padrão</button>
+
+                <hr class="divider-line">
+
+                <label>Estado do Lote</label>
+                <select id="sel_status" onchange="toggleEdificacao()">
+                    <option value="vago">O lote encontra-se vago.</option>
+                    <option value="edificado">O lote encontra-se edificado.</option>
+                </select>
+                <div id="div_edificacao" class="sub-card" style="display:none;">
+                    <span class="sub-card-title">Tipo de Construção</span>
+                    <select id="sel_material" onchange="toggleOutroMaterial()">
+                        <option value="em alvenaria">Alvenaria</option>
+                        <option value="em madeira">Madeira</option>
+                        <option value="em concreto armado">Concreto Armado</option>
+                        <option value="outro">Outro (Especificar)</option>
+                    </select>
+                    <div id="div_outro_material" style="display:none;">
+                        <input type="text" id="in_outro_material" placeholder="Digite o tipo de construção..." oninput="update()">
+                    </div>
+                </div>
+
+                <label>Divisas</label>
+                <select id="sel_divisas" onchange="toggleCamposDivisas()">
+                    <option value="SIM">Com divisas materializadas</option>
+                    <option value="NAO">Sem divisas materializadas</option>
+                </select>
+
+                <!-- Opções de quais divisas estão materializadas -->
+                <div id="div_opcoes_divisas" class="sub-card">
+                    <span class="sub-card-title">Quais divisas estão materializadas?</span>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" checked onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Frente</label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Fundos</label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Lado Direito</label>
+                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" checked onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+                    </div>
+                </div>
+
+                <!-- 1ª Seleção: Localização -->
+                <label>Conferência da Localização (Planta de Situação)</label>
+                <select id="sel_conf_localizacao" onchange="toggleConferenciaMedidas()">
+                    <option value="SIM">Sim - A localização confere com a planta de situação</option>
+                    <option value="NAO">Não - A localização NÃO confere com a planta de situação</option>
+                </select>
+
+                <!-- 2ª Seleção: Medidas (Só aparece se a 1ª for SIM) -->
+                <div id="div_conf_medidas">
+                    <label>Conferência das Medidas (Planta do Lote)</label>
+                    <select id="sel_conf_medidas" onchange="update()">
+                        <option value="As medidas do lote conferem com as medidas constantes na planta do lote.">Sim - As medidas conferem com a planta do lote</option>
+                        <option value="As medidas do lote não conferem com as medidas constantes na planta do lote.">Não - As medidas NÃO conferem com a planta do lote</option>
+                    </select>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <button class="aba-retratil">4. OBSERVAÇÕES (OPCIONAL) <span>▼</span></button>
-    <div class="conteudo-aba">
-        <textarea id="in_obs" rows="5" placeholder="Digite suas observações aqui..." oninput="update()"></textarea>
-    </div>
-
-    <button class="aba-retratil" style="background-color: #f0f7ff; color: #2980b9;">5. ENCAMINHAMENTO FINAL <span>▼</span></button>
-    <div class="conteudo-aba">
-        <label>EDITAR ENCAMINHAMENTO:</label>
-        <textarea id="in_encaminhamento" rows="3" oninput="update()">ao setor de cadastro para o prosseguimento que o caso requer.</textarea>
-    </div>
-
-    <!-- Botões na Parte Inferior -->
-    <div class="footer-buttons">
-        <div id="toast_msg" class="toast-msg"></div>
-        
-        <div class="action-row">
-            <button class="btn-action btn-save" onclick="salvarRascunhoArquivo()">💾 SALVAR RASCUNHO</button>
-            <button class="btn-action btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 ABRIR RASCUNHO</button>
-            <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
-        </div>
-        
-        <button class="btn-action btn-clear" onclick="limparFormulario(true)">🧹 LIMPAR TUDO</button>
-        <button class="btn-print" onclick="imprimirDocumento()">🖨️ IMPRIMIR / PDF</button>
-    </div>
-</div>
-
-<div class="preview-container">
-    <div class="document">
-        <table class="header-table">
-            <tr>
-                <td style="width: 60px;"><img src="logo.jpg" class="logo-img"></td>
-                <td class="td-text">
-                    <h2>Estado de Rondônia</h2>
-                    <h2>Prefeitura Municipal de Ji-Paraná</h2>
-                    <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
-                </td>
-            </tr>
-        </table>
-        
-        <div class="doc-title">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
-        <div class="doc-body">
-            <p style="text-indent: 0;"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
-            <p style="text-indent: 0;"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
-            <p style="text-indent: 0;"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
-            
-            <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
-            
-            <p id="out_texto_relatorio" contenteditable="true" title="Clique aqui para editar este texto diretamente na folha" oninput="onDocumentoRelatorioInput()"></p>
-            <ul class="constatacao-list">
-                <li id="out_edificacao"></li>
-                <li id="out_divisas"></li>
-                <li id="out_conf_localizacao"></li>
-                <li id="out_conf_medidas"></li>
-            </ul>
-            
-            <div id="out_obs_container"></div>
-            
-            <p>Diante do exposto, encaminha-se <span id="out_encaminhamento"></span></p>
-            <p>Sendo o que tinha a relatar, OSF encerrada.</p>
-            <div id="out_data_footer"></div>
+        <!-- 4. OBSERVAÇÕES (OPCIONAL) -->
+        <div class="acc-card">
+            <button type="button" class="aba-retratil">
+                <span class="acc-title-wrap"><span class="acc-step-badge">4</span> Observações (Opcional)</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="conteudo-aba">
+                <textarea id="in_obs" rows="5" placeholder="Digite suas observações aqui..." oninput="update()"></textarea>
+            </div>
         </div>
 
-        <div class="signature">
-            <p>Assinado Eletronicamente</p>
-            <p id="out_nome_fiscal">________________________________</p>
-            <p id="out_funcao_fiscal">Fiscal de Obras e Serviços Públicos</p>
-            <p id="out_cad_fiscal" style="font-size: 11px;"></p>
+        <!-- 5. ENCAMINHAMENTO FINAL -->
+        <div class="acc-card">
+            <button type="button" class="aba-retratil">
+                <span class="acc-title-wrap"><span class="acc-step-badge">5</span> Encaminhamento Final</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="conteudo-aba">
+                <label>Editar Encaminhamento:</label>
+                <textarea id="in_encaminhamento" rows="3" oninput="update()">ao setor de cadastro para o prosseguimento que o caso requer.</textarea>
+            </div>
         </div>
-        
-        <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – 02 de Abril - Ji-Paraná – Rondônia.</div>
-    </div>
+    </aside>
+
+    <!-- ÁREA DE PRÉ-VISUALIZAÇÃO DO DOCUMENTO A4 -->
+    <main class="preview-container">
+        <div class="preview-toolbar">
+            <div><span class="status-dot"></span>Pré-visualização em tempo real • Clique no parágrafo do relatório para editar direto na folha</div>
+            <div>Papel A4 (210 × 297 mm)</div>
+        </div>
+
+        <div class="document">
+            <table class="header-table">
+                <tr>
+                    <td style="width: 75px;"><img src="logo.jpg" class="logo-img"></td>
+                    <td class="td-text">
+                        <h2>Estado de Rondônia</h2>
+                        <h2>Prefeitura Municipal de Ji-Paraná</h2>
+                        <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
+                    </td>
+                    <td style="width: 150px;" class="logo-right"><img src="logo2.png" class="logo-img-large"></td>
+                </tr>
+            </table>
+            
+            <div class="doc-title">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
+            <div class="doc-body">
+                <p style="text-indent: 0;"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
+                <p style="text-indent: 0;"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
+                <p style="text-indent: 0;"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
+                
+                <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
+                
+                <p id="out_texto_relatorio" contenteditable="true" title="Clique aqui para editar este texto diretamente na folha" oninput="onDocumentoRelatorioInput()"></p>
+                <ul class="constatacao-list">
+                    <li id="out_edificacao"></li>
+                    <li id="out_divisas"></li>
+                    <li id="out_conf_localizacao"></li>
+                    <li id="out_conf_medidas"></li>
+                </ul>
+                
+                <div id="out_obs_container"></div>
+                
+                <p>Diante do exposto, encaminha-se <span id="out_encaminhamento"></span></p>
+                <p>Sendo o que tinha a relatar, OSF encerrada.</p>
+                <div id="out_data_footer"></div>
+            </div>
+
+            <div class="signature">
+                <p>Assinado Eletronicamente</p>
+                <p id="out_nome_fiscal">________________________________</p>
+                <p id="out_funcao_fiscal">Fiscal de Obras e Serviços Públicos</p>
+                <p id="out_cad_fiscal" style="font-size: 11px;"></p>
+            </div>
+            
+            <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – 02 de Abril - Ji-Paraná – Rondônia.</div>
+        </div>
+    </main>
 </div>
 
 <script>
@@ -403,12 +833,22 @@
         limparFormulario(false);
     };
 
-    function exibirMensagem(texto, cor = "#2ecc71") {
+    function exibirMensagem(texto, cor = "#10b981") {
         const toast = document.getElementById('toast_msg');
         toast.style.backgroundColor = cor;
         toast.innerText = texto;
         toast.style.display = "block";
         setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
+
+    function atualizarDestaqueCampos() {
+        document.querySelectorAll('.panel input[type="text"], .panel textarea').forEach(el => {
+            if (el.value.trim() !== "") {
+                el.classList.add('has-value');
+            } else {
+                el.classList.remove('has-value');
+            }
+        });
     }
 
     function obterNomeBaseArquivo() {
@@ -448,11 +888,13 @@
     function onTextoRelatorioManualInput() {
         textoRelatorioEditadoManualmente = true;
         document.getElementById('out_texto_relatorio').innerText = document.getElementById('in_texto_relatorio').value;
+        atualizarDestaqueCampos();
     }
 
     function onDocumentoRelatorioInput() {
         textoRelatorioEditadoManualmente = true;
         document.getElementById('in_texto_relatorio').value = document.getElementById('out_texto_relatorio').innerText;
+        atualizarDestaqueCampos();
     }
 
     function restaurarTextoRelatorioPadrao() {
@@ -460,7 +902,8 @@
         const textoGerado = gerarTextoRelatorioPadrao();
         document.getElementById('in_texto_relatorio').value = textoGerado;
         document.getElementById('out_texto_relatorio').innerText = textoGerado;
-        exibirMensagem("🔄 Texto padrão restaurado!", "#2980b9");
+        atualizarDestaqueCampos();
+        exibirMensagem("🔄 Texto padrão restaurado!", "#0284c7");
     }
 
     // --- SALVAR, ABRIR RASCUNHO (.JSON) E LIMPAR ---
@@ -544,7 +987,7 @@
                 toggleCamposDivisas();
                 toggleConferenciaMedidas();
                 atualizarAssinatura();
-                exibirMensagem("📂 Rascunho carregado com sucesso!", "#8e44ad");
+                exibirMensagem("📂 Rascunho carregado com sucesso!", "#7c3aed");
             } catch (err) {
                 alert("Erro ao ler o arquivo de rascunho. Verifique se é um arquivo .json válido.");
             }
@@ -593,7 +1036,7 @@
         atualizarAssinatura();
 
         if (confirmar) {
-            exibirMensagem("🧹 Campos limpos!", "#e67e22");
+            exibirMensagem("🧹 Campos limpos!", "#d97706");
         }
     }
 
@@ -650,7 +1093,7 @@
         if (f) {
             document.getElementById('out_nome_fiscal').innerText = f.nome;
             document.getElementById('out_funcao_fiscal').innerText = f.funcao;
-            document.getElementById('out_cad_fiscal').innerText = f.cad;
+            document.getElementById('out_cad_fiscal').innerText = "Cad.: " + f.cad;
         } else {
             document.getElementById('out_nome_fiscal').innerText = "________________________________";
             document.getElementById('out_funcao_fiscal').innerText = "Fiscal de Obras e Serviços Públicos";
@@ -661,6 +1104,7 @@
 
     function update() {
         atualizarTituloPDF();
+        atualizarDestaqueCampos();
 
         document.getElementById('out_proc').innerText = document.getElementById('in_proc').value || "_________";
         document.getElementById('out_nome').innerText = document.getElementById('in_nome').value || "_________";
