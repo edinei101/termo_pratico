@@ -2,58 +2,411 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMO DE VISTORIA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --blue-semur: rgb(44, 62, 80); 
-            --gray-light: rgb(238, 238, 238); 
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0284c7;
+            --accent-hover: #0369a1;
+            --accent-soft: #e0f2fe;
+            --bg-app: #e2e8f0;
+            --bg-sidebar: #f8fafc;
+            --surface: #ffffff;
+            --border: #cbd5e1;
+            --border-light: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --purple: #7c3aed;
+            --purple-hover: #6d28d9;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+            --shadow-doc: 0 20px 45px rgba(15, 23, 42, 0.22);
         }
         
+        * { box-sizing: border-box; }
+
         /* Layout Geral (Tela) */
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f2f6; display: flex; gap: 20px; padding: 20px; margin: 0; }
-        
-        .panel { flex: 0 0 350px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); height: fit-content; max-height: 95vh; overflow-y: auto; position: sticky; top: 20px; }
-        
-        .accordion { background-color: var(--gray-light); color: #333; cursor: pointer; padding: 12px; width: 100%; border: 1px solid #ddd; text-align: left; font-size: 13px; font-weight: bold; border-radius: 6px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .active, .accordion:hover { background-color: var(--blue-semur); color: white; }
-        .panel-content { padding: 0 10px; background-color: white; max-height: 0; overflow: hidden; transition: max-height 0.2s ease-out; border-left: 2px solid var(--blue-semur); }
-        
-        .group-box { padding: 10px 0; }
-        label { display: block; font-size: 10px; font-weight: bold; margin-bottom: 3px; color: var(--blue-semur); text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 7px; border: 1.5px solid #dcdde1; border-radius: 6px; font-size: 13px; box-sizing: border-box; margin-bottom: 8px; font-family: inherit; }
-        .row-flex { display: flex; gap: 8px; margin-bottom: 4px; }
-        .row-flex div { flex: 1; }
+        body { 
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif; 
+            background-color: var(--bg-app); 
+            color: var(--text-main);
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        .checkbox-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
-        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: normal; text-transform: none; color: #333; cursor: pointer; }
-        .checkbox-item input { width: auto; margin: 0; }
+        /* Topbar Moderna */
+        .app-topbar {
+            height: 62px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #ffffff;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+            z-index: 100;
+            flex-shrink: 0;
+            gap: 16px;
+        }
 
-        /* Botões de Ação na Parte Inferior */
-        .footer-buttons { margin-top: 15px; border-top: 1px solid #dcdde1; padding-top: 12px; }
-        .action-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .btn-action { flex: 1; border: none; padding: 11px 8px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; transition: opacity 0.2s; }
-        .btn-action:hover { opacity: 0.9; }
-        .btn-save { background: #2980b9; }
-        .btn-open { background: #8e44ad; }
-        .btn-clear { background: #e67e22; width: 100%; margin-bottom: 8px; }
-        .btn-print { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .btn-print:hover { background: #219150; }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
 
-        .toast-msg { display: none; background: #2ecc71; color: white; text-align: center; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 7px 13px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-2px);
+        }
 
-        /* Documento Preview */
-        .preview-container { flex: 1; background: #ced6e0; padding: 20px; display: flex; justify-content: center; }
+        .app-brand {
+            display: flex;
+            flex-direction: column;
+        }
+        .app-brand-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-org {
+            background: var(--accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            letter-spacing: 0.04em;
+        }
+        .app-brand-sub {
+            font-size: 11.5px;
+            color: #94a3b8;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 12.5px;
+            color: #ffffff;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-top:hover { transform: translateY(-1px); filter: brightness(1.06); }
+        .btn-top:active { transform: translateY(0); }
+
+        .btn-save { background: var(--accent); }
+        .btn-open { background: var(--purple); }
+        .btn-clear { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f1f5f9; }
+        .btn-clear:hover { background: var(--warning); border-color: var(--warning); color: #fff; }
+        .btn-print { background: var(--success); padding: 9px 18px; font-weight: 700; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35); }
+
+        /* Workspace Split */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            height: calc(100vh - 62px);
+        }
         
+        /* Painel Lateral (Formulário) */
+        .panel { 
+            flex: 0 0 410px; 
+            background: var(--bg-sidebar); 
+            border-right: 1px solid var(--border);
+            padding: 16px 18px 28px 18px; 
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .panel::-webkit-scrollbar { width: 6px; }
+        .panel::-webkit-scrollbar-track { background: transparent; }
+        .panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+        .panel::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .panel-intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 2px 6px 2px;
+        }
+        .panel-intro span {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        /* Cards de Seção (Accordion Moderno) */
+        .acc-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+        .acc-card:hover {
+            border-color: #cbd5e1;
+        }
+        
+        .accordion { 
+            background-color: var(--surface); 
+            color: var(--text-main); 
+            cursor: pointer; 
+            padding: 12px 14px; 
+            width: 100%; 
+            border: none; 
+            text-align: left; 
+            font-size: 12.5px; 
+            font-weight: 700; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            transition: background-color 0.2s, color 0.2s;
+            font-family: inherit;
+        }
+        .accordion:hover { 
+            background-color: #f1f5f9; 
+        }
+        .accordion.active { 
+            background-color: #f0f9ff; 
+            color: var(--accent-hover);
+            border-bottom: 1px solid #bae6fd;
+        }
+        .acc-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .acc-step-badge {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .accordion.active .acc-step-badge {
+            background: var(--accent);
+            color: #ffffff;
+        }
+        .acc-chevron {
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: transform 0.25s ease;
+        }
+        .accordion.active .acc-chevron {
+            transform: rotate(180deg);
+            color: var(--accent-hover);
+        }
+
+        .panel-content { 
+            padding: 0 14px; 
+            background-color: var(--surface); 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.25s ease-out; 
+        }
+        
+        .group-box { padding: 14px 0 10px 0; }
+        
+        label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+            color: #334155; 
+            letter-spacing: 0.01em;
+        }
+        
+        input[type="text"], input[type="date"], input[type="time"], select, textarea { 
+            width: 100%; 
+            padding: 8px 11px; 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius-sm); 
+            font-size: 13px; 
+            color: var(--text-main);
+            background-color: #ffffff;
+            margin-bottom: 10px; 
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        /* Destaque visual sutil para campos de texto preenchidos */
+        input.has-value, textarea.has-value {
+            background-color: #f0f9ff;
+            border-color: #7dd3fc;
+        }
+
+        .row-flex { display: flex; gap: 8px; margin-bottom: 2px; }
+        .row-flex > div, .row-flex > input { flex: 1; }
+
+        .sub-card {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .sub-card-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-hover);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .checkbox-group { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+        .checkbox-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 12.5px; 
+            font-weight: 500; 
+            color: #334155; 
+            cursor: pointer; 
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .checkbox-item:hover { background: #e2e8f0; }
+        .checkbox-item input { width: 15px; height: 15px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+
+        /* Toast Flutuante Moderno */
+        .toast-msg { 
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: none; 
+            background: #0f172a; 
+            color: white; 
+            padding: 12px 18px; 
+            border-radius: var(--radius-md); 
+            font-size: 13px; 
+            font-weight: 600; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            z-index: 9999;
+            animation: slideUp 0.25s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Área de Visualização do Documento (Mesa de Trabalho) */
+        .preview-container { 
+            flex: 1; 
+            background-color: #cbd5e1;
+            background-image: radial-gradient(#94a3b8 0.85px, transparent 0.85px);
+            background-size: 18px 18px;
+            padding: 24px 32px 48px 32px; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            overflow-y: auto;
+        }
+
+        .preview-toolbar {
+            width: 210mm;
+            max-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            color: #475569;
+            font-weight: 600;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            margin-right: 6px;
+        }
+        
+        /* Folha Oficial A4 (Mantida fiel ao padrão institucional) */
         .document { 
+            font-family: 'Segoe UI', Arial, sans-serif;
             background: white; 
             width: 210mm; 
             min-height: 297mm; 
             padding: 0.8cm 1.5cm 1.2cm 2.5cm; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.3); 
+            box-shadow: var(--shadow-doc); 
             box-sizing: border-box; 
             position: relative; 
             color: #000;
             overflow: hidden;
+            flex-shrink: 0;
         }
         
         .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #000; margin-bottom: 10px; }
@@ -134,14 +487,15 @@
             html, body { 
                 width: 210mm; 
                 height: 297mm; 
-                background: none; 
+                background: none !important; 
                 padding: 0; 
                 margin: 0; 
                 display: block; 
                 overflow: hidden; 
             }
-            .panel { display: none; }
-            .preview-container { padding: 0; margin: 0; background: none; display: block; }
+            .app-topbar, .panel, .preview-toolbar, .toast-msg { display: none !important; }
+            .workspace { display: block; height: auto; overflow: visible; }
+            .preview-container { padding: 0; margin: 0; background: none !important; display: block; overflow: visible; }
             .document { 
                 box-shadow: none; 
                 margin: 0; 
@@ -159,286 +513,362 @@
 </head>
 <body>
 
-<div class="panel">
-    <a href="https://edinei101.github.io/termo_pratico/index.html" style="background:#95a5a6; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; display:block; text-align:center; margin-bottom:12px;">⬅ VOLTAR AO MENU</a>
-
-    <button class="accordion">1. FISCAL E DATAS</button>
-    <div class="panel-content">
-        <div class="group-box">
-            <label>Fiscal Responsável</label>
-            <select id="sel_fiscal" onchange="toggleFiscalOutro()"></select>
-
-            <div id="box_fiscal_outro" style="display: none; border-top: 1px dashed #dcdde1; border-bottom: 1px dashed #dcdde1; padding: 8px 0; margin-bottom: 8px;">
-                <label style="color: var(--blue-semur);">Dados para Assinatura:</label>
-                <label>Nome Completo</label>
-                <input type="text" id="in_fiscal_nome" placeholder="Digite seu nome completo" oninput="update()">
-                <label>Cargo / Função</label>
-                <input type="text" id="in_fiscal_funcao" placeholder="Ex: Fiscal de Obras e Serviços Públicos" oninput="update()">
-                <label>Cadastro / Matrícula</label>
-                <input type="text" id="in_fiscal_cad" placeholder="Ex: nº 12.345" oninput="update()">
+<!-- BARRA SUPERIOR FIXA -->
+<header class="app-topbar">
+    <div class="topbar-left">
+        <a href="https://edinei101.github.io/termo_pratico/index.html" class="btn-back">
+            <span>←</span> Menu
+        </a>
+        <div class="app-brand">
+            <div class="app-brand-title">
+                Termo de Vistoria Circunstanciado
+                <span class="badge-org">SEMURFH</span>
             </div>
-
-            <label>Data do Documento</label>
-            <input type="date" id="in_data_doc" oninput="update()">
-            <label>Data/Hora da Vistoria</label>
-            <div class="row-flex">
-                <input type="date" id="rel_data" oninput="update()">
-                <input type="time" id="rel_hora" oninput="update()">
-            </div>
+            <span class="app-brand-sub">Prefeitura Municipal de Ji-Paraná • Emissão Oficial</span>
         </div>
     </div>
 
-    <button class="accordion">2. PROCESSO E REQUERENTE</button>
-    <div class="panel-content">
-        <div class="group-box">
-            <label>Nº Processo</label>
-            <input type="text" id="in_proc" oninput="update()">
-            <label>Nome do Requerente</label>
-            <input type="text" id="in_nome" oninput="update()">
-            <label>Assunto</label>
-            <input type="text" id="in_assunto" value="AUTORIZAÇÃO DE LAVRATURA DE ESCRITURA PÚBLICA" oninput="update()">
-        </div>
+    <div class="topbar-actions">
+        <button type="button" class="btn-top btn-save" onclick="salvarRascunhoArquivo()">💾 Salvar Rascunho</button>
+        <button type="button" class="btn-top btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 Abrir Rascunho</button>
+        <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
+        <button type="button" class="btn-top btn-clear" onclick="limparFormulario(true)">🧹 Limpar Tudo</button>
+        <button type="button" class="btn-top btn-print" onclick="imprimirDocumento()">🖨️ Gerar Documento / PDF</button>
     </div>
+</header>
 
-    <button class="accordion">3. LOCALIZAÇÃO</button>
-    <div class="panel-content">
-        <div class="group-box">
-            <div class="row-flex">
-                <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
-                <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
-                <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+<div id="toast_msg" class="toast-msg"></div>
+
+<div class="workspace">
+    <!-- PAINEL LATERAL DE PREENCHIMENTO -->
+    <aside class="panel">
+        <div class="panel-intro">
+            <span>Seções do Formulário</span>
+            <span>7 Etapas</span>
+        </div>
+
+        <!-- 1. FISCAL E DATAS -->
+        <div class="acc-card">
+            <button type="button" class="accordion">
+                <span class="acc-title-wrap"><span class="acc-step-badge">1</span> Fiscal e Datas</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content">
+                <div class="group-box">
+                    <label>Fiscal Responsável</label>
+                    <select id="sel_fiscal" onchange="toggleFiscalOutro()"></select>
+
+                    <div id="box_fiscal_outro" class="sub-card" style="display: none;">
+                        <span class="sub-card-title">Dados para Assinatura</span>
+                        <label>Nome Completo</label>
+                        <input type="text" id="in_fiscal_nome" placeholder="Digite seu nome completo" oninput="update()">
+                        <label>Cargo / Função</label>
+                        <input type="text" id="in_fiscal_funcao" placeholder="Ex: Fiscal de Obras e Serviços Públicos" oninput="update()">
+                        <label>Cadastro / Matrícula</label>
+                        <input type="text" id="in_fiscal_cad" placeholder="Ex: nº 12.345" oninput="update()">
+                    </div>
+
+                    <label>Data do Documento</label>
+                    <input type="date" id="in_data_doc" oninput="update()">
+                    
+                    <label>Data e Hora da Vistoria</label>
+                    <div class="row-flex">
+                        <input type="date" id="rel_data" oninput="update()">
+                        <input type="time" id="rel_hora" oninput="update()">
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <button class="accordion">4. QUADRO TÉCNICO</button>
-    <div class="panel-content" id="panel_quadro_tecnico">
-        <div class="group-box">
-            <label>Status Predial</label>
-            <select id="sel_status_predial" onchange="toggleStatusPredial()">
-                <option value="NORMAL">Normal (Sim/Não)</option>
-                <option value="LOTE VAGO">Lote Vago</option>
-                <option value="NÚMERO NÃO INFORMADO">Número não informado</option>
-            </select>
-            
-            <div id="box_predial_corresponde">
-                <label>Número predial corresponde ao lote?</label>
-                <select id="sel_predial_val" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+        <!-- 2. PROCESSO E REQUERENTE -->
+        <div class="acc-card">
+            <button type="button" class="accordion">
+                <span class="acc-title-wrap"><span class="acc-step-badge">2</span> Processo e Requerente</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content">
+                <div class="group-box">
+                    <label>Nº Processo</label>
+                    <input type="text" id="in_proc" placeholder="Ex: 1234/2026" oninput="update()">
+                    <label>Nome do Requerente</label>
+                    <input type="text" id="in_nome" placeholder="Nome completo do interessado" oninput="update()">
+                    <label>Assunto</label>
+                    <input type="text" id="in_assunto" value="AUTORIZAÇÃO DE LAVRATURA DE ESCRITURA PÚBLICA" oninput="update()">
+                </div>
             </div>
+        </div>
 
-            <label>O requerente reside no local?</label>
-            <select id="sel_reside" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-            
-            <label>A localização no mapa corresponde com o campo?</label>
-            <select id="sel_mapa" onchange="handleMapaChange()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
-            
-            <!-- Bloco que só aparece se a localização no mapa for "Sim" -->
-            <div id="box_pos_mapa">
-                <label>As medidas do lote estão corretas?</label>
-                <select id="sel_medidas" onchange="update(); toggleCamposMedidas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
-
-                <div id="box_medidas_campo" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
-                    <label style="color: var(--blue-semur);">Medidas Coletadas em Campo:</label>
+        <!-- 3. LOCALIZAÇÃO -->
+        <div class="acc-card">
+            <button type="button" class="accordion">
+                <span class="acc-title-wrap"><span class="acc-step-badge">3</span> Localização do Imóvel</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content">
+                <div class="group-box">
                     <div class="row-flex">
                         <div>
-                            <label>Frente</label>
-                            <input type="text" id="med_frente" placeholder="Ex: 10m" oninput="update()">
+                            <label>Setor</label>
+                            <input type="text" id="loc_setor" placeholder="Setor" oninput="update()">
                         </div>
                         <div>
-                            <label>Fundos</label>
-                            <input type="text" id="med_fundos" placeholder="Ex: 10m" oninput="update()">
+                            <label>Quadra</label>
+                            <input type="text" id="loc_quadra" placeholder="Quadra" oninput="update()">
                         </div>
+                        <div>
+                            <label>Lote</label>
+                            <input type="text" id="loc_lote" placeholder="Lote" oninput="update()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. QUADRO TÉCNICO -->
+        <div class="acc-card">
+            <button type="button" class="accordion">
+                <span class="acc-title-wrap"><span class="acc-step-badge">4</span> Quadro Técnico</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content" id="panel_quadro_tecnico">
+                <div class="group-box">
+                    <label>Status Predial</label>
+                    <select id="sel_status_predial" onchange="toggleStatusPredial()">
+                        <option value="NORMAL">Normal (Sim/Não)</option>
+                        <option value="LOTE VAGO">Lote Vago</option>
+                        <option value="NÚMERO NÃO INFORMADO">Número não informado</option>
+                    </select>
+                    
+                    <div id="box_predial_corresponde">
+                        <label>Número predial corresponde ao lote?</label>
+                        <select id="sel_predial_val" onchange="update()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+                    </div>
+
+                    <label>O requerente reside no local?</label>
+                    <select id="sel_reside" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                    
+                    <label>A localização no mapa corresponde com o campo?</label>
+                    <select id="sel_mapa" onchange="handleMapaChange()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+                    
+                    <!-- Bloco que só aparece se a localização no mapa for "Sim" -->
+                    <div id="box_pos_mapa">
+                        <label>As medidas do lote estão corretas?</label>
+                        <select id="sel_medidas" onchange="update(); toggleCamposMedidas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+
+                        <div id="box_medidas_campo" class="sub-card" style="display: none;">
+                            <span class="sub-card-title">Medidas Coletadas em Campo</span>
+                            <div class="row-flex">
+                                <div>
+                                    <label>Frente</label>
+                                    <input type="text" id="med_frente" placeholder="Ex: 10m" oninput="update()">
+                                </div>
+                                <div>
+                                    <label>Fundos</label>
+                                    <input type="text" id="med_fundos" placeholder="Ex: 10m" oninput="update()">
+                                </div>
+                            </div>
+                            <div class="row-flex">
+                                <div>
+                                    <label>Lado Direito</label>
+                                    <input type="text" id="med_direito" placeholder="Ex: 25m" oninput="update()">
+                                </div>
+                                <div>
+                                    <label>Lado Esquerdo</label>
+                                    <input type="text" id="med_esquerdo" placeholder="Ex: 25m" oninput="update()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <label>Existe comércio no local?</label>
+                        <select id="sel_comercio" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. DOCUMENTAÇÃO (FLS/ID) -->
+        <div class="acc-card">
+            <button type="button" class="accordion">
+                <span class="acc-title-wrap"><span class="acc-step-badge">5</span> Documentação (Fls/ID)</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content">
+                <div class="group-box">
+                    <div class="row-flex">
+                        <div><label>Req. Fls.</label><input type="text" id="req_fls" placeholder="Fls." oninput="update()"></div>
+                        <div><label>Req. ID</label><input type="text" id="req_id" placeholder="ID" oninput="update()"></div>
                     </div>
                     <div class="row-flex">
-                        <div>
-                            <label>Lado Direito</label>
-                            <input type="text" id="med_direito" placeholder="Ex: 25m" oninput="update()">
-                        </div>
-                        <div>
-                            <label>Lado Esquerdo</label>
-                            <input type="text" id="med_esquerdo" placeholder="Ex: 25m" oninput="update()">
-                        </div>
+                        <div><label>Cert. Fls.</label><input type="text" id="cert_fls" placeholder="Fls." oninput="update()"></div>
+                        <div><label>Cert. ID</label><input type="text" id="cert_id" placeholder="ID" oninput="update()"></div>
                     </div>
-                </div>
-
-                <label>Existe comércio no local?</label>
-                <select id="sel_comercio" onchange="update()"><option value="Não">Não</option><option value="Sim">Sim</option></select>
-            </div>
-        </div>
-    </div>
-
-    <button class="accordion">5. DOCUMENTAÇÃO (FLS/ID)</button>
-    <div class="panel-content">
-        <div class="group-box">
-            <div class="row-flex">
-                <div><label>Req. Fls.</label><input type="text" id="req_fls" oninput="update()"></div>
-                <div><label>Req. ID</label><input type="text" id="req_id" oninput="update()"></div>
-            </div>
-            <div class="row-flex">
-                <div><label>Cert. Fls.</label><input type="text" id="cert_fls" oninput="update()"></div>
-                <div><label>Cert. ID</label><input type="text" id="cert_id" oninput="update()"></div>
-            </div>
-            <div class="row-flex">
-                <div><label>Mapa Fls.</label><input type="text" id="mapa_fls" oninput="update()"></div>
-                <div><label>Mapa ID</label><input type="text" id="mapa_id" oninput="update()"></div>
-            </div>
-            <div class="row-flex">
-                <div><label>Nº OSF</label><input type="text" id="osf_num" oninput="update()"></div>
-                <div><label>OSF ID</label><input type="text" id="osf_id" oninput="update()"></div>
-            </div>
-        </div>
-    </div>
-
-    <button class="accordion" id="acc_btn_metodo">6. MÉTODO E DIVISAS</button>
-    <div class="panel-content" id="acc_panel_metodo">
-        <div class="group-box">
-            <label>Método utilizado</label>
-            <select id="sel_metodo" onchange="update()">
-                <option value="manual com o uso de trena de fibra">Trena de Fibra</option>
-                <option value="manual com o uso de trena a laser">Trena a Laser</option>
-                <option value="eletrônica com o uso de estação total">Estação Total</option>
-                <option value="por imagem">Por Imagem</option>
-            </select>
-            
-            <!-- Bloco de Edificação e Divisas (oculto quando mapa = Não) -->
-            <div id="box_edif_divisas_panel">
-                <label>Edificação</label>
-                <select id="sel_edificacao_tipo" onchange="toggleEdificacaoOutra()">
-                    <option value="alvenaria">Alvenaria</option>
-                    <option value="concreto armado">Concreto Armado</option>
-                    <option value="mista madeira/alvenaria">Mista (madeira/alvenaria)</option>
-                    <option value="metálica">Metálica</option>
-                    <option value="OUTRO">Outra</option>
-                </select>
-
-                <div id="box_edificacao_outra" style="display: none; margin-bottom: 8px;">
-                    <label>Especifique o tipo de edificação</label>
-                    <input type="text" id="in_edificacao_outra" placeholder="Ex: madeira, taipa, etc." oninput="update()">
-                </div>
-
-                <label>Divisas Materializadas?</label>
-                <select id="sel_divisas_val" onchange="update(); toggleCamposDivisas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
-
-                <div id="box_divisas_opcoes" style="display: none; border-top: 1px dashed #dcdde1; padding-top: 8px; margin-top: 8px;">
-                    <label style="color: var(--blue-semur);">Quais divisas estão materializadas?</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
-                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" onchange="updateDivisasIndividuais()"> Frente</label>
-                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" onchange="updateDivisasIndividuais()"> Fundos</label>
-                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Direito</label>
-                        <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+                    <div class="row-flex">
+                        <div><label>Mapa Fls.</label><input type="text" id="mapa_fls" placeholder="Fls." oninput="update()"></div>
+                        <div><label>Mapa ID</label><input type="text" id="mapa_id" placeholder="ID" oninput="update()"></div>
+                    </div>
+                    <div class="row-flex">
+                        <div><label>Nº OSF</label><input type="text" id="osf_num" placeholder="Nº OSF" oninput="update()"></div>
+                        <div><label>OSF ID</label><input type="text" id="osf_id" placeholder="ID OSF" oninput="update()"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <button class="accordion" id="acc_btn_obs">7. OBSERVAÇÕES (LIMITE 4 LINHAS)</button>
-    <div class="panel-content" id="acc_panel_obs">
-        <div class="group-box">
-            <textarea id="in_obs" placeholder="Máximo 4 linhas..." oninput="limitLines(this); update()"></textarea>
-        </div>
-    </div>
+        <!-- 6. MÉTODO E DIVISAS -->
+        <div class="acc-card">
+            <button type="button" class="accordion" id="acc_btn_metodo">
+                <span class="acc-title-wrap"><span class="acc-step-badge">6</span> Método e Divisas</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content" id="acc_panel_metodo">
+                <div class="group-box">
+                    <label>Método utilizado</label>
+                    <select id="sel_metodo" onchange="update()">
+                        <option value="manual com o uso de trena de fibra">Trena de Fibra</option>
+                        <option value="manual com o uso de trena a laser">Trena a Laser</option>
+                        <option value="eletrônica com o uso de estação total">Estação Total</option>
+                        <option value="por imagem">Por Imagem</option>
+                    </select>
+                    
+                    <!-- Bloco de Edificação e Divisas (oculto quando mapa = Não) -->
+                    <div id="box_edif_divisas_panel">
+                        <label>Edificação</label>
+                        <select id="sel_edificacao_tipo" onchange="toggleEdificacaoOutra()">
+                            <option value="alvenaria">Alvenaria</option>
+                            <option value="concreto armado">Concreto Armado</option>
+                            <option value="mista madeira/alvenaria">Mista (madeira/alvenaria)</option>
+                            <option value="metálica">Metálica</option>
+                            <option value="OUTRO">Outra</option>
+                        </select>
 
-    <!-- Todos os Botões na Parte Inferior -->
-    <div class="footer-buttons">
-        <div id="toast_msg" class="toast-msg"></div>
-        
-        <div class="action-row">
-            <button class="btn-action btn-save" onclick="salvarRascunhoArquivo()">💾 SALVAR RASCUNHO</button>
-            <button class="btn-action btn-open" onclick="document.getElementById('input_abrir_rascunho').click()">📂 ABRIR RASCUNHO</button>
-            <input type="file" id="input_abrir_rascunho" accept=".json" style="display: none;" onchange="abrirRascunhoArquivo(event)">
-        </div>
-        
-        <button class="btn-action btn-clear" onclick="limparFormulario(true)">🧹 LIMPAR TUDO</button>
-        <button class="btn-print" onclick="imprimirDocumento()">🖨️ GERAR DOCUMENTO / PDF</button>
-    </div>
-</div>
+                        <div id="box_edificacao_outra" style="display: none;">
+                            <label>Especifique o tipo de edificação</label>
+                            <input type="text" id="in_edificacao_outra" placeholder="Ex: madeira, taipa, etc." oninput="update()">
+                        </div>
 
-<div class="preview-container">
-    <div class="document" id="doc_print">
-        <table class="header-table">
-            <tr>
-                <td style="width: 80px;"><img src="logo.jpg" class="logo-img"></td>
-                <td class="td-text">
-                    <h2>Estado de Rondônia</h2>
-                    <h2>Prefeitura Municipal de Ji-Paraná</h2>
-                    <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
-                </td>
-                <td style="width: 160px;" class="logo-right"><img src="logo2.png" class="logo-img-large"></td>
-            </tr>
-        </table>
-        
-        <div class="doc-title">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
-        
-        <div class="doc-body">
-            <p class="no-indent"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
-            <p class="no-indent"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
-            <p class="no-indent"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
-            
-            <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
-            
-            <table class="tab-tecnica"><tbody id="corpoTabela"></tbody></table>
-            
-            <p id="out_texto_relatorio"></p>
-            
-            <p id="p_metodo">Para a conferência das medidas foi usado método <span id="out_metodo"></span>.</p>
-            
-            <p id="p_intro_constatado">Durante a vistoria, foi constatado que:</p>
-            
-            <div id="block_constatacoes">
-                <p id="li_edificacao" class="item-constatado"></p>
-                <p id="li_divisas" class="item-constatado"></p>
+                        <label>Divisas Materializadas?</label>
+                        <select id="sel_divisas_val" onchange="update(); toggleCamposDivisas()"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+
+                        <div id="box_divisas_opcoes" class="sub-card" style="display: none;">
+                            <span class="sub-card-title">Quais divisas estão materializadas?</span>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_todas" onchange="toggleTodasDivisas()"> <strong>Todas as divisas</strong></label>
+                                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_frente" class="chk-divisa" onchange="updateDivisasIndividuais()"> Frente</label>
+                                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_fundos" class="chk-divisa" onchange="updateDivisasIndividuais()"> Fundos</label>
+                                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_direito" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Direito</label>
+                                <label class="checkbox-item"><input type="checkbox" id="chk_divisa_esquerdo" class="chk-divisa" onchange="updateDivisasIndividuais()"> Lado Esquerdo</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- 7. OBSERVAÇÕES -->
+        <div class="acc-card">
+            <button type="button" class="accordion" id="acc_btn_obs">
+                <span class="acc-title-wrap"><span class="acc-step-badge">7</span> Observações (Máx. 4 linhas)</span>
+                <span class="acc-chevron">▾</span>
+            </button>
+            <div class="panel-content" id="acc_panel_obs">
+                <div class="group-box">
+                    <textarea id="in_obs" rows="4" placeholder="Digite observações complementares (máximo 4 linhas)..." oninput="limitLines(this); update()"></textarea>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE PRÉ-VISUALIZAÇÃO DO DOCUMENTO A4 -->
+    <main class="preview-container">
+        <div class="preview-toolbar">
+            <div><span class="status-dot"></span>Pré-visualização em tempo real</div>
+            <div>Formato: Papel A4 (210 × 297 mm)</div>
+        </div>
+
+        <div class="document" id="doc_print">
+            <table class="header-table">
+                <tr>
+                    <td style="width: 80px;"><img src="logo.jpg" class="logo-img"></td>
+                    <td class="td-text">
+                        <h2>Estado de Rondônia</h2>
+                        <h2>Prefeitura Municipal de Ji-Paraná</h2>
+                        <h3>Secretaria Municipal de Regularização Fundiária e Habitação</h3>
+                    </td>
+                    <td style="width: 160px;" class="logo-right"><img src="logo2.png" class="logo-img-large"></td>
+                </tr>
+            </table>
             
-            <p id="li_conferencia" class="item-constatado"></p>
+            <div class="doc-title">TERMO DE VISTORIA CIRCUNSTANCIADO - TVC</div>
             
-            <div id="quadro_medidas_doc" style="display: none; margin: 6px 0;">
-                <table class="tab-medidas-doc">
-                    <thead>
-                        <tr>
-                            <th colspan="4">Medidas Apuradas em Campo</th>
-                        </tr>
-                        <tr>
-                            <th>Frente</th>
-                            <th>Fundos</th>
-                            <th>Lado Direito</th>
-                            <th>Lado Esquerdo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td id="td_out_frente">___</td>
-                            <td id="td_out_fundos">___</td>
-                            <td id="td_out_direito">___</td>
-                            <td id="td_out_esquerdo">___</td>
-                        </tr>
-                        <tr>
-                            <td colspan="4" class="obs-cell">Obs.: As medidas apresentadas são aproximadas, sendo necessária a conferência pelo responsável técnico.</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="doc-body">
+                <p class="no-indent"><strong>PROCESSO: <span id="out_proc"></span></strong></p>
+                <p class="no-indent"><strong>INTERESSADO (A): <span id="out_nome"></span></strong></p>
+                <p class="no-indent"><strong>ASSUNTO: <span id="out_assunto"></span></strong></p>
+                
+                <p class="loc-center">SETOR: <span id="out_setor"></span> – QUADRA: <span id="out_quadra"></span> – LOTE: <span id="out_lote"></span></p>
+                
+                <table class="tab-tecnica"><tbody id="corpoTabela"></tbody></table>
+                
+                <p id="out_texto_relatorio"></p>
+                
+                <p id="p_metodo">Para a conferência das medidas foi usado método <span id="out_metodo"></span>.</p>
+                
+                <p id="p_intro_constatado">Durante a vistoria, foi constatado que:</p>
+                
+                <div id="block_constatacoes">
+                    <p id="li_edificacao" class="item-constatado"></p>
+                    <p id="li_divisas" class="item-constatado"></p>
+                </div>
+                
+                <p id="li_conferencia" class="item-constatado"></p>
+                
+                <div id="quadro_medidas_doc" style="display: none; margin: 6px 0;">
+                    <table class="tab-medidas-doc">
+                        <thead>
+                            <tr>
+                                <th colspan="4">Medidas Apuradas em Campo</th>
+                            </tr>
+                            <tr>
+                                <th>Frente</th>
+                                <th>Fundos</th>
+                                <th>Lado Direito</th>
+                                <th>Lado Esquerdo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="td_out_frente">___</td>
+                                <td id="td_out_fundos">___</td>
+                                <td id="td_out_direito">___</td>
+                                <td id="td_out_esquerdo">___</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="obs-cell">Obs.: As medidas apresentadas são aproximadas, sendo necessária a conferência pelo responsável técnico.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p id="li_bci" class="item-constatado"></p>
+                
+                <div id="li_obs" class="text-obs" style="display:none;"></div>
+
+                <p>Diante do exposto, encaminha-se ao setor jurídico para o prosseguimento que o caso requer.</p>
+                <p>Sendo o que tinha a relatar, OSF encerrada.</p>
+                
+                <div id="out_data_footer" style="text-align: right; margin-top: 15px; font-weight: normal;"></div>
             </div>
 
-            <p id="li_bci" class="item-constatado"></p>
-            
-            <div id="li_obs" class="text-obs" style="display:none;"></div>
+            <div class="signature">
+                <p>Assinado Eletronicamente</p>
+                <p id="out_nome_fiscal" style="margin-top: 5px;"></p>
+                <p id="out_funcao_fiscal"></p>
+                <p id="out_cad_fiscal"></p>
+            </div>
 
-            <p>Diante do exposto, encaminha-se ao setor jurídico para o prosseguimento que o caso requer.</p>
-            <p>Sendo o que tinha a relatar, OSF encerrada.</p>
-            
-            <div id="out_data_footer" style="text-align: right; margin-top: 15px; font-weight: normal;"></div>
+            <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – Ji-Paraná – RO.</div>
         </div>
-
-        <div class="signature">
-            <p>Assinado Eletronicamente</p>
-            <p id="out_nome_fiscal" style="margin-top: 5px;"></p>
-            <p id="out_funcao_fiscal"></p>
-            <p id="out_cad_fiscal"></p>
-        </div>
-
-        <div class="footer-note">Av. Transcontinental esquina com Av. Menezes Filho, 2305 – Ji-Paraná – RO.</div>
-    </div>
+    </main>
 </div>
 
 <script>
@@ -524,7 +954,7 @@
         limparFormulario(false);
     };
 
-    function exibirMensagem(texto, cor = "#2ecc71") {
+    function exibirMensagem(texto, cor = "#10b981") {
         const toast = document.getElementById('toast_msg');
         toast.style.backgroundColor = cor;
         toast.innerText = texto;
@@ -613,7 +1043,7 @@
                 toggleCamposDivisas();
                 handleMapaChange(false);
                 update();
-                exibirMensagem("📂 Rascunho carregado com sucesso!", "#8e44ad");
+                exibirMensagem("📂 Rascunho carregado com sucesso!", "#7c3aed");
             } catch (err) {
                 alert("Erro ao ler o arquivo de rascunho. Verifique se é um arquivo .json válido.");
             }
@@ -665,7 +1095,7 @@
         update();
 
         if (confirmar) {
-            exibirMensagem("🧹 Campos limpos!", "#e67e22");
+            exibirMensagem("🧹 Campos limpos!", "#d97706");
         }
     }
 
@@ -694,11 +1124,9 @@
         const panelObs = document.getElementById('acc_panel_obs');
 
         if (mapaOk === "Não") {
-            // Oculta os campos seguintes do Quadro Técnico (medidas e comércio) e Edificação/Divisas na Aba 6
             boxPosMapa.style.display = "none";
             boxEdifDivisasPanel.style.display = "none";
 
-            // Abre automaticamente a Aba 7 (Observações) para o usuário preencher se quiser
             if (abrirObsAuto) {
                 if (!btnObs.classList.contains("active")) {
                     btnObs.classList.add("active");
@@ -709,7 +1137,6 @@
                 }, 150);
             }
         } else {
-            // Mostra novamente os campos seguintes do Quadro Técnico e Edificação/Divisas na Aba 6
             boxPosMapa.style.display = "block";
             boxEdifDivisasPanel.style.display = "block";
             toggleCamposMedidas();
@@ -765,6 +1192,16 @@
         }
     }
 
+    function atualizarDestaqueCampos() {
+        document.querySelectorAll('.panel input[type="text"], .panel textarea').forEach(el => {
+            if (el.value.trim() !== "") {
+                el.classList.add('has-value');
+            } else {
+                el.classList.remove('has-value');
+            }
+        });
+    }
+
     function atualizarTituloPDF() {
         document.title = obterNomeBaseArquivo();
     }
@@ -776,6 +1213,7 @@
 
     function update() {
         atualizarTituloPDF();
+        atualizarDestaqueCampos();
 
         const selFiscalVal = document.getElementById('sel_fiscal').value;
         if (selFiscalVal === "OUTRO") {
@@ -855,12 +1293,10 @@
         const quadroMedidasDoc = document.getElementById('quadro_medidas_doc');
         const blockConstatacoes = document.getElementById('block_constatacoes');
 
-        // Método e a frase "Durante a vistoria, foi constatado que:" aparecem sempre
         pMetodo.style.display = "block";
         pIntroConstatado.style.display = "block";
 
         if (mapaOk === "Não") {
-            // Quando Mapa = Não, oculta edificação/divisas, quadro de medidas e BCI
             blockConstatacoes.style.display = "none";
             quadroMedidasDoc.style.display = "none";
             liBci.style.display = "none";
